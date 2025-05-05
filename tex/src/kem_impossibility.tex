@@ -106,24 +106,24 @@
   ciphertext space \setC, encapsulation key space \keyspace
   and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
   where \(\lambda\) is the security parameter.
-  Let \(\Simple = (\Init, \Respond, \Win)\) be the game associated to a simple computational assumption,
-  and let \(\redR : \OWECPA(\KEM) \to \Simple\) be a simple reduction
-  taking \(\OWECPA(\KEM)\) adversaries to adversaries against \Simple.
+  Let \(\Simple = (\Init, \Respond, \Win,\epsilon(\cdot))\) be a simple computational assumption
+  with corresponding game \(\SICA\) as in \TODO{ref.},
+  and let \(\redR\) be a simple reduction
+  taking adversaries against \OWECPA security in \KEM to adversaries against \SICA.
   Let \(\mu,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\).
-  Then there exists an (inefficient) adversary \advA in the \(\OWECPA(\KEM)\) game
+  Then there exists an (inefficient \TODO{?}) adversary \advA against \(\OWECPA\) security in \KEM
   with \(\mu\) users and \(\rho\) encapsulations per user,
   whose success probability is at least
   \begin{equation}\label{ineq:A}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
     - 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
   \end{equation}
-  and an adversary \redM in the game \(\Simple\)
-  whose advantage \(\epsilon_{\redM}\) satisfies
+  and an adversary \redM in the game \(\SICA\) whose advantage \(\epsilon_{\redM}\) satisfies
   \begin{equation}\label{ineq:M}
     \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
     + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
   \end{equation}
-  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \Simple.
+  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \SICA.
 
   Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
   and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
@@ -176,10 +176,10 @@
   Now, for the meta-reduction \redM:
 
   \begin{enumerate}[itemsep=0.1cm]
-    \item Receive the challenge \(c\) from the challenger in the game \Simple.
+    \item Receive the challenge \(c\) from the challenger in the game \SICA (recall Figure \TODO{ref.}).
     \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \redR,
           until Step \ref{advA:corrupt} of \advA is reached.
-          Here, \(\oracle\) denotes the oracle in \redM's instance of the game \Simple,
+          Here, \(\oracle\) denotes the oracle in \redM's instance of the game \SICA,
           which \redM uses to simulate the corresponding oracle in \redR's instance of the game.
     \item\label{advM:rewind} Starting from Step \ref{advA:corrupt} of \advA, run \(\redR^{\oracle}\) with every possible choice of \(i^{*} \in [\mu]\)
           (with the same randomness and state each time, except for the choice of \(i^{*}\)),
@@ -191,7 +191,7 @@
           until Step \ref{advA:brute} of \advA is reached.
           If while simulating \advA in this step, \advA aborts,
           simply continue by running \redR to completion
-          and output whatever \redR outputs in the game \Simple.
+          and output whatever \redR outputs in the game \SICA.
     \item\label{advM:key} Check if one of the secret keys \(\sk_{i^{*}}^{\ell}\) received during the rewinding
           from the previous steps satisfies that
           \(\KEM.\Decaps(sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\)
@@ -203,32 +203,54 @@
           and compute \(k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
           Then let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \redR.
           After this is done, let \(\redR^{\oracle}\) run until termination,
-          and output whatever \(\redR^{\oracle}\) outputs in the game \Simple.
+          and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
   \end{enumerate}
 
   Lemma \ref{lemma:A} will show that inequality \eqref{ineq:A} holds,
   and the running time of \redM is a simple calculation.
-  As for inequality \eqref{ineq:M}, let us consider the execution of \redM
-  and its simulation of \advA towards \redR,
-  along with the ``real'' execution of \(\redR^{\advA}\).
-  Denote the real game by \Simple and the simulated game with \redM by \(\Simple'\).
-  For convenience, we will define the two games over the same probability space.
-  Now let \(s_{\redM}, s_{\redR}\) be the outputs of \redM and \(\redR^{\advA}\) in \(\Simple'\) and \Simple, respectively.
-  Also denote by \(W_{\redM}, W_{\redR}\) the events that \(b' = 1\) in \(\Simple'\) and \Simple, respectively.
-  That is, \(W_{\redR}\) and \(W_{\redR}\) are the ``winning events'' in \redM's and \redR's instances of the game.
-  Since \Simple and \(\Simple'\) are ``simple'' games, the winning events depend only on the outputs of \redM and \redR
-  and the initial states \(\state_{\Simple}, \state_{\Simple'}\) of the games
-  (in particular, they do not depend on the calls made to the oracle \oracle).
-  By assumption, we have \(\state_{\Simple} = \state_{\Simple'}\),
-  since the two games are taken to be over the same probability space.
-  Hence, if \(s_{\redM} = s_{\redR}\), we have \(W_{\redM} \iff W_{\redR}\).
-  Letting \(\epsilon_{\redM}\) and \(\epsilon_{\redR^{\advA}}\) denote the advantages of \redM and \redR, we now get
-  \begin{equation}
-    \abs{\epsilon_{\redM} - \epsilon_{\redR^{\advA}}} = \abs{\prob{W_{\redM}} - \prob{W_{\redR}}} \le \prob{s_{\redM} \ne s_{\redR}},
+  It thus remains to show that
+  \[
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \]
+  where \(\epsilon_{\redR^{\advA}}\) and \(\epsilon_{\redM}\) denote
+  the advantages of \(\redR^{\advA}\) and \redM, respectively, in the game \SICA
+  against the simple computational assumption \(\Simple = (\Init, \Respond, \Win, \epsilon(\cdot))\).
+  Let us denote the instances of the \SICA game played by \redM and \(\redR^{\advA}\)
+  by \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\), respectively.
+  To simplify the analysis, we will define \(\SICA_{\Simple}^{\redM}\)
+  and \(\SICA_{\Simple}^{\redR}\) over the same probability space.
+  More precisely, we assume that the \(\Init\) algorithm of \Simple
+  is given the same random coins at line \TODO{ref.} of Figure \TODO{ref.} in either instance of the \SICA game.
+  From this, it follows that the tuple \((\state_{\Simple},c)\) of state and challenge
+  output by \(\Init\) is identical in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\).
+  Now denote the challenge solutions output by \redM and \(\redR^{\advA}\)
+  in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
+  by \(s_{\redM}\) and \(s_{\redR}\), respectively (corresponding to line \TODO{fix} of Figure \TODO{ref.})
+  (\TODO{refer to \(s\) as a challenge solution in the definition of \SICA}).
+  We claim that
+  \begin{equation}\label{ineq:owecpa:diff}
+    \abs{\epsilon_{\redM} - \epsilon_{\redR^{\advA}}} \le \prob{s_{\redM} \ne s_{\redR}}.
   \end{equation}
-  by the usual difference lemma.
-  Hence it will be enough to bound the probability that \(s_{\redM} \ne s_{\redR}\).
-  Lemma \ref{lemma:M} gives such a bound, from which \eqref{ineq:M} follows.
+  It follows that it will be enough to bound the probability \(\prob{s_{\redM} \ne s_{\redR}}\).
+  We give such a bound in Lemma \ref{lemma:M}, from which the inequality \eqref{ineq:M} will follow.
+
+  To see that \eqref{ineq:owecpa:diff} holds,
+  observe that the winning condition in the game \SICA
+  is defined by the deterministic algorithm \(\Win\)
+  of the simple computational assumption \(\Simple\),
+  which takes as input only the state \(\state_{\Simple}\) which was output by \(\Init\)
+  and a challenge solution \(s\)
+  (in particular, it does not depend on the queries made to the oracle \oracle).
+  Since the states of \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
+  are equal by assumption, we find that if \(s_{\redM} = s_{\redR}\), then
+  \[
+  \SICA_{\Simple}^{\redR} \to 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \SICA_{\Simple}^{\redM} \to 1.
+  \]
+  (\TODO{change arrow notation?}).
+  Hence, in this case, the two instances of the \SICA game will output the same bit \(b'\),
+  and \eqref{ineq:owecpa:diff} follows by a standard ``identical-until-bad'' argument
+  (\TODO{fill in the details.})
 \end{proof}
 
 \begin{lemma}\label{lemma:M}
