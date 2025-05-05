@@ -144,7 +144,7 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
   ciphertext space \setC, encapsulation key space \keyspace
   and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
   where \(\lambda\) is the security parameter.
-  Let \(\Simple = (\Init, \Respond, \Win,\epsilon(\cdot))\) be a simple computational assumption
+  Let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\) be a simple computational assumption
   with corresponding game \(\SICA\) as in \TODO{ref.},
   and let \(\redR\) be a simple reduction
   taking adversaries against \OWECPA security in \KEM to adversaries against \SICA.
@@ -163,10 +163,17 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
   \end{equation}
   where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \SICA.
 
-  Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
-  and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
-  where we consider the time taken to execute \(\advA\) to be constant,
-  then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
+  Moreover, the running time of \redM is of the form
+  \begin{equation}\label{ineq:M:time}
+    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{A}} + (\mu \rho + 1) \cdot T_{\Decaps},
+  \end{equation}
+  where \(T_{\Decaps}\) denotes the running time of the decapsulation algorithm
+  \(\Decaps\) of \KEM, and \(T_{\redR^{A}}\) denotes the running time of \(\redR^{A}\),
+  not including the time taken to execute \(\advA\).
+  % Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
+  % and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
+  % where we consider the time taken to execute \(\advA\) to be constant,
+  % then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
 \end{theorem}
 
 \begin{corollary}[Impossibility of user-tight \OWECPA reductions]
@@ -182,7 +189,8 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
 \end{corollary}
 
 \begin{proof}[Proof of Theorem \ref{thm:owecpa}]
-  We begin by describing the adversary \advA and the meta-reduction \redM.
+  We begin by describing the adversary \advA against \OWECPA security in \KEM
+  and the meta-reduction \redM against the simple computational assumption \Simple.
   Let \(\rho, \mu, t \in \N, \alpha > 0\). Adversary \advA is given as follows.
 
   \begin{enumerate}[itemsep=0.1cm]
@@ -211,14 +219,24 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
           Output \((i^{*}, j^{*}, k_{i^{*}, j^{*}})\) in the \OWECPA game.
   \end{enumerate}
 
-  Now, for the meta-reduction \redM:
+  Observe that Step \ref{advA:brute} of the adversary \advA involves a brute-force search
+  over all \(\sk \in \{0,1\}^{q(\lambda)}\), which is inefficient.
+  The aim of the meta-reduction \redM is to break the simple computational assumption \Simple,
+  by simulating the adversary \advA towards the reduction \redR \emph{efficiently},
+  hence turning \(\redR^{\advA}\) into an efficient adversary against \Simple.
+  Accordingly, \redM is itself an adversary against \Simple,
+  or more precisely an adversary in the game \SICA against \Simple
+  (recall Figure \ref{fig:simple} of Definition \ref{def:simple}).
+  In particular, it has access to an oracle \oracle,
+  which it uses to simulate the corresponding oracle for \(\redR\).
+  We describe \redM in the following.
 
   \begin{enumerate}[itemsep=0.1cm]
-    \item Receive the challenge \(c\) from the challenger in the game \SICA (recall Figure \ref{fig:simple}).
+    \item Receive the challenge \(c\) from the \(\SICA\) challenger.
     \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \redR,
           until Step \ref{advA:corrupt} of \advA is reached.
           Here, \(\oracle\) denotes the oracle in \redM's instance of the game \SICA,
-          which \redM uses to simulate the corresponding oracle in \redR's instance of the game.
+          which \redM uses to simulate the corresponding oracle for \redR.
     \item\label{advM:rewind} Starting from Step \ref{advA:corrupt} of \advA, run \(\redR^{\oracle}\) with every possible choice of \(i^{*} \in [\mu]\)
           (with the same randomness and state each time, except for the choice of \(i^{*}\)),
           and simulate \advA towards \(\redR^{\oracle}\)
@@ -236,7 +254,7 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
           for each \(j \in [\rho] \setminus S_{i^{*}}\).
           If so, pick one such secret key and denote it by \(\sk_{i^{*}}'\).
           If not: abort.
-    \item Finally: use \(\sk_{i^{*}}'\) to simulate the final part of \advA's execution towards \(\redR^{\oracle}\).
+    \item\label{advM:final} Finally: use \(\sk_{i^{*}}'\) to simulate the last part of \advA's execution towards \(\redR^{\oracle}\).
           That is, pick \(j^{*} \sampleR S_{i^{*}}\)
           and compute \(k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
           Then let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \redR.
@@ -244,22 +262,36 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
           and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
   \end{enumerate}
 
-  Lemma \ref{lemma:A} will show that inequality \eqref{ineq:A} holds,
-  and the running time of \redM is a simple calculation.
-  It thus remains to show that
-  \[
-    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
-    + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
-  \]
+  To prove the theorem, we need to prove the inequalities \eqref{ineq:A} and \eqref{ineq:M},
+  and also argue that the running time of the meta-reduction \redM is of the form in \eqref{ineq:M:time}.
+  We defer the proof of \eqref{ineq:A} to Lemma \ref{lemma:A}.
+  As for the running time of \redM,
+  observe that \redM rewinds the reduction \redR exactly \(\mu\) times,
+  and additionally runs \redR to completion exactly once.
+  Moreover, \redM uses the decapsulation algorithm \Decaps of the KEM \KEM
+  at most \(\mu \rho\) times during Step \ref{advM:key},
+  and exactly once in Step \ref{advM:final}.
+  The bound in \eqref{ineq:M:time} now follows.
+
+  It remains to show that \eqref{ineq:M} holds, i.e to bound the difference
+  \(
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}},
+  \)
   where \(\epsilon_{\redR^{\advA}}\) and \(\epsilon_{\redM}\) denote
   the advantages of \(\redR^{\advA}\) and \redM, respectively, in the game \SICA
-  against the simple computational assumption \(\Simple = (\Init, \Respond, \Win, \epsilon(\cdot))\).
+  against the simple computational assumption \Simple.
+  This amounts to showing that the meta-reduction \redM
+  emulates the reduction \redR successfully
+  (by simulating the adversary \advA towards \redR),
+  except with some (hopefully small) probability equal to the right hand side of \eqref{ineq:A}.
+  For this, we will have to analyze the execution of \redM and \(\redR^{A}\)
+  in the game \SICA against \Simple.
   Let us denote the instances of the \SICA game played by \redM and \(\redR^{\advA}\)
   by \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\), respectively.
   To simplify the analysis, we will define \(\SICA_{\Simple}^{\redM}\)
   and \(\SICA_{\Simple}^{\redR}\) over the same probability space.
   More precisely, we assume that the \(\Init\) algorithm of \Simple
-  is given the same random coins at line \ref{code:simple:init} of Figure \ref{fig:simple}
+  is given the same random coins in line \ref{code:simple:init} of Figure \ref{fig:simple}
   in either instance of the \SICA game.
   From this, it follows that the tuple \((\state_{\Simple},c)\) of state and challenge
   output by \(\Init\) is identical in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\).
@@ -274,22 +306,36 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
   It follows that it will be enough to bound the probability \(\prob{s_{\redM} \ne s_{\redR}}\).
   We give such a bound in Lemma \ref{lemma:M}, from which the inequality \eqref{ineq:M} will follow.
 
-  To see that \eqref{ineq:owecpa:diff} holds,
-  observe that the winning condition in the game \SICA
-  is defined by the deterministic algorithm \(\Win\)
-  of the simple computational assumption \(\Simple\),
-  which takes as input only the state \(\state_{\Simple}\) which was output by \(\Init\)
-  and a challenge solution \(s\)
+  Proving that the inequality \eqref{ineq:owecpa:diff} holds
+  essentially amounts to a ``difference lemma'' argument,
+  although we will need to make use of the fact that \Simple is a simple computational assumption,
+  as defined in Definition \ref{def:simple}.
+  Indeed, observe that the winning condition in the game \SICA
+  is defined by the deterministic algorithm \(\Win\) of \(\Simple\),
+  which takes as input only the state \(\state_{\Simple}\) of the game and a challenge solution \(s\)
   (in particular, it does not depend on the queries made to the oracle \oracle).
+  In other words, the winning condition depends only on the state
+  \(\state_{\Simple}\) and the challenge solution \(s\).
   Since the states of \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
   are equal by assumption, we find that if \(s_{\redM} = s_{\redR}\), then
   \[
   \SICA_{\Simple}^{\redR} \to 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \SICA_{\Simple}^{\redM} \to 1.
   \]
   (\TODO{change arrow notation?}).
-  Hence, in this case, the two instances of the \SICA game will output the same bit \(b'\),
-  and \eqref{ineq:owecpa:diff} follows by a standard ``identical-until-bad'' argument
-  (\TODO{fill in the details.})
+  By the usual difference lemma (\TODO{add this}), we get
+  \[
+    \abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}}
+    \le \prob{s_{\redM} \ne s_{\redR}},
+  \]
+  which gives
+  \begin{align}
+    \abs{\epsilon_{\redM} - \epsilon_{\redR^{A}}}
+    & = \abs*{\abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)} - \abs{\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda)}} \notag\\
+    & \le \abs*{(\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)) - (\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda))} \notag\\
+    & = \abs*{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}} \notag\\
+    & \le \prob{s_{\redM} \ne s_{\redR}} \notag,
+  \end{align}
+  as desired.
 \end{proof}
 
 \begin{lemma}\label{lemma:M}
@@ -328,9 +374,9 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
     \item \eventi{2}: \redM receives a secret key \(\sk_{i^{*}}'\) such that
           \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\)
           (meaning that \eventi{1} does not occur),
-          but the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\) formed by \redM's secret key in \(\Simple'\)
+          but the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\) formed by \redM's secret key in \(\SICA_{\Simple}^{\redM}\)
           and the secret key found by \advA in its brute-force search (Step \ref{advA:brute} of \advA)
-          in \Simple is \emph{\(\alpha\)-bad} for the subset \(S_{i^{*}}\).
+          in \(\SICA_{\Simple}^{\redR}\) is \emph{\(\alpha\)-bad} for the subset \(S_{i^{*}}\).
     \item \eventi{3}: Neither \eventi{1} nor \eventi{2} occur, but \eventE still occurs.
   \end{itemize}
 

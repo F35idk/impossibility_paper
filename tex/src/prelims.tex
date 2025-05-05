@@ -101,12 +101,12 @@ We can define a class of interactive computational assumptions which satisfy the
 % This will allow us to prove impossibility results for this class.
 We will call such assumptions \emph{simple computational assumptions}.
 
-\begin{definition}[Simple computational assumption]
-  A simple computational assumption is a tuple \((\Init,\Respond,\Win,\epsilon(\cdot))\),
-  where \(\epsilon : \N \to \R\) is a function,
+\begin{definition}[Simple computational assumption]\label{def:simple}
+  A simple computational assumption is a tuple \((\Init,\Respond,\Win,\kappa(\cdot))\),
+  where \(\kappa : \N \to \R\) is a function,
   \(\Init\) is a probabilistic algorithm
   and \(\Respond\) and \(\Win\) are deterministic algorithms.
-  For a given simple computational assumption \(\Simple = (\Init,\Respond,\Win,\epsilon)\)
+  For a given simple computational assumption \(\Simple = (\Init,\Respond,\Win,\kappa)\)
   and an algorithm \advA, we define an experiment \(\SICA_{\Simple}^{\advA}\)
   according to Figure \ref{fig:simple}.
 
@@ -121,9 +121,9 @@ We will call such assumptions \emph{simple computational assumptions}.
   The advantage of \advA{} against \Simple is given by
   \TODO{advantage notation.}
   \begin{equation}
-    \abs[\big]{\prob{\SICA(\advA,\lambda) \implies 1} - \epsilon(\lambda)}.
+    \abs[\big]{\prob{\SICA(\advA,\lambda) \implies 1} - \kappa(\lambda)}.
   \end{equation}
-  \TODO{say something about epsilon.}
+  \TODO{say something about kappa.}
 \end{definition}
 
 \begin{figure}
