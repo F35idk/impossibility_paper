@@ -1,0 +1,211 @@
+
+\section{Further applications of the meta-reduction}
+
+\subsection{An impossibility result for authenticated key exchange}
+
+\begin{theorem}[Bounding the security loss of an \OwFSst reduction]\label{thm:owfsst}
+  Let \(\prot{} = (\KG, \Init, \Run)\) be a key exchange protocol
+  with \((1-\delta)\)-correctness,
+  message space \setM, session state space \setST, session key space \keyspace
+  and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
+  where \(\lambda\) is the security parameter.
+  Let \(\Simple = (\Init, \Respond, \Win)\) be the game associated to a simple computational assumption,
+  and let \(\redR : \OwFSst(\prot) \to \Simple\) be a simple reduction
+  taking \(\OwFSst(\prot)\) adversaries to adversaries against \Simple.
+  Let \(\mu,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\).
+  Then there exists an (inefficient) adversary \advA in the \(\OwFSst(\prot)\) game
+  with \(\mu\) users and \(2\rho\) sessions per user, whose success probability is at least
+  \begin{equation}\label{ineq:owfsst:A}
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \end{equation}
+  and an adversary \redM in the game \(\Simple\)
+  whose advantage \(\epsilon_{\redM}\) satisfies
+  \begin{equation}\label{ineq:owfsst:M}
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \end{equation}
+  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \Simple.
+
+  Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
+  and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
+  where we consider the time taken to execute \(\advA\) to be constant,
+  then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
+\end{theorem}
+
+\begin{proof}
+  Let \(\ell\) be a bound on the number of times an initiator session
+  is invoked (via a call to \Init or \Run) in an honest execution of the protocol \prot{}.
+  Let \(f : \setSK \times \setM^{l} \times \setST^{l} \to \keyspace \)
+  denote the function that, given as input a secret key \(\sk\),
+  \(\ell\) responder messages \((m^{(k)})_{k \in [\ell]} \subset \setM\) (some of which may be empty)
+  and \(\ell\) initiator session states \((\state^{(k)})_{k \in [\ell]}\),
+  outputs the session key that an initiator session would produce
+  (given the above secret key, states and response messages).
+  By our definition of a key exchange protocol (\TODO{define}),
+  this function is well-defined, since
+  any session key can be deterministicallly produced given the secret key, states and messages of a session.
+  Moreover, the function can be computed efficiently by invoking the \Init and \Run procedures of \prot{}.
+
+  We begin by describing the adversary \advA. It is given as follows:
+  \begin{enumerate}[itemsep=0.1cm]
+    \item Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OwFSst(\prot)\) challenger.
+    \item For each \(i \in [\mu]\), do the following:
+      \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+        \item Let \(i' = i + 1 \mod{\mu}.\)
+        \item For each \(j \in [\rho]\), start an initiator session \(\sID_{i,j}^{I}\) at user \(i\)
+              and a responder session \(\sID_{i,j}^{R}\) at user \(i'\)
+              and forward messages between the two sessions until both of them accept
+              (aborting in the case that either session does not accept).
+        \item For each of the at most \(\ell\) times the initiator session \(\sID_{i,j}^{I}\) is invoked,
+              reveal its current state through a call to \(\RevState(\sID_{i,j}^{I})\).
+              Store the resulting tuple of session states of \(\sID_{i,j}^{I}\) as \((\state_{i,j}^{(k)})_{k \in [\ell]}\).
+        \item Also, store the messages received by \(\sID_{i,j}^{I}\) as \((m_{i,j}^{(k)})_{k \in [\ell]}\).
+      \end{itemize}
+    \item For each \(i \in [\mu]\), repeat the following:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Pick a uniformly random size \(t\) subset \(S_{i} \subset [\rho]\).
+            \item Query \(\Reveal(\sID_{i,j}^{I})\) on each initiator session \(\sID_{i,j}^{I}\)
+                  with \(j \in [\rho] \setminus S_{i}\),
+                  and receive session keys \((K_{i,j})_{j \in [\rho] \setminus S_{i}}\).
+          \end{itemize}
+    \item\label{owfsst:advA:corrupt} Sample \(i^{*} \sampleR [\mu]\). Then repeat the following for each \(i \in [\mu]\) with \(i \ne i^{*}\):
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Query \(\Corrupt(i)\) and receive \(\sk_{i}\).
+            \item For each \(j \in [\rho] \setminus S_{i}\),
+                  compute \(K_{i,j}' \assign f(\sk_{i},(m_{i,j}^{(k)})_{k \in [\ell]},(\state_{i,j}^{(k)})_{k \in [\ell]})\)
+                  and check whether \(K_{i,j}' = K_{i,j}\).
+            \item If any of the above checks fail: abort.
+          \end{itemize}
+     \item\label{owfsst:advA:brute} Brute-force search for a candidate \(\sk_{i^{*}} \in \{0,1\}^{q(\lambda)}\) as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item For each \(\sk \in \{0,1\}^{q(\lambda)}\),
+                  check whether \(K_{i^{*},j}' = K_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\),
+                  where \(K_{i^{*},j}' \assign f(\sk,(m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})\).
+            \item If so: set \(\sk_{i^{*}} := \sk\) and exit the loop. Otherwise: continue.
+            \item If no \(sk_{i^{*}}\) was found during the brute-force search: abort.
+          \end{itemize}
+    \item Sample \(j^{*} \sampleR S_{i^{*}}\),
+          and use \(\sk_{i^{*}}\) to compute a candidate key
+          \(K_{i^{*}, j^{*}} \assign f(\sk_{i^{*}},(m_{i^{*},j^{*}}^{(k)})_{k \in [\ell]},(\state_{i^{*},j^{*}}^{(k)})_{k \in [\ell]})\).
+          Output \((\sID_{i^{*},j^{*}}^{I}, K_{i^{*}, j^{*}})\) in the \OwFSst game.
+  \end{enumerate}
+
+  The meta-reduction \redM is almost identical to the meta-reduction of Theorem \ref{thm:owecpa}.
+  We give it here for the sake of completeness.
+  \begin{enumerate}[itemsep=0.1cm]
+    \item Receive the challenge \(c\) from the challenger in the game \Simple.
+    \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \redR,
+          until Step \ref{owfsst:advA:corrupt} of \advA is reached.
+    \item\label{owfsst:advM:rewind} Starting from Step \ref{owfsst:advA:corrupt} of \advA,
+          run \(\redR^{\oracle}\) with every possible choice of \(i^{*} \in [\mu]\)
+          and simulate \advA towards \(\redR^{\oracle}\)
+          until the brute-force search in Step \ref{owfsst:advA:brute} of \advA is reached.
+          During the \(k\)-th rerun for each \(k \in [\mu]\), make sure to store the output of
+          the \(\Corrupt\)-queries made by \advA to each user \(i \ne k\) as \(\sk_{i}^{k}\).
+    \item\label{owfsst:advM:sample} Rerun \(\redR^{\oracle}\) for a final time,
+          this time for a uniformly random \(i^{*} \sampleR [\mu]\),
+          until Step \ref{owfsst:advA:brute} of \advA is reached.
+          If while simulating \advA in this step, \advA aborts,
+          simply continue by running \redR to completion
+          and output whatever \redR outputs in the game \Simple.
+    \item\label{owfsst:advM:key} Check if one of the secret keys \(\sk_{i^{*}}^{k}\)
+          received during the rewinding from the previous steps satisfies that
+          \(K_{i^{*},j}' = K_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\),
+          where \(K_{i^{*},j}' \assign f(\sk_{i^{*}},(m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})\).
+          If so, pick one such secret key and denote it by \(\sk_{i^{*}}'\).
+          If not: abort.
+    \item Finally: use \(\sk_{i^{*}}'\) to simulate the last part of \advA's execution towards \(\redR^{\oracle}\).
+          That is, pick \(j^{*} \sampleR S_{i^{*}}\) and use \(\sk_{i^{*}}\) to compute
+          \(K_{i^{*}, j^{*}} \assign f(\sk_{i^{*}},(m_{i^{*},j^{*}}^{(k)})_{k \in [\ell]},(\state_{i^{*},j^{*}}^{(k)})_{k \in [\ell]})\).
+          Then let \advA output \((\sID_{i^{*},j^{*}}^{I}, K_{i^{*}, j^{*}})\) to \redR.
+          Afterwards, continue running \(\redR^{\oracle}\) until termination,
+          and output whatever \(\redR^{\oracle}\) outputs in the game \Simple.
+  \end{enumerate}
+
+  Since the proof is very similar to the proof of Theorem \ref{thm:owecpa},
+  we will not redo the details in full here,
+  but rather emphasize the differences to the proof of Theorem \ref{thm:owecpa}
+  and in particular how we apply Lemma \ref{lemma:equiv}.
+  We begin by addressing the claim on the advantage of \redM in \eqref{ineq:owfsst:M}.
+  Similarly to the proof of Theorem \ref{thm:owecpa},
+  this reduces to bounding the probability that the simulation of \advA by \(\redM\)
+  and the real execution of \advA by \(\redR^{A}\) will output different session keys
+  \(K_{i^{*},j^{*}}' \ne K_{i^{*},j^{*}}\).
+  As before, we see that, except with probability \(1/\mu\),
+  \redM will obtain a secret key \(\sk_{i^{*}}'\) in Step \ref{owfsst:advM:key}
+  which ``agrees'' with the revealed session keys \(K_{i^{*},j}\) for \(j \in [\rho] \setminus S_{i^{*}}\)
+  (or \redM will end up simulating \advA trivially because \advA aborts).
+  More precisely, in this case, \redM will obtain a secret key \(\sk_{i^{*}}'\) such that
+  \[
+    K_{i^{*},j} = f(\sk_{i^{*}}',(m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})
+    \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  Hence such a secret key exists, and \advA finds one in its brute-force search as well.
+  Denoting the secret key of \advA by \(\sk_{i^{*}}\), we get
+  \[
+    f(\sk_{i^{*}},(m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})
+    = f(\sk_{i^{*}}',(m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})
+    \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  In other words, using the terminology of Definition \ref{def:agree},
+  the two secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\) of the adversary \advA and meta-reduction \redM
+  agree with respect to \(f\) on every tuple
+  \(((m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]})\) with \(j \in [\rho] \setminus S_{i^{*}}\).
+  Now we can apply Lemma \ref{lemma:equiv}.
+  For this, we will take the set \(\setC\) referred to in Lemma \ref{lemma:equiv}
+  to be \(\setM^{\ell} \times \setST^{l}\)
+  and define the set \(A \subset \setC\) as the set of message-state tuples of the above form on user \(i^{*}\).
+  More precisely, we will let
+  \[
+    A =
+    \{
+    ((m_{i^{*},j}^{(k)})_{k \in [\ell]},(\state_{i^{*},j}^{(k)})_{k \in [\ell]}) : j \in [\rho]
+    \}.
+  \]
+  Also, we take \(S\) to be the subset of \(A\) indexed by the set \(S_{i^{*}}\).
+  Applying the lemma now gives us the bound
+  \[
+    \prob*{(\sk_{i^{*}},\sk_{i^{*}}') \text{ \(\alpha\)-bad for } S_{i^{*}}}
+    \le 4^{d} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \]
+  Finally, we find that, if \((\sk_{i^{*}},\sk_{i^{*}}')\) is not \(\alpha\)-bad for \(S_{i^{*}}\),
+  then the simulation succeeds except with probability \(\alpha\).
+  The bound \eqref{ineq:owfsst:M} now follows.
+
+  As for the bound on the success probability of \advA in \eqref{ineq:owfsst:A},
+  we can argue as follows.
+  Notice that \advA may abort if any of the \(\mu \rho\) sessions fail to accept:
+  by \((1-\delta)\)-correctness, this happens only with probability \(\delta \mu \rho\).
+  This is in fact the only way that \advA will abort,
+  since the checks done in Step \ref{owfsst:advA:corrupt}
+  and the brute-force search in Step \ref{owfsst:advA:corrupt}
+  are both guaranteed to succeed,
+  unlike the case in the proof of Theorem \ref{thm:owecpa},
+  where these steps could fail due to correctness errors.
+  The reason is that, (\TODO{explain this}).
+
+  Given this, it will be enough to argue that the secret key \(\sk_{i^{*}}'\) for user \(i^{*}\)
+  found by \advA's brute-force search and
+  the real secret key \(\sk_{i^{*}}\) of user \(i^{*}\) held by the challenger
+  are likely to produce the same session key \(K_{i^{*},j^{*}}\),
+  given the state and messages \(((m_{i^{*},j^{*}}^{(k)})_{k \in [\ell]},(\state_{i^{*},j^{*}}^{(k)})_{k \in [\ell]})\).
+  Whenever this is the case, \advA wins the \OwFSst game.
+  Indeed, the session \(\sID_{i^{*},j^{*}}^{I}\) picked by the adversary is valid in the \OwFSst game,
+  since it has a single matching session \(\sID_{i^{*},j^{*}}^{R}\) which \TODO{blabla.}
+  To bound the probability that
+  \(\sk_{i^{*}}\) and \((\sk_{i^{*}}')\) produce different session keys \(K_{i^{*},j^{*}}' \ne K_{i^{*},j^{*}}\),
+  we again apply Lemma \ref{lemma:equiv},
+  which explains the \(\alpha\) and
+  \(
+    4^{d} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.
+  \)
+  terms in \eqref{ineq:owfsst:A}.
+\end{proof}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

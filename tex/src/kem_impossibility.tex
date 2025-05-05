@@ -1,0 +1,483 @@
+
+\section{The KEM impossibility result}
+
+\begin{definition}[Agreeing pairs]\label{def:agree}
+  Let \setSK, \setC, \keyspace be sets and
+  let \(f : \setSK \times \setC \to \keyspace\) be a function.
+  Fix a \(c \in \setC\) and a pair \((s,s') \in \setSK^{2}\).
+  Then \(s\) and \(s'\) are said to \emph{agree on \(c\) with respect to \(f\)} if
+  \(
+    f(s,c) = f(s',c).
+  \)
+  When \(f\) is understood from context, we simply say that \(s\) and \(s'\) \emph{agree on \(c\)}.
+  On the other hand, if
+  \(
+    f(s,c) \ne f(s',c),
+  \)
+  then we say that \(s\) and \(s'\) \emph{disagree on \(c\)} (with respect to \(f\)).
+\end{definition}
+
+\begin{definition}[Bad pairs]\label{def:bad}
+  \TODO{pick a better name than ``bad''.}
+  Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
+  Fix a set \(A \subset \setC\) and a subset \(S \subset A\),
+  along with a pair \((s,s') \in \setSK^{2}\) and a real number \(\alpha > 0\).
+  Then \((s,s')\) is said to be \emph{\(\alpha\)-bad for the subset \(S\)} (with respect to \(A\) and \(f\)) if
+  \(s\) and \(s'\) agree on every \(c \in A \setminus S\), yet disagree on more than an \(\alpha\)-fraction of \(c \in S\).
+  In other words, \((s,s')\) is \(\alpha\)-bad for the subset \(S\) if we have
+  \(
+    f(s,c) = f(s',c) \text{ for all } c \in A \setminus S,
+  \)
+  but
+  \(
+    f(s,c) \ne f(s',c) \text{ for more than } \alpha t \text{ distinct } c \in S.
+  \)
+  % When \(\alpha\) is clear from context, we simply say that \((s,s')\) is \emph{bad for the subset \(S\)} (with respect to \(A\) and \(f\)).
+\end{definition}
+
+
+\begin{lemma}[Bounding bad pairs]\label{lemma:equiv}
+  Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
+  Let \(d,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\)
+  and assume that \(\setSK \subset \{0,1\}^{d}\).
+  Fix a set \(A \subset \setC\) of size \(\rho\)
+  and let \(S \subset A\) be a uniformly random size-\(t\) subset of \(A\).
+  Then
+  \begin{align}\label{ineq:equiv}
+    \prob*{\exists (s,s') \in \setSK^{2} : (s,s') \text{ is \(\alpha\)-bad for } S \text{ w.r.t \(A\) and \(f\)}}
+    \le 4^{d} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \end{align}
+\end{lemma}
+
+\begin{proof}
+  In the following, when we say that a pair \((s,s')\) is \(\alpha\)-bad for a subset \(S\),
+  we mean that it is \(\alpha\)-bad for \(S\) \emph{with respect to \(f\) and \(A\)}.
+  We will bound the probability that a fixed pair \((s,s')\) is \(\alpha\)-bad for \(S\),
+  and then take a union bound over all pairs in \(\setSK^{2}\) to get \eqref{ineq:equiv}.
+  So fix a pair \((s,s')\).
+  We claim that \((s,s')\) can be \(\alpha\)-bad for at most \(\binom{\rho - \alpha t}{t - \alpha t}\) size \(t\) subsets of \(A\).
+  To see this, first observe that the only size \(t\) subsets for which \((s, s')\) can be \(\alpha\)-bad
+  are those containing every \(c \in A\) on which \(s\) and \(s'\) disagree.
+  This follows from the definition of ``badness'':
+  if \((s,s')\) is \(\alpha\)-bad for a subset \(S' \subset A\),
+  then \(s\) and \(s'\) must agree on every \(c \in A\) which is outside of \(S'\),
+  and hence they can only disagree \emph{inside} of the subset \(S'\).
+  Assuming there are exactly \(k\) distinct \(c \in A\) on which \(s\) and \(s'\) disagree,
+  the number of size \(t\) subsets for which \((s, s')\) can be \(\alpha\)-bad is thus
+  \[
+    \binom{\rho - k}{t - k}.
+  \]
+  Now, if \((s, s')\) is \(\alpha\)-bad for any size \(t\) subset at all, then \(k > \alpha t\). Hence
+  \[
+    \binom{\rho - k}{t - k} \le \binom{\rho - k}{t - \alpha t} \le \binom{\rho - \alpha t}{t - \alpha t},
+  \]
+  where the first inequality holds if we take
+  \(
+    t - \alpha t \le (\rho - k)/2
+  \)
+  (by the increasing property of binomial coefficients),
+  for which it is sufficient to have
+  \(
+    t - \alpha t \le (\rho - t)/2,
+  \)
+  since \(t \ge k\).
+  Taking e.g \(t \le (\rho - t)/2 \iff t \le \rho / 3\) ensures this.
+
+  Now, since \(S\) is picked uniformly among the \(\binom{\rho}{t}\) size \(t\) subsets
+  of \(A\), we have
+  \begin{align}
+    \prob{(s,s') \text{ \(\alpha\)-bad for } S} = \sum_{S' \subset A}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}\prob{S = S'}}
+    & = {\binom{\rho}{t}}^{-1} \sum_{S' \subset A}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}}\notag\\
+    & \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}, \notag
+  \end{align}
+  where for the final inequality we have used that the pair \((s, s')\) is
+  \(\alpha\)-bad for at most \(\binom{\rho - \alpha t}{t - \alpha t}\) \(t\)-subsets of \(A\).
+  Taking a union bound over all pairs \((s,s') \in \setSK^{2}\) and using that \(\abs{\setSK^{2}} \le \abs{\{0,1\}^{2d}} = 4^{d}\),
+  we get \eqref{ineq:equiv}.
+\end{proof}
+
+\begin{remark}
+  \TODO{Say something about the lack of dependence on the function \(f\) in the lemma (it can be anything).}
+\end{remark}
+
+\begin{theorem}[Bounding the security loss of an \OWECPA reduction]\label{thm:owecpa}
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  with \((1-\delta)\)-correctness,
+  ciphertext space \setC, encapsulation key space \keyspace
+  and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
+  where \(\lambda\) is the security parameter.
+  Let \(\Simple = (\Init, \Respond, \Win)\) be the game associated to a simple computational assumption,
+  and let \(\redR : \OWECPA(\KEM) \to \Simple\) be a simple reduction
+  taking \(\OWECPA(\KEM)\) adversaries to adversaries against \Simple.
+  Let \(\mu,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\).
+  Then there exists an (inefficient) adversary \advA in the \(\OWECPA(\KEM)\) game
+  with \(\mu\) users and \(\rho\) encapsulations per user,
+  whose success probability is at least
+  \begin{equation}\label{ineq:A}
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \end{equation}
+  and an adversary \redM in the game \(\Simple\)
+  whose advantage \(\epsilon_{\redM}\) satisfies
+  \begin{equation}\label{ineq:M}
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \end{equation}
+  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \Simple.
+
+  Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
+  and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
+  where we consider the time taken to execute \(\advA\) to be constant,
+  then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
+\end{theorem}
+
+\begin{corollary}[Impossibility of user-tight \OWECPA reductions]
+  \TODO{write this.}
+\end{corollary}
+
+\begin{corollary}[Impossibility of encapsulation-tight \OWECPA reductions]
+  \TODO{write this.}
+\end{corollary}
+
+\begin{corollary}[Impossibility of tight \INDECPA reductions]
+  \TODO{write this.}
+\end{corollary}
+
+\begin{proof}[Proof of Theorem \ref{thm:owecpa}]
+  We begin by describing the adversary \advA and the meta-reduction \redM.
+  Let \(\rho, \mu, t \in \N, \alpha > 0\). Adversary \advA is given as follows.
+
+  \begin{enumerate}[itemsep=0.1cm]
+    \item Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OWECPA(\KEM)\) challenger.
+    \item Query \(\Enc(i)\) \(\rho\) times for each \(i \in [\mu]\) and receive encapsulations \((c_{i,j})_{i \in [\mu], j \in [\rho]}\).
+    \item For each \(i \in [\mu]\), do the following:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Pick a uniformly random size \(t\) subset \(S_{i} \subset [\rho]\).
+            \item Query \(\Reveal(i,j)\) for each \(j \in [\rho] \setminus S_{i}\)
+                  and receive keys \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\).
+          \end{itemize}
+    \item\label{advA:corrupt} Sample \(i^{*} \sampleR [\mu]\). Then repeat the following for each \(i \in [\mu]\) with \(i \ne i^{*}\):
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Query \(\Corrupt(i)\) and receive \(\sk_{i}\).
+            \item Abort if \(\KEM.\Decaps(\sk_{i},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+          \end{itemize}
+     \item\label{advA:brute} Brute-force search for a candidate \(\sk_{i^{*}} \in \{0,1\}^{q(\lambda)}\) as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item For each \(\sk \in \{0,1\}^{q(\lambda)}\),
+                  check whether \(\KEM.\Decaps(\sk,c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
+            \item If so: set \(\sk_{i^{*}} := \sk\) and exit the loop. Otherwise: continue.
+            \item If no \(sk_{i^{*}}\) was found during the brute-force search: abort.
+          \end{itemize}
+    \item Sample \(j^{*} \sampleR S_{i^{*}}\),
+          and use \(\sk_{i^{*}}\) to compute a candidate key \(k_{i^{*}, j^{*}} \assign \KEM.\Decaps(\sk_{i^{*}},c_{i^{*}, j^{*}})\).
+          Output \((i^{*}, j^{*}, k_{i^{*}, j^{*}})\) in the \OWECPA game.
+  \end{enumerate}
+
+  Now, for the meta-reduction \redM:
+
+  \begin{enumerate}[itemsep=0.1cm]
+    \item Receive the challenge \(c\) from the challenger in the game \Simple.
+    \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \redR,
+          until Step \ref{advA:corrupt} of \advA is reached.
+          Here, \(\oracle\) denotes the oracle in \redM's instance of the game \Simple,
+          which \redM uses to simulate the corresponding oracle in \redR's instance of the game.
+    \item\label{advM:rewind} Starting from Step \ref{advA:corrupt} of \advA, run \(\redR^{\oracle}\) with every possible choice of \(i^{*} \in [\mu]\)
+          (with the same randomness and state each time, except for the choice of \(i^{*}\)),
+          and simulate \advA towards \(\redR^{\oracle}\)
+          until the brute-force search in Step \ref{advA:brute} of \advA is reached.
+          During the \(\ell\)-th rerun, \advA makes \(\Corrupt\)-queries to each user \(i \ne \ell\).
+          For each such query, store the received secret key as \(\sk_{i}^{\ell}\).
+    \item\label{advM:sample} Rerun \(\redR^{\oracle}\) for a final time, this time for a uniformly random \(i^{*} \sampleR [\mu]\),
+          until Step \ref{advA:brute} of \advA is reached.
+          If while simulating \advA in this step, \advA aborts,
+          simply continue by running \redR to completion
+          and output whatever \redR outputs in the game \Simple.
+    \item\label{advM:key} Check if one of the secret keys \(\sk_{i^{*}}^{\ell}\) received during the rewinding
+          from the previous steps satisfies that
+          \(\KEM.\Decaps(sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\)
+          for each \(j \in [\rho] \setminus S_{i^{*}}\).
+          If so, pick one such secret key and denote it by \(\sk_{i^{*}}'\).
+          If not: abort.
+    \item Finally: use \(\sk_{i^{*}}'\) to simulate the final part of \advA's execution towards \(\redR^{\oracle}\).
+          That is, pick \(j^{*} \sampleR S_{i^{*}}\)
+          and compute \(k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
+          Then let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \redR.
+          After this is done, let \(\redR^{\oracle}\) run until termination,
+          and output whatever \(\redR^{\oracle}\) outputs in the game \Simple.
+  \end{enumerate}
+
+  Lemma \ref{lemma:A} will show that inequality \eqref{ineq:A} holds,
+  and the running time of \redM is a simple calculation.
+  As for inequality \eqref{ineq:M}, let us consider the execution of \redM
+  and its simulation of \advA towards \redR,
+  along with the ``real'' execution of \(\redR^{\advA}\).
+  Denote the real game by \Simple and the simulated game with \redM by \(\Simple'\).
+  For convenience, we will define the two games over the same probability space.
+  Now let \(s_{\redM}, s_{\redR}\) be the outputs of \redM and \(\redR^{\advA}\) in \(\Simple'\) and \Simple, respectively.
+  Also denote by \(W_{\redM}, W_{\redR}\) the events that \(b' = 1\) in \(\Simple'\) and \Simple, respectively.
+  That is, \(W_{\redR}\) and \(W_{\redR}\) are the ``winning events'' in \redM's and \redR's instances of the game.
+  Since \Simple and \(\Simple'\) are ``simple'' games, the winning events depend only on the outputs of \redM and \redR
+  and the initial states \(\state_{\Simple}, \state_{\Simple'}\) of the games
+  (in particular, they do not depend on the calls made to the oracle \oracle).
+  By assumption, we have \(\state_{\Simple} = \state_{\Simple'}\),
+  since the two games are taken to be over the same probability space.
+  Hence, if \(s_{\redM} = s_{\redR}\), we have \(W_{\redM} \iff W_{\redR}\).
+  Letting \(\epsilon_{\redM}\) and \(\epsilon_{\redR^{\advA}}\) denote the advantages of \redM and \redR, we now get
+  \begin{equation}
+    \abs{\epsilon_{\redM} - \epsilon_{\redR^{\advA}}} = \abs{\prob{W_{\redM}} - \prob{W_{\redR}}} \le \prob{s_{\redM} \ne s_{\redR}},
+  \end{equation}
+  by the usual difference lemma.
+  Hence it will be enough to bound the probability that \(s_{\redM} \ne s_{\redR}\).
+  Lemma \ref{lemma:M} gives such a bound, from which \eqref{ineq:M} follows.
+\end{proof}
+
+\begin{lemma}\label{lemma:M}
+  \begin{equation}
+    \prob{s_{\redM} \ne s_{\redR}} \le \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \end{equation}
+\end{lemma}
+
+\begin{proof}
+  We start by clarifying some terminology which we will use throughout the proof.
+  Consider a user \(i \in [\mu]\). Let \(c_{i,1}, \ldots, c_{i,\rho}\) be the encapsulations
+  on user \(i\) received by \advA from queries to \(\Enc(i)\) in the
+  \(\OWECPA(\KEM)\) game and let \(S_{i} \subset [\rho]\) be a size \(t\) subset.
+  Borrowing the terminology of Definition \ref{def:bad},
+  we will call a pair of secret keys \((\sk, \sk') \in \bin^{q(\lambda)} \times \bin^{q(\lambda)}\) for the KEM \KEM
+  \emph{\(\alpha\)-bad} for the subset \(S_{i}\) if \(\KEM.\Decaps(\sk, c_{i,j}) = \KEM.\Decaps(\sk', c_{i,j})\)
+  for all \(j \in [\rho] \setminus S_{i}\),
+  but \(\KEM.\Decaps(\sk, c_{i,j}) \ne \KEM.\Decaps(\sk', c_{i,j})\) for more than an \(\alpha\)-fraction of \(j \in S_{i}\).
+  That is, the two secret keys \((\sk,\sk')\) are \(\alpha\)-bad if they agree
+  on every ciphertext \(c_{i,j}\) with \(j\) outside of the set \(S_{i}\),
+  yet they disagree on more than an \(\alpha\)-fraction of ciphertexts
+  \(c_{i,j}\) with \(j\) inside of the set \(S_{i}\).
+
+  From now on, let \eventE denote the event that \(s_{\redM} \ne s_{\redR}\).
+  We partition \eventE into three events, which we define as follows:
+  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+    \item \eventi{1}: \redM aborts in Step \ref{advM:key},
+          because none of the secret keys \(\sk_{i^{*}}^{\ell}\) received by \redM during Step \ref{advM:rewind}
+          satisfy that \(\KEM.\Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
+    \item \eventi{2}: \redM receives a secret key \(\sk_{i^{*}}'\) such that
+          \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\)
+          (meaning that \eventi{1} does not occur),
+          but the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\) formed by \redM's secret key in \(\Simple'\)
+          and the secret key found by \advA in its brute-force search (Step \ref{advA:brute} of \advA)
+          in \Simple is \emph{\(\alpha\)-bad} for the subset \(S_{i^{*}}\).
+    \item \eventi{3}: Neither \eventi{1} nor \eventi{2} occur, but \eventE still occurs.
+  \end{itemize}
+
+  By definition, \(\eventE \subset \eventi{1} \cup \eventi{2} \cup \eventi{3}\).
+  We bound the probability of each event separately, beginning with \eventi{3}.
+
+  If \eventi{3} occurs, then \eventi{1} does not, by definition.
+  Thus, if \eventi{3} occurs, \redM must find a secret key \(\sk_{i^{*}}'\) such that
+  \[
+  \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  Hence such a secret key exists, and so \advA is guaranteed to find such a secret key \(\sk_{i^{*}}\)
+  in its brute-force search in \Simple as well (the two secret keys may not be the same).
+  Also, the two games \Simple and \(\Simple'\) will proceed identically from the point of view of \redR,
+  until it comes time for \advA to output a candidate key \(k_{i^{*},j^{*}}\)
+  (note that this relies on the oracle \oracle being simulated correctly towards \(\redR^{\advA}\),
+  which follows from the fact that the two games \(\Simple'\) and \Simple
+  have identical state \(\state_{\Simple'} = \state_{\Simple}\),
+  so that \(\Respond(\state_{\Simple'},\text{query}) = \Respond(\state_{\Simple},\text{query})\)).
+  Hence, the only way we can have \(s_{\redM} \ne s_{\redR}\)
+  is if the key \(k_{i^{*},j^{*}}'\) computed by \redM differs from the key \(k_{i^{*},j^{*}}\) computed by \advA,
+  i.e
+  \[
+    \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j}).
+  \]
+  But since \eventi{2} also has not occurred (by the definition of \eventi{3}),
+  this can happen with probability at most \(\alpha\).
+  The reason is that, in this case, the pair \((\sk_{i^{*}},\sk_{i^{*}}')\) cannot be
+  \(\alpha\)-bad for the subset \(S_{i^{*}}\)
+  (by the definition of the event \eventi{2}).
+  And we already know that
+  \[
+  \KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  Because \((\sk_{i^{*}}, \sk_{i^{*}}')\) is not \(\alpha\)-bad for \(S_{i^{*}}\),
+  this means that we can only have
+  \(\KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j}) \ne \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j})\)
+  for at most an \(\alpha\)-fraction of \(j \in S_{i^{*}}\).
+  Since \(j^{*}\) is picked uniformly at random from \(S_{i^{*}}\), the probability that
+  \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j})\)
+  is thus at most \(\alpha\).
+  In conclusion,
+  \[
+    \prob{\eventi{3}} \le \alpha.
+  \]
+
+  As for \eventi{1}, we have the bound
+  \[
+    \prob{\eventi{1}} \le 1/\mu.
+  \]
+  This follows from essentially the same type of argument as was used in the paper by \cite{EC:BJLS16} and several others.
+  The intuition is that, if \redM fails to receive a secret key of the desired form,
+  then with high probability over the choice of \(i^{*}\), \advA{} will abort,
+  so that \redM's simulation of \advA succeeds trivially (and \eventi{1} does not occur).
+  A more formal argument follows.
+
+  Note that, since we are analyzing the execution of \redM and \(\redR^{\advA}\) over the same probability space,
+  we will make the assumption that the choice of \(i^{*} \sampleR [\mu]\) in Step \ref{advM:sample} of \redM in \(\Simple'\)
+  is the same as that in Step \ref{advA:corrupt} of the ``real'' execution of \advA by \(\redR^{\advA}\) in \Simple.
+
+  If for this choice of \(i^{*}\), the simulation of \advA by \redM aborts (during Step \ref{advA:corrupt} of \advA),
+  then \redM simply runs \redR to completion without doing any further simulation of \advA, and \eventi{1} cannot occur.
+  Hence, for \eventi{1} to occur, \(i^{*}\) must be such that \advA does not abort, which by Step \ref{advA:corrupt} of \advA
+  means that for every \(i \in [\mu] \setminus \{i^{*}\}\) we must have \(\KEM.\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\) for each \(j \in [\rho] \setminus S_{i}\).
+
+  Now, if \eventi{1} occurs, then \redM fails to find a secret key satisfying this condition for user \(i^{*}\),
+  during its rewinding of \advA.
+  % But this means, that, for each rewind of \advA except the one in which the current \(i^{*}\) is picked,
+  In particular, this means that, during the \(\ell\)-th rewind of \advA, for each \(\ell \ne i^{*}\),
+  the secret key \(\sk_{i^{*}}^{\ell}\) received by \advA from its query to \(\Corrupt(i^{*})\)
+  does not satisfy this condition, causing \advA to abort in this particular rewind.
+  Thus, the only way that \eventi{1} can occur is if
+  for every choice \(i^{*} \in [\mu]\) except the current one, \advA will abort.
+  Since \(i^{*}\) was chosen uniformly at random from \([\mu]\),
+  the probability of this happening is at most \(1/\mu\).
+
+  Finally, we bound the probability of the event \eventi{2}.
+  For this, we will apply Lemma \ref{lemma:equiv}.
+  Recall that \eventi{2} is the event that
+  \redM receives a secret key \(\sk_{i^{*}}'\) such that
+  \[
+  \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}},
+  \]
+  but the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\) formed by \redM's secret key and the secret key found by \advA
+  is \emph{\(\alpha\)-bad} for the subset \(S_{i^{*}}\).
+  As before, since \redM finds a secret key \(\sk_{i^{*}}'\) in \(\Simple'\) satisfying that
+  \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}\),
+  \advA will find such a secret key in \Simple as well, so it makes sense to speak of the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\).
+  From the definition of \eventi{2}, it should be clear that
+  \begin{equation}\label{ineq:M:bad}
+    \prob*{\eventi{2}} \le \prob{\text{There exists a pair } (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}.
+  \end{equation}
+  Now we can apply Lemma \ref{lemma:equiv} to bound the right hand side of \eqref{ineq:M:bad}.
+  To do this, we will need to assign the sets \(\setSK, \setC, \keyspace\) referred to in the lemma,
+  and also pick the function \(f : \setSK \times \setC \to \keyspace\),
+  the set \(A \subset \setC\) of ciphertexts and the parameters \(d,\rho,t,\alpha\).
+  We will let the sets \(\setSK, \setC, \keyspace\)
+  be the same as they are here (i.e they will be the secret key space, ciphertext space and encapsulation key space of the KEM \KEM), and likewise for the parameters \(\rho, t, \alpha\).
+  We then set \(d = q(\lambda)\),
+  and let the function \(f\) be the decapsulation function \(\KEM.\Decaps\).
+  By our definition of a KEM (\TODO{define}), the decapsulation function
+  \(\KEM.\Decaps\) is a deterministic function from \(\setSK \times \setC\) to \(\keyspace\),
+  and hence it makes sense to use it in our application of Lemma \ref{lemma:equiv}.
+  Now we let \(A\) be the set of ciphertexts received on user \(i^{*}\), that is
+  \[
+    A = \{c_{i^{*},1},c_{i^{*},2},\ldots,c_{i^{*},\rho}\},
+  \]
+  and we set \(S\) to be the set of ciphertexts in \(A\) indexed by \(S_{i^{*}}\).
+  With this, Lemma \ref{lemma:equiv} gives us
+  \[
+    \prob{\exists (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}
+    \le 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \]
+
+  Note that, for the application of Lemma \ref{lemma:equiv} to be formally correct here,
+  we would actually need to verify that there are no duplicate ciphertexts
+  \(c_{i^{*},j} = c_{i^{*},j'}\) among the ciphertexts received on user \(i^{*}\).
+  Otherwise, the set \(A\) may not have size \(\rho\)
+  (it could then be strictly smaller than \(\rho\)),
+  and the set \(S\) could likewise be smaller than \(t\),
+  so that the lemma would not apply.
+  Now, for any secure KEM, we expect the probability of such a
+  duplicate \(c_{i^{*},j} = c_{i^{*},j'}\) to be negligible in the real \OWECPA game.
+  Nevertheless, we cannot assume that the same will hold
+  when the reduction \redR acts as the challenger,
+  as \redR could conceivably produce such duplicates regardless
+  (recall that the reduction is free to do whatever it wishes, and does not need to
+  faithfully emulate the real challenger in the \OWECPA game).
+  However, if \advA ever receives such a duplicate \(c_{i^{*},j} = c_{i^{*},j'}\),
+  then it can trivially win the \OWECPA game by revealing one of the ciphertexts and attacking the other.
+  In this case, the adversary \advA's attack becomes efficient,
+  and so we can simulate it efficiently towards \redR without issue.
+  Hence we can ignore this technical detail.
+
+  Combining the bounds for \(\prob{\eventi{1}}\), \(\prob{\eventi{2}}\) and \(\prob{\eventi{3}}\), we now get
+  \begin{align}\label{ineq:E}
+    \prob{\eventE} \le 1 / \mu + \alpha +
+    4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right. && (t \le \rho / 3),
+  \end{align}
+  which proves the lemma.
+\end{proof}
+
+\begin{lemma}\label{lemma:A}
+  \begin{equation}
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \end{equation}
+\end{lemma}
+
+\begin{proof}
+  Let us first bound the probability that \advA aborts before outputting anything.
+  This can happen in two ways:
+  \begin{enumerate}
+    \item\label{advA:abort1} One of the secret keys \(\sk_{i}\) received by \advA
+          via a \(\Corrupt(i)\) query does not satisfy that \(\KEM.\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\)
+          for every \(j \in [\rho] \setminus S_{i}\).
+    \item\label{advA:abort2} During \advA's brute-force search, \advA fails to find a candidate secret key \(\sk_{i^{*}}\)
+          such that \(\KEM.\Decaps(\sk_{i^{*}}, c_{i^{*},j}) = k_{i^{*},j}\) for every \(j \in [\rho] \setminus S_{i^{*}}\).
+  \end{enumerate}
+  Since we are in the real game with an honest challenger,
+  all of the secret keys \(\sk_{i}\) used by the challenger
+  were validly generated, and the same holds for the encapsulations \(c_{i,j}\).
+  Thus, by \((1 - \delta)\)-correctness,
+  we will have \(\KEM.\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\)
+  except with probability \(\delta \mu \rho\),
+  where \(k_{i,j}\) denotes the key that was generated along with \(c_{i,j}\) by the challenger.
+  In this case, clearly \ref{advA:abort1} cannot occur.
+  Likewise, \ref{advA:abort2} will not occur,
+  since the secret key \(\sk_{i^{*}}\) held by the challenger for user \(i^{*}\)
+  satisfies that \(\KEM.\Decaps(\sk_{i^{*}}, c_{i,j}) = k_{i,j} \text{ for every } j \in [\rho] \setminus S_{i^{*}}\).
+  Because of this, a secret key \(\sk_{i^{*}}\) of the desired form exists,
+  and \advA's brute-force search will not fail.
+  Thus, the probability that \advA aborts before outputting anything is at most \(\delta \mu \rho\).
+
+  Now, if neither \ref{advA:abort1} nor \ref{advA:abort2} occur,
+  then \advA wins so long as the key
+  \[
+  k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*},j^{*}}, c_{i^{*},j^{*}})
+  \]
+  computed by \advA equals the true key corresponding to the encapsulation \(c_{i^{*},j^{*}}\) in the game.
+  Applying Lemma \ref{lemma:equiv},
+  we find that the pair of secret keys for user \(i^{*}\) held by \advA
+  and the challenger in the \(\OWECPA(\KEM)\) game is
+  \(\alpha\)-bad for the subset \(S_{i^{*}}\) with probability at most
+  \(
+    4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \)
+  Thus the two secret keys will produce identical decapsulations of \(c_{i^{*},j^{*}}\), except with probability
+  \(
+    \alpha +
+  4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \)
+  Also, we may assume as before that
+  \(\KEM.\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\),
+  from which we find that the decapsulation of \(c_{i^{*},j^{*}}\)
+  under the challenger's secret key for user \(i^{*}\)
+  equals the true key in the \(\OWECPA(\KEM)\) game.
+  Hence in this case, \advA wins except with probability
+  \(
+  \alpha
+  + 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right..
+  \)
+
+  Summing the failure probabilities, we now get
+  \[
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{q(\lambda)} \cdot \left. \binom{\rho - \alpha t}{t - \alpha t} \middle/ \binom{\rho}{t} \right.,
+  \]
+  as desired.
+\end{proof}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
