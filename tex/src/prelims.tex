@@ -1,6 +1,9 @@
 
 \section{Preliminaries}
 
+\subsection{Key exchange mechanisms}
+
+\TODO{Add definition of a KEM.}
 
 \begin{definition}[\((1-\delta)\)-correctness of a KEM]\label{def:corr}
   Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
@@ -10,6 +13,52 @@
     \prob{\Decaps{}(\sk,c) \ne k : \params \assign \Setup{}(1^{\lambda}), (\sk,\pk) \assign \KG{}(\params), (c,k) \assign \Encaps{}(\pk)} \le \delta (\lambda)
   \end{equation}
 \end{definition}
+
+
+\begin{definition}[OW-ECPA security]\label{def:OWECPA_sec}
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  and let \advA{} be an adversary in the \OWECPA{} game against \KEM (see Figure \ref{fig:ecpa}).
+  Then the advantage of \advA{} against \OWECPA in \KEM is given by
+  \begin{equation}
+    \abs*{\prob{\OWECPA{}(\advA,\KEM,\mu,\rho,\lambda) \implies 1} - 1/\abs{\keyspace}},
+  \end{equation}
+  where \(\keyspace = \keyspace{}(\params)\) is the encapsulation key space of \KEM.
+  \TODO{advantage notation?}
+\end{definition}
+
+\begin{figure}[h]
+  \begin{pcvstack}[center,space=0.5cm]
+    \proc{Game \OWECPA{}$(\advA, \KEM, \mu, \rho, \lambda)$}{
+      L_{rev}, L_{corr} \assign \List.\\
+      \params \assign \KEM{}.\Setup{}(1^{\lambda}).\\
+      \pcfor i \in [\mu]:\\
+      \t (\sk_i,\pk_i) \assign \KG(\params).\\
+      \oracle := \{\Enc, \Reveal, \Corrupt\}.\\
+      (i^*, j^*, k^*) \assign \advA^{\oracle}(\params,\pk_1, \ldots, \pk_{\mu}).\\
+      \pcif i^{*} \notin L_{corr} \land i^{*} \notin L_{rev} \land k^{*} = k_{i^{*},j^{*}}:\\
+      \t \pcreturn 1.\\
+      \pcelse:\\
+      \t \pcreturn 0.
+    }
+    \proc{Oracle \Enc{}$(i)$}{
+      \text{Assume this is the \(j\)-th query to \Enc{} on user \(i\) with } j \in [\rho].\\
+      (c_{i,j}, k_{i,j}) \assign \Encaps{}(\pk_i).\\
+      \pcreturn c_{i,j}.
+    }
+    \begin{pchstack}[space=1cm]
+      \proc{Oracle \Reveal{}$(i,j)$}{
+        L_{rev} \assign L_{rev} \cup \{(i,j)\}.\\
+        \pcreturn k_{i,j}.
+      }
+      \proc{Oracle \Corrupt{}$(i)$}{
+        L_{corr} \assign L_{corr} \cup \{i\}.\\
+        \pcreturn \sk_i.
+      }
+    \end{pchstack}
+  \end{pcvstack}\caption{}\label{fig:ecpa}
+\end{figure}
+
+\TODO{define simple reductions.}
 
 \subsection{Computational assumptions}
 
