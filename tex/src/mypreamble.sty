@@ -104,33 +104,34 @@
 \DeclarePairedDelimiterX{\abs}[1]{\lvert}{\rvert}{#1}
 \DeclarePairedDelimiterX{\norm}[1]{\lVert}{\rVert}{#1}
 
-\usepackage{amsthm}
-
-\newtheoremstyle{boldthmstyle}%
-{}{}%
-{\itshape}{}%
-{\bfseries}{.}%
-{ }%
-{}
-
-\newtheoremstyle{def}%
-{}{}%
-{\rmfamily}{}%
-{\bfseries}{.}%
-{ }%
-{}
-
-\theoremstyle{boldthmstyle}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[section]
-\newtheorem{lemma}{Lemma}[section]
-\newtheorem{claim}{Claim}[section]
-
-\theoremstyle{def}
-\newtheorem{definition}{Definition}[section]
-
-\newtheorem{remark}{Remark}[section]{\bfseries}{\rmfamily}
-\newtheorem*{proofidea}{Proof idea}{\itshape}{\rmfamily}
+% The following is commented out in order not to conflict with llncs.
+% \usepackage{amsthm}
+%
+% \newtheoremstyle{boldthmstyle}%
+% {}{}%
+% {\itshape}{}%
+% {\bfseries}{.}%
+% { }%
+% {}
+%
+% \newtheoremstyle{def}%
+% {}{}%
+% {\rmfamily}{}%
+% {\bfseries}{.}%
+% { }%
+% {}
+%
+% \theoremstyle{boldthmstyle}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{corollary}{Corollary}[section]
+% \newtheorem{lemma}{Lemma}[section]
+% \newtheorem{claim}{Claim}[section]
+%
+% \theoremstyle{def}
+% \newtheorem{definition}{Definition}[section]
+%
+% \newtheorem{remark}{Remark}[section]{\bfseries}{\rmfamily}
+% \newtheorem*{proofidea}{Proof idea}{\itshape}{\rmfamily}
 
 
 \newcommand{\blankpage}{
