@@ -21,7 +21,7 @@
   \TODO{pick a better name than ``bad''.}
   Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
   Fix a set \(A \subset \setC\) and a subset \(S \subset A\),
-  along with a pair \((s,s') \in \setSK^{2}\) and a real number \(\alpha > 0\).
+  along with a pair \((s,s') \in \setSK^{2}\) and a real number \(\alpha \in (0,1)\).
   Then \((s,s')\) is said to be \emph{\(\alpha\)-bad for the subset \(S\)} (with respect to \(A\) and \(f\)) if
   \(s\) and \(s'\) agree on every \(c \in A \setminus S\), yet disagree on more than an \(\alpha\)-fraction of \(c \in S\).
   In other words, \((s,s')\) is \(\alpha\)-bad for the subset \(S\) if we have
@@ -30,15 +30,15 @@
   \)
   but
   \(
-    f(s,c) \ne f(s',c) \text{ for more than } \alpha t \text{ distinct } c \in S.
+    f(s,c) \ne f(s',c) \text{ for more than } \alpha \abs{S} \text{ distinct } c \in S.
   \)
   % When \(\alpha\) is clear from context, we simply say that \((s,s')\) is \emph{bad for the subset \(S\)} (with respect to \(A\) and \(f\)).
 \end{definition}
 
 
-\begin{lemma}[Bounding bad pairs]\label{lemma:equiv}
+\begin{lemma}[Probability of bad pairs]\label{lemma:equiv}
   Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
-  Let \(d,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\)
+  Let \(\alpha \in (0,1)\) and \(d,\rho,t \in \N\) with \(t \le \rho/3\),
   and assume that \(\setSK \subset \{0,1\}^{d}\).
   Fix a set \(A \subset \setC\) of size \(\rho\)
   and let \(S \subset A\) be a uniformly random size-\(t\) subset of \(A\).
@@ -64,8 +64,8 @@
   and hence they can only disagree \emph{inside} of the subset \(S'\).
   Now assume that there are exactly \(k\) distinct \(c \in A\) on which \(s\) and \(s'\)
   disagree, and denote the set of these \(c \in A\) by \(D\).
-  Then, by the preceding argument, the number of size \(t\) subsets for which \((s, s')\)
-  can be \(\alpha\)-bad equals the number of size \(t\) subsets of \(A\) containing the set \(D\).
+  Then, by the preceding argument, the number of size \(t\) subsets of \(A\) for which \((s, s')\)
+  can be \(\alpha\)-bad equals the number of size \(t\) subsets of \(A\) that contain \(D\).
   But this is exactly
   \[
     \binom{\abs{A} - \abs{D}}{t - \abs{D}} = \binom{\rho - k}{t - k}.
@@ -84,23 +84,26 @@
     t - \alpha t \le (\rho - t)/2,
   \)
   since \(t \ge k\).
-  Taking e.g \(t \le (\rho - t)/2 \iff t \le \rho / 3\) ensures this.
+  Taking e.g \(t \le (\rho - t)/2 \iff t \le \rho / 3\) ensures this,
+  since \(\alpha t \ge 0\).
 
   Now denote the family of all size \(t\) subsets \(S' \subset A\) for which \((s,s')\) is \(\alpha\)-bad by \(\mathcal{F}\).
-  Then, as we have seen, \(\abs{F} \le \binom{\rho - \alpha t}{t - \alpha t}\).
+  Then, as we have seen, \(\abs{\mathcal{F}} \le \binom{\rho - \alpha t}{t - \alpha t}\).
   And since \(S\) is picked uniformly among the \(\binom{\rho}{t}\) size \(t\) subsets
   of \(A\), we have
-  \begin{equation}
+  \begin{equation}\label{ineq:badprob}
     \prob{(s,s') \text{ \(\alpha\)-bad for } S}
     = \sum_{S' \in \mathcal{F}}{\prob*{S = S'}}
     = \sum_{S' \in \mathcal{F}}{{\binom{\rho}{t}}^{-1}}
-    \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}. \notag
+    \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}.
   \end{equation}
   % where for the final inequality we have used that \(\abs{\mathcal{F}} \le \binom{\rho - \alpha t}{t - \alpha t}\).
   % the pair \((s, s')\) is
   % \(\alpha\)-bad for at most \(\binom{\rho - \alpha t}{t - \alpha t}\) size \(t\) subsets of \(A\).
-  Taking a union bound over all pairs \((s,s') \in \setSK^{2}\) and using that \(\abs{\setSK^{2}} \le \abs{\{0,1\}^{2d}} = 4^{d}\),
-  we get \eqref{ineq:equiv}.
+  Remembering that \(\setSK \subset \{0,1\}^{d}\) and hence
+  \(\abs{\setSK^{2}} \le \abs{\{0,1\}^{2d}} = 4^{d}\),
+  we now get \eqref{ineq:equiv} by taking a union bound over all pairs \((s,s') \in \setSK^{2}\)
+  and applying the inequality in \eqref{ineq:badprob}.
 \end{proof}
 
 \begin{remark}
