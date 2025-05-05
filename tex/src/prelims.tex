@@ -20,7 +20,7 @@
   and let \advA{} be an adversary in the \OWECPA{} game against \KEM (see Figure \ref{fig:ecpa}).
   Then the advantage of \advA{} against \OWECPA in \KEM is given by
   \begin{equation}
-    \abs*{\prob{\OWECPA{}(\advA,\KEM,\mu,\rho,\lambda) \implies 1} - 1/\abs{\keyspace}},
+    \abs*{\prob{\OWECPA{}_{\KEM}^{\advA}(\mu,\rho,\lambda) \implies 1} - 1/\abs{\keyspace}},
   \end{equation}
   where \(\keyspace = \keyspace{}(\params)\) is the encapsulation key space of \KEM.
   \TODO{advantage notation?}
@@ -28,7 +28,7 @@
 
 \begin{figure}
   \begin{pcvstack}[center,space=0.5cm]
-    \proc{Game \OWECPA{}$(\advA, \KEM, \mu, \rho, \lambda)$}{
+    \proc{Game $\OWECPA_{\KEM}^{\advA}(\mu, \rho, \lambda)$}{
       L_{rev}, L_{corr} \assign \List.\\
       \params \assign \KEM{}.\Setup{}(1^{\lambda}).\\
       \pcfor i \in [\mu]:\\
