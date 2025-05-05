@@ -62,10 +62,13 @@
   if \((s,s')\) is \(\alpha\)-bad for a subset \(S' \subset A\),
   then \(s\) and \(s'\) must agree on every \(c \in A\) which is outside of \(S'\),
   and hence they can only disagree \emph{inside} of the subset \(S'\).
-  Assuming there are exactly \(k\) distinct \(c \in A\) on which \(s\) and \(s'\) disagree,
-  the number of size \(t\) subsets for which \((s, s')\) can be \(\alpha\)-bad is thus
+  Now assume that there are exactly \(k\) distinct \(c \in A\) on which \(s\) and \(s'\)
+  disagree, and denote the set of these \(c \in A\) by \(D\).
+  Then, by the preceding argument, the number of size \(t\) subsets for which \((s, s')\)
+  can be \(\alpha\)-bad equals the number of size \(t\) subsets of \(A\) containing the set \(D\).
+  But this is exactly
   \[
-    \binom{\rho - k}{t - k}.
+    \binom{\abs{A} - \abs{D}}{t - \abs{D}} = \binom{\rho - k}{t - k}.
   \]
   Now, if \((s, s')\) is \(\alpha\)-bad for any size \(t\) subset at all, then \(k > \alpha t\). Hence
   \[
@@ -86,8 +89,8 @@
   Now, since \(S\) is picked uniformly among the \(\binom{\rho}{t}\) size \(t\) subsets
   of \(A\), we have
   \begin{align}
-    \prob{(s,s') \text{ \(\alpha\)-bad for } S} = \sum_{S' \subset A}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}\prob{S = S'}}
-    & = {\binom{\rho}{t}}^{-1} \sum_{S' \subset A}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}}\notag\\
+    \prob{(s,s') \text{ \(\alpha\)-bad for } S} = \sum_{\substack{S' \subset A\\\abs{S'} = t}}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}\prob{S = S'}}
+    & = {\binom{\rho}{t}}^{-1} \sum_{\substack{S' \subset A\\\abs{S'} = t}}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}}\notag\\
     & \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}, \notag
   \end{align}
   where for the final inequality we have used that the pair \((s, s')\) is
