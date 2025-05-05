@@ -86,15 +86,19 @@
   since \(t \ge k\).
   Taking e.g \(t \le (\rho - t)/2 \iff t \le \rho / 3\) ensures this.
 
-  Now, since \(S\) is picked uniformly among the \(\binom{\rho}{t}\) size \(t\) subsets
+  Now denote the family of all size \(t\) subsets \(S' \subset A\) for which \((s,s')\) is \(\alpha\)-bad by \(\mathcal{F}\).
+  Then, as we have seen, \(\abs{F} \le \binom{\rho - \alpha t}{t - \alpha t}\).
+  And since \(S\) is picked uniformly among the \(\binom{\rho}{t}\) size \(t\) subsets
   of \(A\), we have
-  \begin{align}
-    \prob{(s,s') \text{ \(\alpha\)-bad for } S} = \sum_{\substack{S' \subset A\\\abs{S'} = t}}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}\prob{S = S'}}
-    & = {\binom{\rho}{t}}^{-1} \sum_{\substack{S' \subset A\\\abs{S'} = t}}{\prob{(s, s') \text{ \(\alpha\)-bad for } S'}}\notag\\
-    & \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}, \notag
-  \end{align}
-  where for the final inequality we have used that the pair \((s, s')\) is
-  \(\alpha\)-bad for at most \(\binom{\rho - \alpha t}{t - \alpha t}\) \(t\)-subsets of \(A\).
+  \begin{equation}
+    \prob{(s,s') \text{ \(\alpha\)-bad for } S}
+    = \sum_{S' \in \mathcal{F}}{\prob*{S = S'}}
+    = \sum_{S' \in \mathcal{F}}{{\binom{\rho}{t}}^{-1}}
+    \le {\binom{\rho}{t}}^{-1} \binom{\rho - \alpha t}{t - \alpha t}. \notag
+  \end{equation}
+  % where for the final inequality we have used that \(\abs{\mathcal{F}} \le \binom{\rho - \alpha t}{t - \alpha t}\).
+  % the pair \((s, s')\) is
+  % \(\alpha\)-bad for at most \(\binom{\rho - \alpha t}{t - \alpha t}\) size \(t\) subsets of \(A\).
   Taking a union bound over all pairs \((s,s') \in \setSK^{2}\) and using that \(\abs{\setSK^{2}} \le \abs{\{0,1\}^{2d}} = 4^{d}\),
   we get \eqref{ineq:equiv}.
 \end{proof}
