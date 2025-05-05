@@ -96,20 +96,20 @@ Second, the ``winning condition'' in the Strong Diffie-Hellman game is essential
 the queries made to the Strong Diffie-Hellman oracle.
 \TODO{explain why this is the case.}
 
-We can define a class of interactive computational assumptions in which the above two criteria are met.
+We can define a class of interactive computational assumptions which satisfy the above two criteria.
+This will allow us to prove impossibility results for this class.
 We will call such an assumption a \emph{simple computational assumption}.
-\TODO{say something more.}
 
 \begin{definition}[Simple computational assumption]
-  A simple computational assumption is a tuple \((\Init,\Respond,\Win,\epsilon)\),
+  A simple computational assumption is a tuple \((\Init,\Respond,\Win,\epsilon(\cdot))\),
   where \(\epsilon : \N \to \R\) is a function,
   \(\Init\) is a probabilistic algorithm
   and \(\Respond\) and \(\Win\) are deterministic algorithms.
-  For a given simple computational assumption \((\Init,\Respond,\Win,\epsilon)\),
-  we define an experiment \(\Simple\) as follows:
+  For a given simple computational assumption \(\Simple = (\Init,\Respond,\Win,\epsilon)\)
+  and an algorithm \advA, we define an experiment \(\SICA_{\Simple}^{\advA}\) as follows:
 
   \begin{pchstack}[center,space=0.5cm]
-    \proc{Game \Simple{}$(\advA,\lambda)$}{
+    \proc{Game $\SICA_{\Simple}^{\advA}(\lambda)$}{
       (\state_{\Simple}, c) \assign \Init(1^{\lambda}).\\
       s \assign \advA^{\oracle}(c).\\
       b' \assign \Win(\state_{\Simple},s).\\
@@ -120,9 +120,10 @@ We will call such an assumption a \emph{simple computational assumption}.
     }
   \end{pchstack}
 
+  \TODO{Explain in more detail what the different algorithms actually do.}
   Here, \Win{} defines the ``winning condition'' in the game.
   Notice that \Win{} depends only on the initial state \(\state_{\Simple}\)
-  of \Simple and the challenge solution \(s\) output by \advA
+  of the game and the challenge solution \(s\) output by \advA
   (in particular, it does not depend on the queries made by \advA
   to \oracle during the game).
   Also, whenever \advA queries the oracle \oracle,
@@ -130,10 +131,13 @@ We will call such an assumption a \emph{simple computational assumption}.
   The advantage of \advA{} against \Simple is given by
   \TODO{advantage notation.}
   \begin{equation}
-    \abs[\big]{\prob{\Simple{}(\advA,\lambda) \implies 1} - \epsilon(\lambda)}.
+    \abs[\big]{\prob{\SICA(\advA,\lambda) \implies 1} - \epsilon(\lambda)}.
   \end{equation}
   \TODO{say something about epsilon.}
 \end{definition}
+
+\TODO{say something about how this extends non-interactive assumptions.}
+\TODO{say something about how CCA-type games can be modeled by this. And stDH}.
 
 
 %%% Local Variables:
