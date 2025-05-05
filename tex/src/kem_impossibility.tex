@@ -283,7 +283,8 @@
   (note that this relies on the oracle \oracle being simulated correctly towards \(\redR^{\advA}\),
   which follows from the fact that the two games \(\Simple'\) and \Simple
   have identical state \(\state_{\Simple'} = \state_{\Simple}\),
-  so that \(\Respond(\state_{\Simple'},\text{query}) = \Respond(\state_{\Simple},\text{query})\)).
+  so that \(\Respond(\state_{\Simple'},m) = \Respond(\state_{\Simple},m)\) for every query \(m\)).
+  \TODO{make this clearer.}
   Hence, the only way we can have \(s_{\redM} \ne s_{\redR}\)
   is if the key \(k_{i^{*},j^{*}}'\) computed by \redM differs from the key \(k_{i^{*},j^{*}}\) computed by \advA,
   i.e

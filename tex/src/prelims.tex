@@ -11,6 +11,80 @@
   \end{equation}
 \end{definition}
 
+When we prove our tightness impossibility results,
+we will only be able to rule out tight reductions from a specific class of computational assumptions.
+That is, we can only show that a tight reduction to a certain security game \gameG is impossible
+if the assumption being reduced from is sufficiently restricted.
+This is in some sense an inherent limitation, as we could not rule out a tight reduction to the game \gameG
+from \emph{any} computational assumption
+(a standard counterexample to this is to use the assumption that the game \gameG is secure.
+Clearly there is a tight reduction from this assumption to the game \gameG).
+Hence we need the assumption being reduced from to be ``weaker''
+than the game \gameG, in a certain sense.
+
+In the impossibility results of \TODO{cite}, the class of computational assumptions
+in question are the so-called \emph{non-interactive} assumptions.
+These are modeled by experiments in which an adversary receives a challenge \(c\)
+and must output a solution \(s\) to the challenge, with no further interaction between the adversary and the experiment.
+Following an observation of \TODO{cite}, we will actually slightly expand the class of computational assumptions
+from which we can rule out tight reductions, at essentially no cost to the complexity of our proofs.
+
+In \TODO{cite}, it is shown that a tight, simple reduction from the \emph{Strong Diffie-Hellman} assumption
+to the weak forward secrecy of a certain class of key exchange protocols cannot exist,
+unless the Strong Diffie-Hellman assumption is itself false.
+The key point here is that the Strong Diffie-Hellman game is interactive,
+and hence does not fit into the class of non-interactive assumptions considered in e.g \TODO{cite}.
+Nevertheless \TODO{cite} are able to apply a similar meta-reduction strategy
+to the one pioneered in \TODO{cite} to prove their impossibility result.
+We observe that the Strong Diffie-Hellman game satisfies the following two criteria,
+which allow the proof of \TODO{cite} to go through.
+The first is that the interaction in the Strong Diffie-Hellman game is in some sense stateless.
+More precisely, the Strong Diffie-Hellman oracle computes its answer to a query
+in a way that is independent of the content of any previous queries.
+Second, the ``winning condition'' in the Strong Diffie-Hellman game is essentially independent of
+the queries made to the Strong Diffie-Hellman oracle.
+\TODO{explain why this is the case.}
+
+We can define a class of interactive computational assumptions in which the above two criteria are met.
+We will call such an assumption a \emph{simple computational assumption}.
+\TODO{say something more.}
+
+\begin{definition}[Simple computational assumption]
+  A simple computational assumption is a tuple \((\Init,\Respond,\Win,\epsilon)\),
+  where \(\epsilon : \N \to \R\) is a function,
+  \(\Init\) is a probabilistic algorithm
+  and \(\Respond\) and \(\Win\) are deterministic algorithms.
+  For a given simple computational assumption \((\Init,\Respond,\Win,\epsilon)\),
+  we define an experiment \(\Simple\) as follows:
+
+  \begin{pchstack}[center,space=0.5cm]
+    \proc{Game \Simple{}$(\advA,\lambda)$}{
+      (\state_{\Simple}, c) \assign \Init(1^{\lambda}).\\
+      s \assign \advA^{\oracle}(c).\\
+      b' \assign \Win(\state_{\Simple},s).\\
+      \pcreturn b'.
+    }
+    \proc{Oracle \oracle(m)}{
+      \pcreturn \Respond(\state_{\Simple},m).
+    }
+  \end{pchstack}
+
+  Here, \Win{} defines the ``winning condition'' in the game.
+  Notice that \Win{} depends only on the initial state \(\state_{\Simple}\)
+  of \Simple and the challenge solution \(s\) output by \advA
+  (in particular, it does not depend on the queries made by \advA
+  to \oracle during the game).
+  Also, whenever \advA queries the oracle \oracle,
+  the response is computed deterministically as \(\Respond(\state_{\Simple},m)\).
+  The advantage of \advA{} against \Simple is given by
+  \TODO{advantage notation.}
+  \begin{equation}
+    \abs[\big]{\prob{\Simple{}(\advA,\lambda) \implies 1} - \epsilon(\lambda)}.
+  \end{equation}
+  \TODO{say something about epsilon.}
+\end{definition}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
