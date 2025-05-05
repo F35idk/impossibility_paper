@@ -176,7 +176,7 @@
   Now, for the meta-reduction \redM:
 
   \begin{enumerate}[itemsep=0.1cm]
-    \item Receive the challenge \(c\) from the challenger in the game \SICA (recall Figure \TODO{ref.}).
+    \item Receive the challenge \(c\) from the challenger in the game \SICA (recall Figure \ref{fig:simple}).
     \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \redR,
           until Step \ref{advA:corrupt} of \advA is reached.
           Here, \(\oracle\) denotes the oracle in \redM's instance of the game \SICA,
@@ -221,12 +221,13 @@
   To simplify the analysis, we will define \(\SICA_{\Simple}^{\redM}\)
   and \(\SICA_{\Simple}^{\redR}\) over the same probability space.
   More precisely, we assume that the \(\Init\) algorithm of \Simple
-  is given the same random coins at line \TODO{ref.} of Figure \TODO{ref.} in either instance of the \SICA game.
+  is given the same random coins at line \ref{code:simple:init} of Figure \ref{fig:simple}
+  in either instance of the \SICA game.
   From this, it follows that the tuple \((\state_{\Simple},c)\) of state and challenge
   output by \(\Init\) is identical in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\).
   Now denote the challenge solutions output by \redM and \(\redR^{\advA}\)
   in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
-  by \(s_{\redM}\) and \(s_{\redR}\), respectively (corresponding to line \TODO{fix} of Figure \TODO{ref.})
+  by \(s_{\redM}\) and \(s_{\redR}\), respectively (corresponding to line \ref{code:simple:output} of Figure \ref{fig:simple})
   (\TODO{refer to \(s\) as a challenge solution in the definition of \SICA}).
   We claim that
   \begin{equation}\label{ineq:owecpa:diff}

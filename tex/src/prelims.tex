@@ -106,19 +106,8 @@ We will call such an assumption a \emph{simple computational assumption}.
   \(\Init\) is a probabilistic algorithm
   and \(\Respond\) and \(\Win\) are deterministic algorithms.
   For a given simple computational assumption \(\Simple = (\Init,\Respond,\Win,\epsilon)\)
-  and an algorithm \advA, we define an experiment \(\SICA_{\Simple}^{\advA}\) as follows:
-
-  \begin{pchstack}[center,space=0.5cm]
-    \proc{Game $\SICA_{\Simple}^{\advA}(\lambda)$}{
-      (\state_{\Simple}, c) \assign \Init(1^{\lambda}).\\
-      s \assign \advA^{\oracle}(c).\\
-      b' \assign \Win(\state_{\Simple},s).\\
-      \pcreturn b'.
-    }
-    \proc{Oracle \oracle(m)}{
-      \pcreturn \Respond(\state_{\Simple},m).
-    }
-  \end{pchstack}
+  and an algorithm \advA, we define an experiment \(\SICA_{\Simple}^{\advA}\)
+  according to Figure \ref{fig:simple}.
 
   \TODO{Explain in more detail what the different algorithms actually do.}
   Here, \Win{} defines the ``winning condition'' in the game.
@@ -135,6 +124,20 @@ We will call such an assumption a \emph{simple computational assumption}.
   \end{equation}
   \TODO{say something about epsilon.}
 \end{definition}
+
+\begin{figure}
+  \begin{pchstack}[center,space=0.5cm]
+    \proc{Game $\SICA_{\Simple}^{\advA}(\lambda)$}{
+      \label{code:simple:init} (\state_{\Simple}, c) \assign \Init(1^{\lambda}).\\
+      \label{code:simple:output} s \assign \advA^{\oracle}(c).\\
+      \label{code:simple:win} b' \assign \Win(\state_{\Simple},s).\\
+      \pcreturn b'.
+    }
+    \proc{Oracle \oracle(m)}{
+      \pcreturn \Respond(\state_{\Simple},m).
+    }
+  \end{pchstack}\caption{}\label{fig:simple}
+\end{figure}
 
 \TODO{say something about how this extends non-interactive assumptions.}
 \TODO{say something about how CCA-type games can be modeled by this. And stDH}.
