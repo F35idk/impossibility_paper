@@ -2,6 +2,15 @@
 \section{Preliminaries}
 
 
+\begin{definition}[\((1-\delta)\)-correctness of a KEM]\label{def:corr}
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  and let \(\delta : \mathbb{N} \to \mathbb{R}\) be a function of the security parameter.
+  Then \KEM is said to have \emph{\((1-\delta)\)-correctness} if
+  \begin{equation}
+    \prob{\Decaps{}(\sk,c) \ne k : \params \assign \Setup{}(1^{\lambda}), (\sk,\pk) \assign \KG{}(\params), (c,k) \assign \Encaps{}(\pk)} \le \delta (\lambda)
+  \end{equation}
+\end{definition}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
