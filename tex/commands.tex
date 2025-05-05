@@ -1,0 +1,75 @@
+
+\NewDocumentCommand{\gameG}{o}{%
+  \IfValueTF{#1}{%
+    \ensuremath{G^{*}}\xspace%
+  }{%
+    \ensuremath{G}\xspace%
+  }%
+}
+\NewDocumentCommand{\redR}{o}{%
+  \IfValueTF{#1}{%
+    \ensuremath{\mathcal{R}_{#1}}\xspace%
+  }{%
+    \ensuremath{\mathcal{R}}\xspace%
+  }%
+}
+\newcommand{\redM}{\ensuremath{\mathcal{M}}\xspace}
+\newcommand{\ICA}{\ensuremath{\mathsf{ICA}}\xspace}
+\newcommand{\IMP}{\ensuremath{\mathsf{IMP(\prot)}}\xspace}
+\newcommand{\KEM}{\ensuremath{\mathcal{E}}\xspace}
+\newcommand{\OwFS}{\ensuremath{\mathsf{OwFS}}\xspace}
+\newcommand{\wFS}{\ensuremath{\mathsf{wFS}}\xspace}
+\newcommand{\KEMprot}{\ensuremath{\prot(\KEM)}\xspace}
+\newcommand{\epsV}{\ensuremath{\epsilon_{V}}\xspace}
+\newcommand{\qeq}{\ensuremath{\overset{?}{=}}\xspace}
+\newcommand{\qle}{\ensuremath{\overset{?}{<}}\xspace}
+\newcommand{\proc}[2]{\procedure[jot=-0.5mm,codesize=\normalsize,linenumbering]{#1}{#2}}
+\newcommand{\protpc}[1]{\pseudocode[]{#1}}
+\newcommand{\protpcsmall}[1]{\pseudocode[jot=-0.5mm,codesize=\scriptsize]{#1}}
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}\xspace}
+\newcommand{\eventE}{\ensuremath{\mathsf{E}}\xspace}
+\newcommand{\bigTheta}{\ensuremath{\Theta}}
+
+\newcommand{\Simple}{\ensuremath{\mathcal{S}}\xspace}
+\newcommand{\OWECPA}{\ensuremath{\mathsf{OW}\text{-}\mathsf{ECPA}}\xspace}
+\newcommand{\INDECPA}{\ensuremath{\mathsf{IND}\text{-}\mathsf{ECPA}}\xspace}
+\newcommand{\ECPA}{\ensuremath{\mathsf{ECPA}}\xspace}
+\newcommand{\Enc}{\ensuremath{\mathsf{Enc}}\xspace}
+\newcommand{\Setup}{\ensuremath{\mathsf{Setup}}\xspace}
+\newcommand{\KG}{\ensuremath{\mathsf{KG}}\xspace}
+\newcommand{\Encaps}{\ensuremath{\mathsf{E}}\xspace}
+\newcommand{\Decaps}{\ensuremath{\mathsf{D}}\xspace}
+\newcommand{\Reveal}{\ensuremath{\mathsf{Reveal}}\xspace}
+\newcommand{\RevState}{\ensuremath{\mathsf{RevState}}\xspace}
+\newcommand{\Corrupt}{\ensuremath{\mathsf{Corrupt}}\xspace}
+\newcommand{\params}{\ensuremath{\mathsf{par}}\xspace}
+\newcommand\given[1][]{\:#1\vert\:}
+
+\newcommand{\Init}{\ensuremath{\mathsf{Init}}\xspace}
+\newcommand{\Run}{\ensuremath{\mathsf{Run}}\xspace}
+\newcommand{\Respond}{\ensuremath{\mathsf{Respond}}\xspace}
+\newcommand{\Win}{\ensuremath{\mathsf{Win}}\xspace}
+
+\newcommand{\setC}{\ensuremath{\mathcal{C}}\xspace}
+\newcommand{\setM}{\ensuremath{\mathcal{M}}\xspace}
+\newcommand{\setT}{\ensuremath{\mathcal{T}}\xspace}
+\newcommand{\setSK}{\ensuremath{\mathcal{SK}}\xspace}
+\newcommand{\setST}{\ensuremath{\mathcal{ST}}\xspace}
+\newcommand{\Round}{\ensuremath{\mathsf{Round}}\xspace}
+\newcommand{\eventi}[1]{\ensuremath{\mathsf{E}_{#1}}\xspace}
+
+\newcommand{\GenAKE}{\ensuremath{\mathsf{Gen}_{\prot}}\xspace}
+\newcommand{\InitI}{\ensuremath{\mathsf{Init_{I}}}\xspace}
+\newcommand{\DerR}{\ensuremath{\mathsf{Der_{R}}}\xspace}
+\newcommand{\DerI}{\ensuremath{\mathsf{Der_{I}}}\xspace}
+\newcommand{\OwFSst}{\ensuremath{\mathsf{OwFS}\text{-}\mathsf{St}}\xspace}
+\newcommand{\INDwFSst}{\ensuremath{\mathsf{IND}\text{-}\mathsf{wFS}\text{-}\mathsf{St}}\xspace}
+\newcommand{\sID}{\ensuremath{\mathsf{sID}}\xspace}
+\newcommand{\redL}{\ensuremath{\mathcal{L}}\xspace}
+
+\newcommand{\List}{\ensuremath{\mathsf{List}}\xspace}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
