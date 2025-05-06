@@ -1,6 +1,66 @@
 
 \section{The KEM impossibility result}
 
+The following theorem is the main result of the section.
+
+\begin{theorem}[Impossibility of tight \OWECPA reductions]\label{thm:main}
+  \TODO{Mention both user-tightness and encapsulation-per-user-tightness.}
+\end{theorem}
+
+\TODO{explain how we get the following as a corollary.}
+
+\begin{theorem}[Impossibility of tight \INDECPA reductions]
+  \TODO{write this.}
+\end{theorem}
+
+Both of the above results will in fact be obtained as corollaries
+of the following technical theorem, which is the main workhorse of this section.
+
+\begin{theorem}[Bounding the security loss of an \OWECPA reduction]\label{thm:owecpa}
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  with \((1-\delta)\)-correctness,
+  ciphertext space \setC, encapsulation key space \keyspace
+  and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
+  where \(\lambda\) is the security parameter.
+  Let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\) be a simple computational assumption
+  with corresponding game \(\SICA\) as in \TODO{ref.},
+  and let \(\redR\) be a simple reduction
+  taking adversaries against \OWECPA security in \KEM to adversaries against \SICA.
+  Let \(\mu,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\).
+  Then there exists an (inefficient \TODO{?}) adversary \advA against \(\OWECPA\) security in \KEM
+  with \(\mu\) users and \(\rho\) encapsulations per user,
+  whose success probability is at least
+  \begin{equation}\label{ineq:A}
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+  \end{equation}
+  and an adversary \redM in the game \(\SICA\) whose advantage \(\epsilon_{\redM}\) satisfies
+  \begin{equation}\label{ineq:M}
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+  \end{equation}
+  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \SICA.
+
+  Moreover, the running time of \redM is of the form
+  \begin{equation}\label{ineq:M:time}
+    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{A}} + (\mu \rho + 1) \cdot T_{\Decaps},
+  \end{equation}
+  where \(T_{\Decaps}\) denotes the running time of the decapsulation algorithm
+  \(\Decaps\) of \KEM, and \(T_{\redR^{A}}\) denotes the running time of \(\redR^{A}\),
+  not including the time taken to execute \(\advA\).
+  % Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
+  % and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
+  % where we consider the time taken to execute \(\advA\) to be constant,
+  % then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
+\end{theorem}
+
+Before we give a proof of Theorem \ref{thm:owecpa},
+we will show how we can use it to obtain Theorem \ref{thm:main}.
+\TODO{do this. Also discuss what the theorem statement means.}
+
+In order to pave the way for a proof of Theorem \ref{thm:owecpa},
+we will find it useful to introduce some terminology.
+
 \begin{definition}[Agreeing pairs]\label{def:agree}
   Let \setSK, \setC, \keyspace be sets and
   let \(f : \setSK \times \setC \to \keyspace\) be a function.
@@ -16,6 +76,8 @@
   \)
   then we say that \(s\) and \(s'\) \emph{disagree on \(c\)} (with respect to \(f\)).
 \end{definition}
+
+\TODO{say something about what picture the reader should have in his mind.}
 
 \begin{definition}[Bad pairs]\label{def:bad}
   \TODO{pick a better name than ``bad''.}
@@ -35,6 +97,7 @@
   % When \(\alpha\) is clear from context, we simply say that \((s,s')\) is \emph{bad for the subset \(S\)} (with respect to \(A\) and \(f\)).
 \end{definition}
 
+\TODO{Say a word about the following lemma. ``The lemma we have talked about in the proof overview.''}
 
 \begin{lemma}[Probability of bad pairs]\label{lemma:equiv}
   Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
@@ -139,57 +202,6 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
   \end{align}
   Applying this inequality to \eqref{ineq:equiv} gives the result.
 \end{proof}
-
-
-\begin{theorem}[Bounding the security loss of an \OWECPA reduction]\label{thm:owecpa}
-  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
-  with \((1-\delta)\)-correctness,
-  ciphertext space \setC, encapsulation key space \keyspace
-  and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
-  where \(\lambda\) is the security parameter.
-  Let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\) be a simple computational assumption
-  with corresponding game \(\SICA\) as in \TODO{ref.},
-  and let \(\redR\) be a simple reduction
-  taking adversaries against \OWECPA security in \KEM to adversaries against \SICA.
-  Let \(\mu,\rho,t \in \N, \alpha > 0\) with \(t \le \rho/3\).
-  Then there exists an (inefficient \TODO{?}) adversary \advA against \(\OWECPA\) security in \KEM
-  with \(\mu\) users and \(\rho\) encapsulations per user,
-  whose success probability is at least
-  \begin{equation}\label{ineq:A}
-    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
-    - 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
-  \end{equation}
-  and an adversary \redM in the game \(\SICA\) whose advantage \(\epsilon_{\redM}\) satisfies
-  \begin{equation}\label{ineq:M}
-    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
-  \end{equation}
-  where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \SICA.
-
-  Moreover, the running time of \redM is of the form
-  \begin{equation}\label{ineq:M:time}
-    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{A}} + (\mu \rho + 1) \cdot T_{\Decaps},
-  \end{equation}
-  where \(T_{\Decaps}\) denotes the running time of the decapsulation algorithm
-  \(\Decaps\) of \KEM, and \(T_{\redR^{A}}\) denotes the running time of \(\redR^{A}\),
-  not including the time taken to execute \(\advA\).
-  % Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
-  % and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
-  % where we consider the time taken to execute \(\advA\) to be constant,
-  % then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
-\end{theorem}
-
-\begin{corollary}[Impossibility of user-tight \OWECPA reductions]
-  \TODO{write this.}
-\end{corollary}
-
-\begin{corollary}[Impossibility of encapsulation-tight \OWECPA reductions]
-  \TODO{write this.}
-\end{corollary}
-
-\begin{corollary}[Impossibility of tight \INDECPA reductions]
-  \TODO{write this.}
-\end{corollary}
 
 \begin{proof}[Proof of Theorem \ref{thm:owecpa}]
   We begin by describing the adversary \advA against \OWECPA security in \KEM
