@@ -223,17 +223,17 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
     \item\label{advA:corrupt} Sample \(i^{*} \sampleR [\mu]\). Then repeat the following for each \(i \in [\mu]\) with \(i \ne i^{*}\):
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Query \(\Corrupt(i)\) and receive \(\sk_{i}\).
-            \item Abort if \(\KEM.\Decaps(\sk_{i},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+            \item Abort if \(\Decaps(\sk_{i},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
           \end{itemize}
      \item\label{advA:brute} Brute-force search for a candidate \(\sk_{i^{*}} \in \{0,1\}^{q(\lambda)}\) as follows:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item For each \(\sk \in \{0,1\}^{q(\lambda)}\),
-                  check whether \(\KEM.\Decaps(\sk,c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
+                  check whether \(\Decaps(\sk,c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
             \item If so: set \(\sk_{i^{*}} := \sk\) and exit the loop. Otherwise: continue.
             \item If no \(sk_{i^{*}}\) was found during the brute-force search: abort.
           \end{itemize}
     \item\label{advA:final} Sample \(j^{*} \sampleR S_{i^{*}}\),
-          and use \(\sk_{i^{*}}\) to compute a candidate key \(k_{i^{*}, j^{*}} \assign \KEM.\Decaps(\sk_{i^{*}},c_{i^{*}, j^{*}})\).
+          and use \(\sk_{i^{*}}\) to compute a candidate key \(k_{i^{*}, j^{*}} \assign \Decaps(\sk_{i^{*}},c_{i^{*}, j^{*}})\).
           Output \((i^{*}, j^{*}, k_{i^{*}, j^{*}})\) in the \OWECPA game.
   \end{enumerate}
 
@@ -278,7 +278,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Check if the secret key \(\sk_{i^{*}}^{\ell}\)
                   stored in Step \ref{advM:rewind} satisfies that
-                  \(\KEM.\Decaps(sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\)
+                  \(\Decaps(sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\)
                   for each \(j \in [\rho] \setminus S_{i^{*}}\).
             \item If so, denote this secret key by \(\sk_{i^{*}}'\) and exit the loop.
                   If not: continue to the next \(\ell\).
@@ -287,7 +287,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
           \end{itemize}
     \item\label{advM:final} Finally: use \(\sk_{i^{*}}'\) to simulate the last part of \advA's execution towards \(\redR^{\oracle}\):
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-                  \item Pick \(j^{*} \sampleR S_{i^{*}}\) and compute \(k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
+                  \item Pick \(j^{*} \sampleR S_{i^{*}}\) and compute \(k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
                   \item Let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
                   as it would in the \OWECPA game.
             \item Afterwards, continue running the reduction \(\redR^{\oracle}\)
@@ -422,7 +422,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   which were stored by \redM during the rewinding of \redR in Step \ref{advM:rewind}
   satisfy the following check:
   \begin{equation}\label{skcheck}
-  \KEM.\Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}
+  \Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}
   \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \end{equation}
   Let \(\eventE_{abrt}\) denote the event that this happens, or more precisely
@@ -536,13 +536,13 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   then by definition \(\eventE_{abrt}\) does not, and so
   \redM will obtain a secret key \(\sk_{i^{*}}'\) such that
   \[
-  \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+    \Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \]
   Hence such a secret key exists, and so \advA is guaranteed to find such a secret key \(\sk_{i^{*}}\)
   in its brute-force search as well (the two secret keys may not be the same).
   Hence we find that
   \[
-  \KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+    \Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \]
   In other words, the secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
   of \advA and \redM \emph{agree} on the ciphertexts on user \(i^{*}\) outside of the set indexed by \(S_{i^{*}}\).
@@ -553,11 +553,11 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   It follows by the definition of ``badness'' that \(\sk_{i^{*}}\) and \(\sk_{i^{*}}'\)
   can disagree on at most an \(\alpha\)-fraction of the ciphertexts inside of the set indexed by \(S_{i^{*}}\).
   That is, we can only have
-  \(\KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j}) \ne \KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j})\)
+  \(\Decaps(\sk_{i^{*}},c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}}',c_{i^{*},j})\)
   for at most an \(\alpha\)-fraction of \(j \in S_{i^{*}}\).
   Now, since \(j^{*}\) is picked uniformly at random from \(S_{i^{*}}\),
   the probability that
-  \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \KEM.\Decaps(\sk_{i^{*}},c_{i^{*},j})\),
+  \(\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}},c_{i^{*},j})\),
   or equivalently that \(k_{i^{*},j^{*}}' \ne k_{i^{*},j^{*}}\),
   is thus at most \(\alpha\),
   from which we get the desired bound.
@@ -619,10 +619,10 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   Hence we can ignore this technical detail.
 
   Combining the bounds for \(\prob{\eventE_{abrt}}\), \(\prob{\eventE_{bad}}\) and \(\prob{\eventE_{fail}}\), we now get
-  \begin{align}\label{ineq:E}
-    \prob{\eventE} \le 1 / \mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}. && (t \le \rho / 3),
-  \end{align}
+  \[
+    \prob{s_{\redR} \ne s_{\redM}} \le 1 / \mu + \alpha
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+  \]
   which proves the lemma.
 \end{proof}
 
@@ -632,41 +632,58 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
     - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
   \end{equation}
-  where \(p_{\advA}\) denotes the probability that \TODO{write.}
 \end{lemma}
 
 \begin{proof}
-  Let us first bound the probability that \advA aborts before outputting anything.
+  Recall that \(p_{\advA}\) denotes the success probability of the adversary \advA
+  (as described in \TODO{ref.})
+  in the \OWECPA game against \KEM.
+  To be precise, this is the probability that \advA outputs a triple \((i^{*},j^{*},k^{*})\)
+  such that
+  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+    \item \(k^{*}\) is the key encapsulated by \(c_{i^{*},j^{*}}\),
+          where \(c_{i^{*},j^{*}}\) denotes the \(j^{*}\)-th encapsulation received on user \(i^{*}\)'s public key.
+    \item The user \(i^{*}\) is not corrupted.
+    \item The encapsulation \(c_{i^{*},j^{*}}\) has not been revealed.
+  \end{itemize}
+
+  Before we consider the output of \advA, let us bound
+  the probability that \advA aborts early.
   This can happen in two ways:
   \begin{enumerate}
     \item\label{advA:abort1} One of the secret keys \(\sk_{i}\) received by \advA
-          via a \(\Corrupt(i)\) query does not satisfy that \(\KEM.\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\)
+          via a \(\Corrupt(i)\) query does not satisfy that \(\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\)
           for every \(j \in [\rho] \setminus S_{i}\).
     \item\label{advA:abort2} During \advA's brute-force search, \advA fails to find a candidate secret key \(\sk_{i^{*}}\)
-          such that \(\KEM.\Decaps(\sk_{i^{*}}, c_{i^{*},j}) = k_{i^{*},j}\) for every \(j \in [\rho] \setminus S_{i^{*}}\).
+          such that \(\Decaps(\sk_{i^{*}}, c_{i^{*},j}) = k_{i^{*},j}\) for every \(j \in [\rho] \setminus S_{i^{*}}\).
   \end{enumerate}
-  Since we are in the real game with an honest challenger,
+  Since we are in the real \OWECPA game against \KEM
+  with an honest \OWECPA challenger,
   all of the secret keys \(\sk_{i}\) used by the challenger
   were validly generated, and the same holds for the encapsulations \(c_{i,j}\).
   Thus, by \((1 - \delta)\)-correctness,
-  we will have \(\KEM.\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\)
+  we will have \(\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\)
   except with probability \(\delta \mu \rho\),
-  where \(k_{i,j}\) denotes the key that was generated along with \(c_{i,j}\) by the challenger.
-  In this case, clearly \ref{advA:abort1} cannot occur.
-  Likewise, \ref{advA:abort2} will not occur,
+  where \(k_{i,j}\) denotes the key that was generated along with \(c_{i,j}\) by the challenger in the \OWECPA game.
+  In this case, clearly point \ref{advA:abort1} cannot occur.
+  Likewise, point \ref{advA:abort2} will not occur,
   since the secret key \(\sk_{i^{*}}\) held by the challenger for user \(i^{*}\)
-  satisfies that \(\KEM.\Decaps(\sk_{i^{*}}, c_{i,j}) = k_{i,j} \text{ for every } j \in [\rho] \setminus S_{i^{*}}\).
+  satisfies that \(\Decaps(\sk_{i^{*}}, c_{i,j}) = k_{i,j} \text{ for every } j \in [\rho] \setminus S_{i^{*}}\).
   Because of this, a secret key \(\sk_{i^{*}}\) of the desired form exists,
   and \advA's brute-force search will not fail.
   Thus, the probability that \advA aborts before outputting anything is at most \(\delta \mu \rho\).
 
-  Now, if neither \ref{advA:abort1} nor \ref{advA:abort2} occur,
+  Now, if neither point \ref{advA:abort1} nor point \ref{advA:abort2} occur,
   then \advA wins so long as the key
   \[
-  k_{i^{*},j^{*}}' \assign \KEM.\Decaps(\sk_{i^{*},j^{*}}, c_{i^{*},j^{*}})
+  k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*},j^{*}}, c_{i^{*},j^{*}})
   \]
-  computed by \advA equals the true key corresponding to the encapsulation \(c_{i^{*},j^{*}}\) in the game.
-  Applying Lemma \ref{lemma:equiv},
+  computed by \advA equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the game.
+  Indeed, notice that the encapsulation \(c_{i^{*},j^{*}}\) is unrevealed
+  and the user \(i^{*}\) is uncorrupted in the \OWECPA game,
+  by the construction of the adversary \advA.
+  Applying Lemma \ref{lemma:equiv}
+  and reasoning similarly to Lemma \ref{lemma:M},
   we find that the pair of secret keys for user \(i^{*}\) held by \advA
   and the challenger in the \(\OWECPA\) game is
   \(\alpha\)-bad for the subset \(S_{i^{*}}\) with probability at most
@@ -678,11 +695,11 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
     \alpha +
     4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
   \)
-  Also, we may assume as before that
-  \(\KEM.\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\),
-  from which we find that the decapsulation of \(c_{i^{*},j^{*}}\)
+  Disregarding correctness errors among the \(\mu \rho\) encapsulations,
+  (which we have already dealt with in our discussion of points 1 and 2),
+  we find that the decapsulation of \(c_{i^{*},j^{*}}\)
   under the challenger's secret key for user \(i^{*}\)
-  equals the true key in the \(\OWECPA\) game.
+  equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the \(\OWECPA\) game.
   Hence in this case, \advA wins except with probability
   \(
   \alpha
