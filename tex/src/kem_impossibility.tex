@@ -59,12 +59,12 @@ of the following technical theorem, which is the main workhorse of this section.
   whose success probability is at least
   \begin{equation}\label{ineq:A}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
-    - 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+    - 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
   \end{equation}
   and an adversary \redM in the game \(\SICA\) whose advantage \(\epsilon_{\redM}\) satisfies
   \begin{equation}\label{ineq:M}
     \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
   \end{equation}
   where \(\epsilon_{\redR^{\advA}}\) denotes the advantage of \(\text{ }\redR^{\advA}\) in \SICA.
 
@@ -220,7 +220,7 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
   With the same setup as in Lemma \ref{lemma:equiv}, we have
   \begin{equation}\label{ineq:corollary:equiv}
     \prob*{\exists (s,s') \in \setSK^{2} : (s,s') \text{ is \(\alpha\)-bad for } S \text{ w.r.t \(A\) and \(f\)}}
-    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \end{equation}
 \end{corollary}
 
@@ -443,7 +443,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \begin{equation}
     \prob{s_{\redM} \ne s_{\redR}}
     \le 1/\mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \end{equation}
 \end{lemma}
 
@@ -672,7 +672,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   With this, Corollary \ref{corollary:equiv} of Lemma \ref{lemma:equiv} gives us
   \[
     \prob{\exists (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}
-    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \]
 
   Note that, for the application of Lemma \ref{lemma:equiv} to be formally correct here,
@@ -698,7 +698,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   Combining the bounds for \(\prob{\eventE_{abrt}}\), \(\prob{\eventE_{bad}}\) and \(\prob{\eventE_{fail}}\), we now get
   \[
     \prob{s_{\redR} \ne s_{\redM}} \le 1 / \mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
   \]
   which proves the lemma.
 \end{proof}
@@ -707,7 +707,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   With the same setup as above, we have
   \begin{equation}\label{ineq:A:lemma}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
-    - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
+    - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
   \end{equation}
 \end{lemma}
 
@@ -765,12 +765,12 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   and the challenger in the \(\OWECPA\) game is
   \(\alpha\)-bad for the subset \(S_{i^{*}}\) with probability at most
   \(
-    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \)
   Thus the two secret keys will produce identical decapsulations of \(c_{i^{*},j^{*}}\), except with probability
   \(
     \alpha +
-    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \)
   Disregarding correctness errors among the \(\mu \rho\) encapsulations,
   (which we have already dealt with in our discussion of points 1 and 2),
@@ -780,7 +780,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   Hence in this case, \advA wins except with probability
   \(
   \alpha
-  + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
+  + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
   \)
   Summing the failure probabilities, we now get \eqref{ineq:A:lemma}.
 \end{proof}
