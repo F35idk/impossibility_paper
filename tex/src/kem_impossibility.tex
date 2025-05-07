@@ -495,17 +495,17 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   To see this, observe that the meta-reduction \redM simulates \advA
   perfectly until Step \ref{advM:final} of \redM's execution.
   This relies in particular on the fact that the oracle \oracle
-  in the \SICA game is sufficiently ``stateless''.
+  in the \SICA game is ``stateless''.
   Indeed, notice that the meta-reduction \redM is simply
   using its own oracle \oracle in \(\SICA_{\Simple}^{\redM}\)
-  to simulate the corresponding oracle for \redR in \(\SICA_{\Simple}^{\redM}\).
+  directly to simulate the corresponding oracle for \redR in \(\SICA_{\Simple}^{\redM}\).
   Since the two instances of the \SICA game are defined over the same probability space,
-  and in particular share state \(\state_{\Simple}\),
+  and in particular share the same state \(\state_{\Simple}\),
   the responses computed by the oracle \oracle
   in either game will be the same.
   Recalling Figure \ref{fig:simple} of Definition \ref{def:simple},
   this is because the oracle \oracle simply computes its response to a query \(m\)
-  as \(\Respond(\state_{\Simple},m)\), where \Respond is a deterministic algorithm.
+  as \(\Respond(\state_{\Simple},m)\).
   % Note that this holds in spite of the fact that \(\redM\)
   % may possibly make many more (and different) queries to \oracle than \(\redR^{A}\),
   % since \(\redM\) rewinds the reduction \redR
@@ -581,7 +581,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \]
   Hence such a secret key exists, and so \advA is guaranteed to find such a secret key \(\sk_{i^{*}}\)
   in its brute-force search as well (the two secret keys may not be the same).
-  Hence we find that
+  Thus we find that
   \[
     \Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \]
@@ -669,7 +669,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
 
 \begin{lemma}[Lower bounding the success probability of \advA]\label{lemma:A}
   With the same setup as above, we have
-  \begin{equation}
+  \begin{equation}\label{ineq:A:lemma}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
     - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
   \end{equation}
@@ -683,7 +683,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   such that
   \begin{itemize}[label={\textbullet},itemsep=0.1cm]
     \item \(k^{*}\) is the key encapsulated by \(c_{i^{*},j^{*}}\),
-          where \(c_{i^{*},j^{*}}\) denotes the \(j^{*}\)-th encapsulation received on user \(i^{*}\)'s public key.
+          where \(c_{i^{*},j^{*}}\) denotes the \(j^{*}\)-th encapsulation received on user \(i^{*}\)'s public key in the \OWECPA game against \KEM.
     \item The user \(i^{*}\) is not corrupted.
     \item The encapsulation \(c_{i^{*},j^{*}}\) has not been revealed.
   \end{itemize}
@@ -746,13 +746,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \alpha
   + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t}.
   \)
-
-  Summing the failure probabilities, we now get
-  \[
-    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
-    - 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t + 1} \right)^{\alpha t},
-  \]
-  as desired.
+  Summing the failure probabilities, we now get \eqref{ineq:A:lemma}.
 \end{proof}
 
 
