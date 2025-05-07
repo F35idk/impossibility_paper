@@ -1,14 +1,17 @@
 
 \section{Introduction}
-Key encapsulation mechanisms (KEMs) and authenticated key exchange protocols are essential primitives in public-key cryptography.
-In short, a KEM allows anyone to generate a pair \((k,c)\)
-consisting of a random key \(k\) and a ciphertext \(c\) on the key \(k\),
-such that only a designated user can decrypt the ciphertext \(c\) and recover the key.
-The ciphertext \(c\) is referred to as an \emph{encapsulation} of the key \(k\),
-under the public key of the designated user.
-Any public key encryption scheme easily yields a KEM, and the opposite implication is also true (cite).
-Moreover, KEMs are used as building blocks in more complex public-key constructions such as ????.
+Key encapsulation mechanisms (KEMs) and authenticated key exchange (AKE) protocols are essential primitives in public-key cryptography.
+In short, a KEM allows a user to encapuslate a random key $k$ by outputting a ciphertext $c$ using the public key of another user. 
+%a pair \((k,c)\)
+%consisting of a random key \(k\) and a ciphertext \(c\),
+With the corresponding secret key, the designated user can decrypt the ciphertext \(c\) and recover the same key $k$.
+%The ciphertext \(c\) is referred to as an \emph{encapsulation} of the key \(k\),
+%under the public key of the designated user.
+%Any public key encryption scheme easily yields a KEM, and the opposite implication is also true (cite).
+KEMs are used as building blocks for many complex public-key cryptosystems. Among them, AKE protocols are (arguably) the most important application, since AKE protocols can exchange a session key between two users to establish a secure channel. 
 
+
+\heading{Security of KEM.}
 The standard notions of security for a key exchange mechanism are so-called IND-CPA and IND-CCA security.
 These notions capture resistance to attacks in which an adversary receives a single
 encapsulation-key-pair \((k,c)\) where \(c\) encapsulates \(k\),
@@ -31,6 +34,8 @@ The basic form of such an extended security notion is ECPA security (ref.?),
 which is defined in terms of an adversary that may receive multiple encapsulations
 on several different users' public keys, and adaptively reveal encapsulations and corrupt users.
 
+
+\heading{Tight AKE Security from KEM.}
 Although ECPA security appears stronger than the standard IND-CPA notion,
 it is an easy exercise to prove that any IND-CPA secure KEM is also ECPA secure.
 As is standard in provably secure cryptography, this implication is proven via a so-called \emph{reduction}.
