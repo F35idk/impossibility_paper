@@ -281,6 +281,10 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   (recall Figure \ref{fig:simple} of Definition \ref{def:simple}).
   In particular, it has access to an oracle \oracle,
   which it uses to simulate the corresponding oracle for \(\redR\).
+  Also note that the meta-reduction \redM only needs to simulate a single
+  execution of \advA towards \redR,
+  since we are assuming that the reduction \redR is simple
+  and hence only executes \advA once.
   We describe \redM in the following.
 
   \begin{enumerate}[itemsep=0.1cm]
