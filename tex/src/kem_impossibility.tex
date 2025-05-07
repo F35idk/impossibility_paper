@@ -1,5 +1,5 @@
 
-\section{The KEM impossibility result}
+\section{The KEM impossibility result}\label{sec:kem}
 
 The following theorem is the main result of the section.
 
@@ -89,10 +89,6 @@ of the following technical theorem.
   % then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
 \end{theorem}
 
-\begin{remark}[Interpretation of the theorem statement]
-  \TODO{write this.}
-\end{remark}
-
 Before we give a proof of Theorem \ref{thm:owecpa},
 we will show how it can be used to obtain Theorem \ref{thm:main}.
 
@@ -179,8 +175,8 @@ we will show how it can be used to obtain Theorem \ref{thm:main}.
   as desired.
 \end{namedproof}
 
-In order to pave the way for a proof of Theorem \ref{thm:owecpa},
-we will find it useful to introduce some terminology.
+Before we can prove Theorem \ref{thm:owecpa},
+we will need to introduce some terminology.
 
 \begin{definition}[Agreeing pairs]\label{def:agree}
   Let \setSK, \setC, \keyspace be sets and
@@ -198,7 +194,19 @@ we will find it useful to introduce some terminology.
   then we say that \(s\) and \(s'\) \emph{disagree on \(c\)} (with respect to \(f\)).
 \end{definition}
 
-\TODO{say something about what picture the reader should have in his mind.}
+In the context of Section \ref{sec:kem},
+we will use the above definition with the pair \((s,s')\)
+equal to a pair of KEM secret keys and the function \(f\)
+equal to the decapsulation function \(\Decaps\) of the KEM,
+whereas the space \setC will be the set of ciphertexts of the KEM
+and the space \keyspace will be the set of encapsulated keys.
+Hence a pair of secret keys \((\sk,\sk')\) will agree on a ciphertext \(c\)
+if they decapsulate it equally, i.e \(\Decaps(\sk,c) = \Decaps(\sk,c')\).
+We will need the more abstract form of the above definition
+when we apply our meta-reduction strategy to authenticated key exchange in Section (\TODO{ref.}).
+
+In the following, we define ``bad pairs'' of secret keys \((s,s')\),
+which we will want to somehow deal with in our proof of Theorem \ref{thm:owecpa}.
 
 \begin{definition}[Bad pairs]\label{def:bad}
   \TODO{pick a better name than ``bad''.}
@@ -218,7 +226,7 @@ we will find it useful to introduce some terminology.
   % When \(\alpha\) is clear from context, we simply say that \((s,s')\) is \emph{bad for the subset \(S\)} (with respect to \(A\) and \(f\)).
 \end{definition}
 
-\TODO{Say a word about the following lemma. ``The lemma we have talked about in the proof overview.''}
+The following lemma blabla \TODO{write this after the proof outline section has been written. }
 
 \begin{lemma}[Probability of bad pairs]\label{lemma:equiv}
   Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
@@ -290,18 +298,11 @@ we will find it useful to introduce some terminology.
   and applying the inequality in \eqref{ineq:badprob}.
 \end{proof}
 
-\begin{remark}
-  \TODO{Say something about the lack of dependence on the function \(f\) in the lemma (it can be anything).}
-\end{remark}
-
-% In order for the bound in Lemma \ref{lemma:equiv} to be useful,
-% we need the quotient of binomial coefficients in \eqref{ineq:equiv}
-% to be significantly smaller than \(4^{d}\).
-% This will depend on how we choose our parameters \(\rho, \alpha\) and \(t\).
-% Importantly, we will be in a position to choose these parameters freely,
-% so that the bound can indeed be made effective.
-The following corollary bounds the quotient of binomial coefficients in \eqref{ineq:equiv}
-trivially (\TODO{does it though?}), but will be good enough for our purposes.
+In order for the bound in Lemma \ref{lemma:equiv} to be useful,
+we need the quotient of binomial coefficients in \eqref{ineq:equiv}
+to be significantly smaller than \(4^{d}\).
+The following corollary gives a straightforward bound,
+which will be good enough for our purposes.
 
 \begin{corollary}\label{corollary:equiv}
   With the same setup as in Lemma \ref{lemma:equiv}, we have
@@ -312,19 +313,19 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
 \end{corollary}
 
 \begin{proof}
-  This follows from the simple fact that for \(k \le n \le m\),
+  This follows from the fact that for \(k \le n \le m\),
   \begin{align}
     \left. \binom{m - k}{n - k} \middle/ \binom{m}{n} \right.
-    = \frac{(m-k)!}{(n-k)!(m-n)!} \frac{n!(m-n)!}{m!}
-    = \frac{n!}{(n-k)!} \frac{(m-k)!}{m!} \notag
-    & \le n^{k} \frac{(m-k)!}{m!} \notag\\
-    & \le n^{k} (m-k+1)^{-k} \notag\\
-    & = \left( \frac{n}{m - k + 1} \right)^{k}. \notag
+    & = \frac{(m-k)!}{(n-k)!(m-n)!} \frac{n!(m-n)!}{m!}
+    = \frac{n!}{(n-k)!} \frac{(m-k)!}{m!} \notag\\
+    & \le n^{k} \frac{(m-k)!}{m!} \notag
+    \le n^{k} (m-k+1)^{-k}
+    = \left( \frac{n}{m - k + 1} \right)^{k}. \notag
   \end{align}
   Applying this inequality to \eqref{ineq:equiv} gives the result.
 \end{proof}
 
-We now turn to the proof of Theorem \ref{thm:owecpa}.
+We can now turn to the proof of Theorem \ref{thm:owecpa}.
 
 \begin{namedproof}{Proof of Theorem \ref{thm:owecpa}}
   We begin by describing the adversary \advA against \OWECPA security in \KEM
@@ -585,7 +586,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   % although it is standard and follows the argument in \TODO{HLG21, which page?},
   % which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
   % pioneered by \cite{EC:BJLS16}.
-  This is because there can be at most one choice of \(i^{*}\)
+  In short, this is because there can be at most one choice of \(i^{*}\)
   in Step \ref{advM:sample} that would cause \redM to enter Step \ref{advM:key} and abort.
   Since \(i^{*}\) is picked uniformly at random from \([\mu]\) in Step \ref{advM:sample} of \redM,
   this gives \(\prob{\eventE_{abrt}} \le 1/\mu\).
@@ -723,7 +724,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \(\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}},c_{i^{*},j})\),
   or equivalently that \(k_{i^{*},j^{*}}' \ne k_{i^{*},j^{*}}\),
   is thus at most \(\alpha\),
-  from which we get the desired bound.
+  from which we get that \(\prob{\eventE_{fail}} \le \alpha\).
 
   Finally, we can consider the event \(\eventE_{bad}\).
   % As before, since \(\eventE_{abrt}\) does not occur,
@@ -789,7 +790,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   which proves the lemma.
 \end{proof}
 
-\begin{lemma}[Lower bounding the success probability of \advA]\label{lemma:A}
+\begin{lemma}\label{lemma:A}
   With the same setup as above, we have
   \begin{equation}\label{ineq:A:lemma}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
