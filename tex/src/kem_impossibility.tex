@@ -4,16 +4,41 @@
 The following theorem is the main result of the section.
 
 \begin{theorem}[Impossibility of tight \OWECPA reductions]\label{thm:main}
-  \TODO{Mention both user-tightness and encapsulation-per-user-tightness.}
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  with \((1-\delta)\)-correctness
+  and let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\)
+  be a simple computational assumption.
+  Assuming that \Simple is hard
+  and \(\delta\) is negligible,
+  any simple \((\mu,\rho)\)-reduction \redR
+  from breaking the \OWECPA security of \KEM to breaking \Simple
+  must lose a factor \(\ell\), where
+  \begin{equation}\label{eq:main}
+    \ell = \Omega(\mu) \text{ and } \ell = \Omega(\rho^{1-\epsilon}) \text{ for any } \epsilon > 0.
+  \end{equation}
 \end{theorem}
 
-\TODO{explain how we get the following as a corollary.}
+As discussed (\TODO{add}), \OWECPA security is weaker the \INDECPA security,
+which in turn is weaker than \INDECCA security.
+Moreover, there are tight reductions relating these games
+(\TODO{add a proof of this in the appendix?}).
+From this and the discussion in (\TODO{discuss}),
+we derive the following theorem as a corollary of Theorem \ref{thm:main}.
 
-\begin{theorem}[Impossibility of tight \INDECPA reductions]
-  \TODO{write this.}
+\begin{theorem}[Impossibility of tight \INDECPA/\INDECCA reductions]
+  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  with \((1-\delta)\)-correctness
+  and let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\)
+  be a simple computational assumption.
+  Assuming that \Simple is hard
+  and \(\delta\) is negligible,
+  any simple \((\mu,\rho)\)-reduction \redR
+  from breaking either the \INDECPA or \INDECCA security of \KEM to breaking \Simple
+  must lose a factor \(\ell\),
+  where the same bounds as in \eqref{eq:main} hold.
 \end{theorem}
 
-Both of the above results will in fact be obtained as corollaries
+The above results will in fact be obtained as corollaries
 of the following technical theorem, which is the main workhorse of this section.
 
 \begin{theorem}[Bounding the security loss of an \OWECPA reduction]\label{thm:owecpa}
@@ -24,11 +49,13 @@ of the following technical theorem, which is the main workhorse of this section.
   where \(\lambda\) is the security parameter.
   Let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\) be a simple computational assumption
   with corresponding game \(\SICA\) as in \TODO{ref.},
-  and let \(\redR\) be a simple reduction
-  taking adversaries against \OWECPA security in \KEM to adversaries against \SICA.
-  Let \(\mu,\rho,t \in \N, \alpha \in (0,1)\) with \(t \le \rho/3\).
-  Then there exists an (inefficient \TODO{?}) adversary \advA against \(\OWECPA\) security in \KEM
-  with \(\mu\) users and \(\rho\) encapsulations per user,
+  and let \(\redR\) be a simple
+  \((\mu,\rho)\)-reduction
+  from breaking the \OWECPA security of \KEM to breaking
+  the \SICA security of \Simple.
+  Let \(t \in \N, \alpha \in (0,1)\) with \(t \le \rho/3\).
+  Then there exists an (inefficient \TODO{?})
+  \((\mu,\rho)\)-adversary \advA against \(\OWECPA\) security in \KEM
   whose success probability is at least
   \begin{equation}\label{ineq:A}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
@@ -54,9 +81,16 @@ of the following technical theorem, which is the main workhorse of this section.
   % then the running time of the adversary \redM will be polynomial in \((\lambda,\mu,\rho)\).
 \end{theorem}
 
+\begin{remark}[Interpretation of the theorem statement]
+  \TODO{write this.}
+\end{remark}
+
 Before we give a proof of Theorem \ref{thm:owecpa},
-we will show how we can use it to obtain Theorem \ref{thm:main}.
-\TODO{do this. Also discuss what the theorem statement means.}
+we will show how it can be used to obtain Theorem \ref{thm:main}.
+
+\begin{namedproof}{Proof of Theorem \ref{thm:main}}
+  \TODO{Do the details.}
+\end{namedproof}
 
 In order to pave the way for a proof of Theorem \ref{thm:owecpa},
 we will find it useful to introduce some terminology.
