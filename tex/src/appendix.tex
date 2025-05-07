@@ -2,6 +2,54 @@
 \section{Appendix}
 
 
+\begin{namedproof}{Proving that \(\ell = \Omega(\rho^{1-\epsilon})\)}
+  Let \(\epsilon \in (0,1)\) be given
+  and let \(d \in \R\), to be determined later.
+  Set \(\mu = \lambda^{d}\), \(\rho = 6 \lambda^{d} q(\lambda)\), \(t = \lambda^{d} q(\lambda)\),
+  and \(\alpha = 1/\mu = \lambda^{-d}\).
+  Then \(T_{\redM} \in \poly\), and also
+  \begin{align}
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}
+    =
+    4^{q(\lambda)} \cdot \left( \frac{\lambda^{d} q(\lambda)}{6\lambda^{d} q(\lambda) - q(\lambda)} \right)^{q(\lambda)}
+    & = 4^{q(\lambda)} \cdot \left( \frac{1}{6 - \lambda^{-d}} \right)^{q(\lambda)} \notag\\
+    & = \mathcal{O}((4 / 5)^{q(\lambda)})\notag\\
+    & = \negl \notag.
+  \end{align}
+  We then find that
+  \(\epsilon_{\advA} = \Omega(1)\), and
+  \begin{align}\label{ineq:app}
+    \epsilon_{\redR^{\advA}} \le \epsilon_{\redM} + 1/\mu + \alpha + \negl
+    = 2/\mu + \negl
+    = 2\lambda^{-d} + \negl.
+  \end{align}
+  Now let \(k \in \R_{\ge 0}\) be such that \(q(\lambda) = \mathcal{O}(\lambda^{k})\).
+  Set \(d\) large enough that \((d+k)(1-\epsilon) \le d\)
+  (it is enough to take \(d \ge k/\epsilon\) for this) (\TODO{redo the math}).
+  Then we get
+  \[
+    \lambda^{d} \ge (\lambda^{d+k})^{1-\epsilon} = (\lambda^{d} \Omega(q(\lambda)))^{1-\epsilon}
+  \]
+  where we used that \(\lambda^{k} = \Omega(q(\lambda))\).
+  Recalling that \(\rho = \lambda^{d} q(\lambda)\), we see that
+  \[
+    \lambda^{d} \ge (\Omega(\rho))^{1-\epsilon} = \Omega(\rho^{1-\epsilon}).
+  \]
+  Inserting this into \eqref{ineq:app}, we get
+  \[
+    \epsilon_{\redR^{\advA}} \le 2\lambda^{-d} + \negl
+    = \mathcal{O}(\rho^{\epsilon-1}) + \negl
+    = \mathcal{O}(\rho^{\epsilon-1}),
+  \]
+  and hence
+  \[
+    \epsilon_{\advA} / \epsilon_{\redR^{\advA}} = \Omega(\rho^{1-\epsilon}).
+  \]
+  Now \(\ell = \Omega(\rho^{1-\epsilon})\) follows by the fact that \(T_{\redR^{\advA}} \ge T_{\advA}\).
+\end{namedproof}
+
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

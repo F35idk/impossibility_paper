@@ -4,19 +4,29 @@
 The following theorem is the main result of the section.
 
 \begin{theorem}[Impossibility of tight \OWECPA reductions]\label{thm:main}
-  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  Let \(\KEM = (\Setup,\allowbreak \KG,\allowbreak \Encaps,\allowbreak \Decaps)\) be a KEM
   with \((1-\delta)\)-correctness
-  and let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\)
+  and let \(\Simple = (\Init,\allowbreak \Respond,\allowbreak \Win,\allowbreak \kappa(\cdot))\)
   be a simple computational assumption.
-  Assuming that \Simple is hard
-  and \(\delta\) is negligible,
-  any simple \((\mu,\rho)\)-reduction \redR
-  from breaking the \OWECPA security of \KEM to breaking \Simple
-  must lose a factor \(\ell\), where
+  Assuming that \Simple is hard and \(\delta\) is negligible,
+  then the security loss \(\ell\) of any simple reduction \redR
+  from breaking the \((\mu,\rho)\text{-}\OWECPA\) security of \KEM to breaking \Simple
+  must be at least
   \begin{equation}\label{eq:main}
-    \ell = \Omega(\mu) \text{ and } \ell = \Omega(\rho^{1-\epsilon}) \text{ for any } \epsilon > 0.
+    \ell = \Omega(\mu) \text{ and } \ell = \Omega(\rho^{1-\epsilon}) \text{ for any } \epsilon \in (0,1).
   \end{equation}
 \end{theorem}
+
+Notice that the security loss is bounded
+below by a function of the number of users \(\mu\)
+in the \OWECPA game,
+and also the number of encapsulations per user \(\rho\).
+Interestingly, we do not quite obtain a linear security loss of \(\ell = \Omega(\rho)\)
+in the number of encapsulations per user,
+but rather have \(\ell = \Omega(\rho^{1-\epsilon})\) for any \(\epsilon \in (0,1)\).
+We are not sure whether this is
+inherent (\TODO{elaborate}), or if the result can be improved to \(\ell = \Omega(\rho)\).
+
 
 As discussed (\TODO{add}), \OWECPA security is weaker the \INDECPA security,
 which in turn is weaker than \INDECCA security.
@@ -26,36 +36,34 @@ From this and the discussion in (\TODO{discuss}),
 we derive the following theorem as a corollary of Theorem \ref{thm:main}.
 
 \begin{theorem}[Impossibility of tight \INDECPA/\INDECCA reductions]
-  Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
+  Let \(\KEM = (\Setup,\allowbreak \KG,\allowbreak \Encaps,\allowbreak \Decaps)\) be a KEM
   with \((1-\delta)\)-correctness
-  and let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\)
+  and let \(\Simple = (\Init,\allowbreak \Respond,\allowbreak \Win,\allowbreak \kappa(\cdot))\)
   be a simple computational assumption.
-  Assuming that \Simple is hard
-  and \(\delta\) is negligible,
-  any simple \((\mu,\rho)\)-reduction \redR
-  from breaking either the \INDECPA or \INDECCA security of \KEM to breaking \Simple
-  must lose a factor \(\ell\),
-  where the same bounds as in \eqref{eq:main} hold.
+  Assuming that \Simple is hard and \(\delta\) is negligible,
+  then the security loss \(\ell\) of any simple reduction \redR
+  from breaking either the \((\mu,\rho)\)-\INDECPA or \((\mu,\rho)\)-\INDECCA
+  to breaking \Simple must satisfy the bounds in \eqref{eq:main}.
 \end{theorem}
 
 The above results will in fact be obtained as corollaries
-of the following technical theorem, which is the main workhorse of this section.
+of the following technical theorem.
 
-\begin{theorem}[Bounding the security loss of an \OWECPA reduction]\label{thm:owecpa}
+\begin{theorem}\label{thm:owecpa}
   Let \(\KEM = (\Setup, \KG, \Encaps, \Decaps)\) be a KEM
   with \((1-\delta)\)-correctness,
   ciphertext space \setC, encapsulation key space \keyspace
   and secret key space \(\setSK \subset \{0,1\}^{q(\lambda)}\) for some polynomial \(q\),
   where \(\lambda\) is the security parameter.
-  Let \(\Simple = (\Init, \Respond, \Win,\kappa(\cdot))\) be a simple computational assumption
-  with corresponding game \(\SICA\) as in \TODO{ref.},
-  and let \(\redR\) be a simple
-  \((\mu,\rho)\)-reduction
-  from breaking the \OWECPA security of \KEM to breaking
+  Let \(\Simple = (\Init,\allowbreak \Respond,\allowbreak \Win,\allowbreak \kappa(\cdot))\)
+  be a simple computational assumption
+  with corresponding game \(\SICA\),
+  and let \(\redR\) be a simple reduction
+  from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking
   the \SICA security of \Simple.
   Let \(t \in \N, \alpha \in (0,1)\) with \(t \le \rho/3\).
   Then there exists an (inefficient \TODO{?})
-  \((\mu,\rho)\)-adversary \advA against \(\OWECPA\) security in \KEM
+  adversary \advA against the \((\mu,\rho)\)-\(\OWECPA\) security of \KEM
   whose success probability is at least
   \begin{equation}\label{ineq:A}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
@@ -70,10 +78,10 @@ of the following technical theorem, which is the main workhorse of this section.
 
   Moreover, the running time of \redM is of the form
   \begin{equation}\label{ineq:M:time}
-    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{A}} + (\mu \rho + 1) \cdot T_{\Decaps},
+    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{\advA}} + (\mu \rho + 1) \cdot T_{\Decaps},
   \end{equation}
   where \(T_{\Decaps}\) denotes the running time of the decapsulation algorithm
-  \(\Decaps\) of \KEM, and \(T_{\redR^{A}}\) denotes the running time of \(\redR^{A}\),
+  \(\Decaps\) of \KEM, and \(T_{\redR^{\advA}}\) denotes the running time of \(\redR^{A}\),
   not including the time taken to execute \(\advA\).
   % Moreover, the running time of \redM is polynomial in the parameters \((\mu, \rho)\),
   % and if the running time of the reduction \(\redR^{A}\) is polynomial in \(\lambda\),
@@ -89,7 +97,86 @@ Before we give a proof of Theorem \ref{thm:owecpa},
 we will show how it can be used to obtain Theorem \ref{thm:main}.
 
 \begin{namedproof}{Proof of Theorem \ref{thm:main}}
-  \TODO{Do the details.}
+  Let \redR be a simple reduction
+  from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking \Simple,
+  where \(\mu : \N \to \N\) and \(\rho : \N \to \N\).
+  We need to lower bound the security loss of \redR, as given in Definition \ref{def:loss}.
+  Let \(T_{\Decaps} : \N \to \N\) be the running time of the decapsulation algorithm \Decaps of \KEM,
+  and let \(q : \N \to \N\) be a bound on the length of the secret keys of \KEM.
+  By our definition of a KEM (\TODO{ref.}),
+  the algorithms \((\Setup, \KG, \Encaps, \Decaps)\)
+  are efficient, and so both \(T_{\Decaps}\) and \(q\) are polynomially bounded.
+  Using Theorem \ref{thm:owecpa},
+  we obtain an adversary \advA against the \((\mu,\rho)\)-\OWECPA security of \KEM
+  and an adversary \redM against the \SICA security of \Simple
+  satisfying \eqref{ineq:A} and \eqref{ineq:M}
+  and where the running time of \redM is at most \eqref{ineq:M:time}.
+
+
+  We will show that \(\ell = \Omega(\mu)\).
+  Proving \(\ell = \Omega(\rho^{1-\epsilon})\)
+  amounts to a similar parameter selection exercise,
+  and we defer the proof to Appendix \TODO{ref.}.
+  We wish to select \(\mu,\rho,t\) and \(\alpha\)
+  so as to make the success probability of \advA in \eqref{ineq:A} close to 1,
+  whereas the right hand side of \eqref{ineq:M} should be close to \(1/\mu\).
+  We also need the running time \(T_{\redM}\) of \redM to be polynomial in \(\lambda\).
+  Setting e.g \(\mu = \lambda\), \(\rho = 6\lambda q(\lambda)\), \(t = \lambda q(\lambda)\),
+  \(\alpha = 1/\mu = 1/\lambda\) gives
+  \begin{align}
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}
+    =
+    4^{q(\lambda)} \cdot \left( \frac{\lambda q(\lambda)}{6\lambda q(\lambda) - q(\lambda)} \right)^{q(\lambda)}
+    & = 4^{q(\lambda)} \cdot \left( \frac{1}{6 - 1/\lambda} \right)^{q(\lambda)} \notag\\
+    & = \mathcal{O}((4 / 5)^{q(\lambda)})\notag\\
+    & = \negl, \notag
+  \end{align}
+  where for the final line we use that we may assume that
+  \(q(\lambda) = \omega(\log{\lambda})\)
+  (or else the KEM \KEM would trivially not be \OWECPA-secure,
+  in which case no reduction of any kind can exist if \Simple is hard).
+
+  Using this, we now get
+  \begin{align}\label{ineq:eps}
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}} \le 1/\mu + \alpha + \negl
+    = 2/\mu + \negl,
+  \end{align}
+  along with
+  \begin{align}
+    p_{\advA} \ge 1 - 1/\lambda - \delta(\lambda) \cdot 6 \lambda^{2} q(\lambda) - \negl
+    = 1 - 1/\lambda - \negl,
+  \end{align}
+  since the correctness error \(\delta\) of the KEM \KEM satisfies \(\delta(\lambda) = \negl\) by assumption.
+  It follows that the advantage \(\epsilon_{\advA}\) of \advA is
+  \(\abs*{p_{\advA} - 1/\abs{\keyspace}} = \Omega(1)\).
+  On the other hand, the running time \(T_{\redM}\) of \redM is
+  \[
+    T_{\redM} \le (\mu + 1) \cdot T_{\redR^{\advA}} + (\mu \rho + 1) \cdot T_{\Decaps}
+    = \poly,
+  \]
+  since \(T_{\redR^{\advA}},T_{\Decaps},\mu,\rho \in \poly\).
+  Hence \redM is an efficient adversary against the \SICA security of \Simple,
+  and so if \Simple is hard then
+  \(
+    \epsilon_{\redM} = \negl.
+  \)
+  Thus \eqref{ineq:eps} gives
+  \begin{align}
+    \epsilon_{\redR^{\advA}} \le  \epsilon_{\redM} + 2/\mu + \negl \le 2/\mu + \negl
+    = \mathcal{O}(1/\mu).
+  \end{align}
+  We thus find that
+  \begin{align}
+    \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} = \Omega(\mu).
+  \end{align}
+  Combining this with the fact that \(T_{\redR} \ge T_{\advA}\),
+  which follows since \redR is a simple reduction and
+  hence runs the adversary \advA to completion,
+  we get
+  \(
+    \ell = \Omega(\mu),
+  \)
+  as desired.
 \end{namedproof}
 
 In order to pave the way for a proof of Theorem \ref{thm:owecpa},
@@ -238,9 +325,8 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
 \end{proof}
 
 We now turn to the proof of Theorem \ref{thm:owecpa}.
-\TODO{fix proof name.}
 
-\begin{proof}[Proof of Theorem \ref{thm:owecpa}]
+\begin{namedproof}{Proof of Theorem \ref{thm:owecpa}}
   We begin by describing the adversary \advA against \OWECPA security in \KEM
   and the meta-reduction \redM against the simple computational assumption \Simple.
   Let \(\rho, \mu, t \in \N, \alpha \in (0,1)\) be as given in the theorem statement.
@@ -436,7 +522,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
     & \le \prob{s_{\redM} \ne s_{\redR}} \notag,
   \end{align}
   as desired.
-\end{proof}
+\end{namedproof}
 
 \begin{lemma}\label{lemma:M}
   With the same setup as above,

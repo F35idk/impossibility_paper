@@ -65,6 +65,31 @@
 \TODO{Explain what we mean by a \emph{challenger} and an \emph{adversary}, which is terminology I use frequently.}
 
 \subsection{Reductions}
+
+
+\begin{definition}[Simple reduction]
+  \TODO{add this.}
+\end{definition}
+
+
+We define the security loss of a reduction \redR similarly to ???,
+as a maximum over all adversaries \advA of a certain product of the
+advantages and running times of \(\redR\) and \(\advA\).
+
+\begin{definition}[Security loss]\label{def:loss}
+  Let \(\redR\) be a simple reduction
+  from breaking problem \(P_{1}\) to breaking problem \(P_{2}\).
+  Then the security loss \(\ell : \N \to \N\) of \(\redR\) is given by
+  \begin{equation}
+    \ell(\lambda) = \max_{\advA} \left\{ \frac{\epsilon_{\advA}(\lambda)}{\epsilon_{\redR^{\advA}}(\lambda)}\frac{T_{\redR^{\advA}}(\lambda)}{T_{\advA}(\lambda)} \right\}
+  \end{equation}
+  where the maximum is taken over all adversaries \(\advA\) in \(P_{1}\),
+  and \((\epsilon_{\advA}, T_{\advA})\) and \((\epsilon_{\redR^{\advA}}, T_{\redR^{\advA}})\)
+  denote the advantage and running time of \advA and \(\redR^{\advA}\) in \(P_{1}\) and \(P_{2}\), respectively.
+\end{definition}
+
+
+
 \TODO{write.}
 
 \subsection{Computational assumptions}
@@ -149,6 +174,9 @@ We will call such assumptions \emph{simple computational assumptions}.
 
 \TODO{say something about how this extends non-interactive assumptions.}
 \TODO{say something about how CCA-type games can be modeled by this. And stDH}.
+
+
+\TODO{define what it means for S to be ``hard''.}
 
 
 %%% Local Variables:
