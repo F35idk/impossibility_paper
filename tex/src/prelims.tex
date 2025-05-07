@@ -32,7 +32,7 @@
   \begin{pcvstack}[center,space=0.5cm]
     \proc{Game $\OWECPA_{\KEM}^{\advA}(\mu, \rho, \lambda)$}{
       L_{rev}, L_{corr} \assign \List.\\
-      \params \assign \KEM{}.\Setup{}(1^{\lambda}).\\
+      \params \assign \Setup{}(1^{\lambda}).\\
       \pcfor i \in [\mu]:\\
       \t (\sk_i,\pk_i) \assign \KG(\params).\\
       \oracle := \{\Enc, \Reveal, \Corrupt\}.\\

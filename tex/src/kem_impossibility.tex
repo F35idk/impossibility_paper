@@ -575,11 +575,11 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \end{equation}
   Let \(\eventE_{abrt}\) denote the event that \redM aborts in Step \ref{advM:key}, or more precisely
-  \[
-    \eventE_{abrt} := \text{\redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu] \setminus \{i^{*}\},
-    \text{ the secret key } \sk_{i^{*}}^{\ell}
-    \text{ fails to satisfy \eqref{skcheck}. }
-  \]
+  \begin{align}
+    \eventE_{abrt} := & \text{ \redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu] \setminus \{i^{*}\}\notag\\
+    & \text{ there is } j \in [\rho] \setminus S_{i^{*}}
+    \text{ such that } \Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) \ne k_{i^{*},j}. \notag
+  \end{align}
   We claim that \(\prob{\eventE_{abrt}} \le 1/\mu\).
   % The precise argument here is rather subtle,
   % although it is standard and follows the argument in \TODO{HLG21, which page?},
