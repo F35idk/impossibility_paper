@@ -285,12 +285,13 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   Also note that the meta-reduction \redM only needs to simulate a single
   execution of \advA towards \redR,
   since we are assuming that the reduction \redR is simple
-  and hence only executes \advA once.
+  and hence executes \advA only once.
   We describe \redM in the following.
 
   \begin{enumerate}[itemsep=0.1cm]
     \item Receive the challenge \(c\) from the \(\SICA\) challenger.
-    \item Pass the challenge \(c\) to the reduction \redR. Then run \(\redR\) as follows:
+    \item Pass the challenge \(c\) to the reduction \redR. Then run \(\redR\) as follows,
+          using the oracle \oracle to simulate the corresponding oracle for \redR:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Execute \(\redR^{\oracle}\) while simulating \advA towards \(\redR^{\oracle}\),
                   but halt the execution of \(\redR^{\oracle}\)
@@ -300,8 +301,9 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
                   received by \advA during these steps by \((\pk_{i})_{i \in [\mu]}\) and
                   \((c_{i,j})_{i \in [\mu], j \in [\rho]}\), respectively.
                   Also denote the random subsets chosen by \advA in Step \ref{advA:reveal}
-                  by \((S_{i})_{i \in \mu}\),
-                  and the corresponding revealed keys by \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\).
+                  by \((S_{i})_{i \in [\mu]}\),
+                  and the corresponding revealed keys by \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\)
+                  for each \(i \in [\mu]\).
             \item Finally, store the state of \(\redR^{\oracle}\) after this point as \(\state_{\redR}\).
           \end{itemize}
     \item\label{advM:rewind}
@@ -318,7 +320,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
                           storing the resulting secret keys as \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
                     \item\label{advM:Acheck} For each \(i \ne \ell\),
                           aborting the simulation of \advA if
-                          \(\Decaps(\sk_{i}^{\ell},c_{i,j}^{\ell}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+                          \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
                   \end{enumerate}
             \item Denote the state of \(\redR^{\oracle}\) after this point by \(\state_{\redR}^{\ell}\).
           \end{itemize}
@@ -332,7 +334,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
                 Afterwards, terminate and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
           \item Otherwise: go to the next step.
         \end{itemize}
-    \item\label{advM:key} For each \(\ell \in [\mu]\), repeat the following:
+    \item\label{advM:key} For each \(\ell \in [\mu] \setminus \{i^{*}\}\), repeat the following:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Check if the secret key \(\sk_{i^{*}}^{\ell}\)
                   stored in Step \ref{advM:rewind} satisfies that
@@ -477,7 +479,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   Indeed, this can happen in Step \ref{advM:key},
   if \redM fails to find a secret key \(\sk_{i^{*}}'\)
   of the appropriate form among the \(\mu - 1\)
-  different secret keys \(\sk_{i^{*}}^{\ell}\) it has saved.
+  different secret keys \((\sk_{i^{*}}^{\ell})_{\ell \in [\mu] \setminus \{i^{*}\}}\) it has saved.
   More precisely, this will happen if
   none of the secret keys \(\sk_{i^{*}}^{\ell}\)
   which were stored by \redM during the rewinding of \redR in Step \ref{advM:rewind}
@@ -488,29 +490,41 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \end{equation}
   Let \(\eventE_{abrt}\) denote the event that \redM aborts in Step \ref{advM:key}, or more precisely
   \[
-    \eventE_{abrt} := \text{\redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu],
+    \eventE_{abrt} := \text{\redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu] \setminus \{i^{*}\},
     \text{ the secret key } \sk_{i^{*}}^{\ell}
-    \text{ fails to satisfy the check in \eqref{skcheck}. }
+    \text{ fails to satisfy \eqref{skcheck}. }
   \]
   We claim that \(\prob{\eventE_{abrt}} \le 1/\mu\).
-  The precise argument here is somewhat subtle,
-  although it is standard and follows the argument in \TODO{HLG21, which page?},
-  which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
-  pioneered by \cite{EC:BJLS16}.
-  \TODO{finish the argument here.}
-  % Hence we will only give a brief sketch here.
-  % The idea is that, if \redM fails to receive a secret key of the desired form,
-  % then with high probability over the choice of \(i^{*}\), \advA{} will abort,
-  % so that \redM's simulation of \advA succeeds trivially (and \(\eventE_{abrt}\) does not occur).
-  % \TODO{say something more.}
+  % The precise argument here is rather subtle,
+  % although it is standard and follows the argument in \TODO{HLG21, which page?},
+  % which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
+  % pioneered by \cite{EC:BJLS16}.
+  This is because there can be at most one choice of \(i^{*}\)
+  in Step \ref{advM:sample} that would cause \redM to enter Step \ref{advM:key} and abort.
+  Since \(i^{*}\) is picked uniformly at random from \([\mu]\) in Step \ref{advM:sample} of \redM,
+  this gives \(\prob{\eventE_{abrt}} \le 1/\mu\).
+  To see that there can be at most one such \(i^{*}\),
+  recall that whenever \redM rewinds the reduction \redR
+  in Step \ref{advM:rewind},
+  then for each \(\ell \in [\mu]\),
+  it simulates \advA by querying \(\Corrupt(i)\) for each \(i \ne \ell\),
+  receiving secret keys \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\)
+  and aborting the simulation of \advA if
+  \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+  But for \redM to abort in Step \ref{advM:key},
+  then for each \(\ell \ne i^{*}\),
+  it must be the case that
+  \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+  Hence the simulation of \advA would abort for each such \(\ell\).
+  As a consequence, for each \(\ell \ne i^{*}\), the simulation of \advA by \redM would be trivial:
+  \redM would complete its simulation of \advA already in Step \ref{advM:sample},
+  before it could ever enter Step \ref{advM:key} and trigger the event \(\eventE_{abrt}\).
 
   Now let us consider what happens if \(\eventE_{abrt}\) does not occur.
   In this case, we claim that, so long as the key
   \(k_{i^{*},j^{*}}'\) computed by \redM
-  and the key \(k_{i^{*},j^{*}}\) computed by \advA
-  are equal,
-  then \redM simulates \advA \emph{perfectly}
-  towards \redR,
+  and the key \(k_{i^{*},j^{*}}\) computed by \advA are equal,
+  then \redM simulates \advA perfectly towards \redR,
   and the challenge solution \(s_{\redR}\) output by \(\redR^{\advA}\) in \(\SICA_{\Simple}^{\redR}\)
   will equal the challenge solution \(s_{\redM}\) output by \(\redM\)
   in \(\SICA_{\Simple}^{\redM}\).
