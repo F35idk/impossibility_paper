@@ -452,7 +452,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \redM in Step \ref{advM:final} of its execution,
   we will need to address the possibility that \redM aborts
   before ever reaching this step.
-  Indeed, this can happen (only) in Step \ref{advM:key},
+  Indeed, this can happen in Step \ref{advM:key},
   if \redM fails to find a secret key \(\sk_{i^{*}}'\)
   of the appropriate form among the \(\mu - 1\)
   different secret keys \(\sk_{i^{*}}^{\ell}\) it has saved.
@@ -464,21 +464,23 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   \Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}
   \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
   \end{equation}
-  Let \(\eventE_{abrt}\) denote the event that this happens, or more precisely
+  Let \(\eventE_{abrt}\) denote the event that \redM aborts in Step \ref{advM:key}, or more precisely
   \[
-    \eventE_{abrt} := \text{for all } \ell \in [\mu],
+    \eventE_{abrt} := \text{\redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu],
     \text{ the secret key } \sk_{i^{*}}^{\ell}
     \text{ fails to satisfy the check in \eqref{skcheck}. }
   \]
   We claim that \(\prob{\eventE_{abrt}} \le 1/\mu\).
-  This follows from essentially the same type of argument as was used
-  in \TODO{HLG21, which page?}, which in turn borrows from the
-  meta-reduction technique in \cite{EC:BJLS16}.
-  Hence we will only give a brief sketch here.
-  The idea is that, if \redM fails to receive a secret key of the desired form,
-  then with high probability over the choice of \(i^{*}\), \advA{} will abort,
-  so that \redM's simulation of \advA succeeds trivially (and \eventi{1} does not occur).
-  \TODO{say something more.}
+  The precise argument here is somewhat subtle,
+  although it is standard and follows the argument in \TODO{HLG21, which page?},
+  which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
+  pioneered by \cite{EC:BJLS16}.
+  \TODO{finish the argument here.}
+  % Hence we will only give a brief sketch here.
+  % The idea is that, if \redM fails to receive a secret key of the desired form,
+  % then with high probability over the choice of \(i^{*}\), \advA{} will abort,
+  % so that \redM's simulation of \advA succeeds trivially (and \(\eventE_{abrt}\) does not occur).
+  % \TODO{say something more.}
 
   Now let us consider what happens if \(\eventE_{abrt}\) does not occur.
   In this case, we claim that, so long as the key
