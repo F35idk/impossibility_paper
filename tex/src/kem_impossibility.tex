@@ -247,9 +247,9 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
   The adversary \advA is given as follows:
 
   \begin{enumerate}[itemsep=0.1cm]
-    \item Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OWECPA(\KEM)\) challenger.
-    \item Query \(\Enc(i)\) \(\rho\) times for each \(i \in [\mu]\) and receive encapsulations \((c_{i,j})_{i \in [\mu], j \in [\rho]}\).
-    \item For each \(i \in [\mu]\), do the following:
+    \item\label{advA:init} Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OWECPA(\KEM)\) challenger.
+    \item\label{advA:query} Query \(\Enc(i)\) \(\rho\) times for each \(i \in [\mu]\) and receive encapsulations \((c_{i,j})_{i \in [\mu], j \in [\rho]}\).
+    \item\label{advA:reveal} For each \(i \in [\mu]\), do the following:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Pick a uniformly random size \(t\) subset \(S_{i} \subset [\rho]\).
             \item Query \(\Reveal(i,j)\) for each \(j \in [\rho] \setminus S_{i}\)
@@ -290,28 +290,47 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
 
   \begin{enumerate}[itemsep=0.1cm]
     \item Receive the challenge \(c\) from the \(\SICA\) challenger.
-    \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \(\redR^{\oracle}\),
-          but halt the execution of \(\redR^{\oracle}\) when Step \ref{advA:corrupt} of \advA
-          is first reached.
-    \item\label{advM:rewind}
-          Rewind the reduction \(\redR^{\oracle}\) \(\mu\) times as follows:
+    \item Pass the challenge \(c\) to the reduction \redR. Then run \(\redR\) as follows:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Starting from the point at which \(\redR^{\oracle}\) was halted in
-                  the previous step, execute \(\redR^{\oracle}\) while simulating Step
-                  \ref{advA:corrupt} of \advA towards \(\redR^{\oracle}\),
-                  for each of the \(\mu\) possible values of \(i^{*}\)
-                  that \advA could pick in Step \ref{advA:corrupt}.
-            \item While simulating Step \ref{advA:corrupt} of \advA
-                  with the value \(i^{*}\) set to \(i^{*} = \ell\),
-                  store the secret keys received by \advA's queries to \(\Corrupt(i)\)
-                  as \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
+            \item Execute \(\redR^{\oracle}\) while simulating \advA towards \(\redR^{\oracle}\),
+                  but halt the execution of \(\redR^{\oracle}\)
+                  when Step \ref{advA:corrupt} of \advA is first reached.
+            \item That is, simulate Step \ref{advA:init} through Step \ref{advA:reveal} of \advA towards \redR.
+                  Denote the public keys and encapsulations
+                  received by \advA during these steps by \((\pk_{i})_{i \in [\mu]}\) and
+                  \((c_{i,j})_{i \in [\mu], j \in [\rho]}\), respectively.
+                  Also denote the random subsets chosen by \advA in Step \ref{advA:reveal}
+                  by \((S_{i})_{i \in \mu}\),
+                  and the corresponding revealed keys by \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\).
+            \item Finally, store the state of \(\redR^{\oracle}\) after this point as \(\state_{\redR}\).
           \end{itemize}
-    \item\label{advM:sample} Rerun \(\redR^{\oracle}\) for a final time while simulating Step \ref{advA:corrupt} of \advA, this time for a uniformly random \(i^{*} \sampleR [\mu]\).
+    \item\label{advM:rewind}
+          For each \(\ell \in [\mu]\), execute the reduction \(\redR^{\oracle}\) as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Starting from the state \(\state_{\redR}\),
+                  run \(\redR^{\oracle}\) while simulating Step
+                  \ref{advA:corrupt} of \advA towards \(\redR^{\oracle}\),
+                  but set \(i^{*} = \ell\) (instead of picking a random \(i^{*}\))
+                  in Step \ref{advA:corrupt} of \advA.
+            \item More precisely, simulate Step \ref{advA:corrupt} of \advA with \(i^{*} = \ell\) by:
+                  \begin{enumerate}[topsep=0.1cm,itemsep=0.1cm,ref=(\alph*)]
+                    \item Querying \(\Corrupt(i)\) to \(\redR^{\oracle}\) for each \(i \ne \ell\),
+                          storing the resulting secret keys as \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
+                    \item\label{advM:Acheck} For each \(i \ne \ell\),
+                          aborting the simulation of \advA if
+                          \(\Decaps(\sk_{i}^{\ell},c_{i,j}^{\ell}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+                  \end{enumerate}
+            \item Denote the state of \(\redR^{\oracle}\) after this point by \(\state_{\redR}^{\ell}\).
+          \end{itemize}
+    \item\label{advM:sample} Pick a random \(i^{*} \sampleR [\mu]\) and do the following:
         \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-                \item If the simulation of \advA aborts during this step:
-                simply run \(\redR^{\oracle}\) to completion (in this case, our task of simulating \advA is trivial since \advA has aborted).
+          \item If the simulation of \(\advA\) in Step \ref{advM:rewind} with \(\ell = i^{*}\)
+                aborted (because one of the checks in \ref{advM:Acheck} failed with \(\ell = i^{*}\)),
+                then simply continue executing \(\redR^{\oracle}\)
+                from the state \(\state_{\redR}^{i^{*}}\), running \(\redR^{\oracle}\) to completion
+                (in this case, the task of simulating \advA becomes trivial since \advA has aborted).
                 Afterwards, terminate and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
-                \item Otherwise: go to the next step.
+          \item Otherwise: go to the next step.
         \end{itemize}
     \item\label{advM:key} For each \(\ell \in [\mu]\), repeat the following:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
@@ -324,11 +343,14 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
             \item If no secret key \(\sk_{i^{*}}'\) satisfying the above
                   was found during the entire loop: abort.
           \end{itemize}
-    \item\label{advM:final} Finally: use \(\sk_{i^{*}}'\) to simulate the last part of \advA's execution towards \(\redR^{\oracle}\):
+    \item\label{advM:final} Finally, use \(\sk_{i^{*}}'\) to simulate the
+          last step of \advA's execution towards \(\redR^{\oracle}\):
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-                  \item Pick \(j^{*} \sampleR S_{i^{*}}\) and compute \(k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
-                  \item Let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
-                  as it would in the \OWECPA game.
+            \item Start \(\redR^{\oracle}\) from state \(\state_{\redR}^{i^{*}}\),
+                  and simulate Step \ref{advA:final} of \advA by picking \(j^{*} \sampleR S_{i^{*}}\)
+                  and computing \(k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
+            \item Then output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
+                  completing the simulation of \advA towards \(\redR^{\oracle}\).
             \item Afterwards, continue running \(\redR^{\oracle}\)
                   until termination, and output whatever \(\redR^{\oracle}\)
                   outputs in the game \SICA.
