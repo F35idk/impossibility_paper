@@ -239,11 +239,12 @@ trivially (\TODO{does it though?}), but will be good enough for our purposes.
 
 We now turn to the proof of Theorem \ref{thm:owecpa}.
 \TODO{fix proof name.}
+
 \begin{proof}[Proof of Theorem \ref{thm:owecpa}]
   We begin by describing the adversary \advA against \OWECPA security in \KEM
   and the meta-reduction \redM against the simple computational assumption \Simple.
   Let \(\rho, \mu, t \in \N, \alpha \in (0,1)\) be as given in the theorem statement.
-  We describe \advA as follows:
+  The adversary \advA is given as follows:
 
   \begin{enumerate}[itemsep=0.1cm]
     \item Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OWECPA(\KEM)\) challenger.
@@ -292,8 +293,6 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
     \item Run \(\redR^{\oracle,\advA}(c)\) while simulating \advA towards \(\redR^{\oracle}\),
           but halt the execution of \(\redR^{\oracle}\) when Step \ref{advA:corrupt} of \advA
           is first reached.
-          Here, \(\oracle\) denotes the oracle in \redM's instance of the game \SICA,
-          which \redM uses to simulate the corresponding oracle for \redR.
     \item\label{advM:rewind}
           Rewind the reduction \(\redR^{\oracle}\) \(\mu\) times as follows:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
@@ -307,11 +306,13 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
                   store the secret keys received by \advA's queries to \(\Corrupt(i)\)
                   as \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
           \end{itemize}
-    \item\label{advM:sample} Rerun \(\redR^{\oracle}\) for a final time, this time for a uniformly random \(i^{*} \sampleR [\mu]\),
-          until Step \ref{advA:brute} of \advA is reached.
-          If while simulating \advA in this step, \advA aborts,
-          simply continue by running \(\redR^{\oracle}\) to completion
-          and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
+    \item\label{advM:sample} Rerun \(\redR^{\oracle}\) for a final time while simulating Step \ref{advA:corrupt} of \advA, this time for a uniformly random \(i^{*} \sampleR [\mu]\).
+        \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+                \item If the simulation of \advA aborts during this step:
+                simply run \(\redR^{\oracle}\) to completion (in this case, our task of simulating \advA is trivial since \advA has aborted).
+                Afterwards, terminate and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
+                \item Otherwise: go to the next step.
+        \end{itemize}
     \item\label{advM:key} For each \(\ell \in [\mu]\), repeat the following:
           \begin{itemize}[label={\textbullet},itemsep=0.1cm]
             \item Check if the secret key \(\sk_{i^{*}}^{\ell}\)
@@ -328,7 +329,7 @@ We now turn to the proof of Theorem \ref{thm:owecpa}.
                   \item Pick \(j^{*} \sampleR S_{i^{*}}\) and compute \(k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
                   \item Let \advA output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
                   as it would in the \OWECPA game.
-            \item Afterwards, continue running the reduction \(\redR^{\oracle}\)
+            \item Afterwards, continue running \(\redR^{\oracle}\)
                   until termination, and output whatever \(\redR^{\oracle}\)
                   outputs in the game \SICA.
           \end{itemize}
