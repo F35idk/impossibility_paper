@@ -4,7 +4,7 @@
 \usepackage{src/mypreamble}
 \include{commands}
 
-\title{Strong Impossibility on Tightly Secure Key Exchange}
+\title{Strong Impossibility on Tightly Secure Key Encapsulation and Key Exchange}
 %\subtitle{Subtitle}
 \titlerunning{Strong Impossibility on Tightly Secure Key Exchange}
 \date{\now}
@@ -18,8 +18,9 @@
 \maketitle
 
 \begin{abstract}
-	Authenticated key exchange (AKE) protocols run in a multi-user, multi-challenge setting, and 
-%  \TODO{write this.}
+	Authenticated key exchange (AKE) protocols run at a large scale, and their security loss affects their security guarantee and the theoretically sound parameter selection. Using key encapsulation mechanisms (KEMs) is a well-known approach in constructing AKE protocols, for instance, the lattice-based ones. In this paper, we study tightness of KEM-based AKE protocols with a focus on lattice-based constructions.
+	
+	\quad More precisely, we consider the enhanced chosen-plaintext (ECPA) security of KEM, a notion proposed by Han, Liu, and Gu (ASIACRYPT 2021). We use a combinatorial argument to show that if an adversary involves $2 \lambda$ many users and $11 \lambda p(\lambda)$ ciphertexts, then the security reduction has to lose a linear factor on the number of users $\mu$ in the \emph{standard model}. Hence, its security cannot be tight. In the previous impossibility result of Han et al., it requires the KEM to have polynomially-bounded ranks and it only rules out a class of KEMs based on the Diffie-Hellman assumption. However, our result is more general and does not require polynomially-bounded ranks, and thus it can capture those KEMs based on lattices. Since the ECPA-secure KEM is related to the AKE security, an application of our result is excluding any tightly secure AKE, where the protocol transcripts are independent of the long-term secret keys.
 \end{abstract}
 
 %\blankpage
