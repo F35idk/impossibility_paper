@@ -1,6 +1,230 @@
 
 \section{Proof outline}
 
+\TODO{Incorporate suggestions, give more context,
+  spend more time explaining things.}
+
+As in the proof in \cite{AC:HanLiuGu21},
+we will make use of an inefficient adversary
+which breaks \OWECPA security with advantage close to 1
+using a ``brute force'' attack
+(this is the adversary \advA)
+and a \emph{meta-reduction} which will simulate the adversary
+\advA towards the reduction \redR efficiently (this is the adversary \redM).
+Our goal is for the simulation to succeed except with a probability
+of at most, say \(\mathcal{O}(1/\mu)\), where \(\mu\) is the number of users
+in the \OWECPA game with \advA.
+Together, this will show inequalities \eqref{ineq:A} and \eqref{ineq:M},
+which will prove the theorem.
+
+To construct our adversary \advA and meta-reduction \redM,
+we will use the meta-reduction and adversary in \cite{AC:HanLiuGu21}
+as a starting point.
+I will give a description of their proof here,
+and then explain how we will modify it to remove the assumption of polynomial rank.
+% In short, the strategy of the meta-reduction and adversary in \cite{AC:HanLiuGu21}
+% is to make use of the ability to \emph{both} corrupt users \emph{and} reveal encapsulations in the \ECPA game.
+
+The brute-force attack used by the adversary in \cite{AC:HanLiuGu21}
+involves enumerating all possible secret keys \(\sk_{i^{*}}\)
+for a given public key \(\pk_{i^{*}}\) on a user \(i^{*}\),
+and picking one which will (hopefully)
+correctly decapsulate a challenge ciphertext.
+Note that there may not be a unique secret key \(\sk_{i^{*}}\)
+that ``matches'' the public key \(\pk_{i^{*}}\),
+since we have made no assumptions about
+the ``uniqueness'' of private-public key pairs in the KEM.
+% Hence determining the exact secret key to pick
+% in the brute-force search is maybe not so straightforward.
+Now, in order to pick a viable secret key,
+the adversary in \cite{AC:HanLiuGu21}
+makes use of the \Reveal oracle in the \ECPA game,
+to learn many decapsulations of challenge ciphertexts on user \(i^{*}\).
+Using this information, the adversary picks a secret key \(\sk_{i^{*}}\)
+which ``agrees'' with the revealed encapsulations.
+That is, the adversary picks a secret key \(\sk_{i^{*}}\)
+such that for each revealed ciphertext \(c_{i^{*},j}\) on user \(i^{*}\)
+and corresponding revealed key \(k_{i^{*},j}\),
+the decapsulation of \(c_{i^{*},j}\)
+under \(\sk_{i^{*}}\) is equal to \(k_{i^{*},j}\)
+(in the real game with an honest challenger,
+such a secret key \(\sk_{i^{*}}\) exists with high probability).
+
+Now, in order for the meta-reduction in \cite{AC:HanLiuGu21}
+to be able to simulate the adversary efficiently towards the reduction,
+it must somehow simulate the brute-force search of the adversary efficiently.
+To do this, \cite{AC:HanLiuGu21}
+use a ``tightness / rewinding trick'' which is quite similar to that used in \cite{EC:BJLS16}.
+By cleverly designing the adversary
+(making use of the ability to corrupt users in the \ECPA game),
+the meta-reduction in \cite{AC:HanLiuGu21}
+is now able to obtain a secret key \(\sk_{i^{*}}'\)
+which agrees with all of the revealed encapsulations on user \(i^{*}\),
+just like the secret key that the adversary
+would have obtained
+(note that this fails with probability \(\mathcal{O}(1/\mu)\)).
+% This is done by rewinding the reduction.
+Now the meta-reduction can use this secret key
+in place of the secret key \(\sk_{i^{*}}\)
+that the adversary would have obtained via brute-force,
+and hence (hopefully) simulate the adversary efficiently.
+
+Unfortunately, the secret key \(\sk_{i^{*}}'\) obtained
+by the meta-reduction will in general not be the same
+secret key \(\sk_{i^{*}}\) that the adversary would have found by brute-force
+(recall that we have made no assumption about uniqueness of public-private key pairs),
+and this poses a problem for our meta-reduction.
+What we nevertheless \emph{can} say about the pair of secret keys
+\((\sk_{i^{*}}',\sk_{i^{*}})\)
+is that they agree on all of the revealed encapsulations.
+As a result, one may hope that the two keys
+\((\sk_{i^{*}}',\sk_{i^{*}})\)
+also agree on any \emph{unrevealed} encapsulations
+--- at least with good probability.
+And as \cite{AC:HanLiuGu21} observe,
+this is actually enough to make the proof go through:
+if the meta-reduction and adversary can somehow pick an unrevealed ciphertext
+on which their respective secret keys agree,
+then the meta-reduction will be able to simulate the adversary
+efficiently towards the reduction.
+That is, even though the secret keys may in general be different
+(and distributed differently),
+it is enough for them to ``decapsulate the same''
+with good probability.
+
+% Then, the meta-reduction will be able to simulate the
+% adversary towards the reduction with good probability,
+% and the proof will go through.
+
+In view of this, \cite{AC:HanLiuGu21} define the \emph{rank} of a KEM.
+In somewhat simplified terms,
+what \cite{AC:HanLiuGu21} show
+is that, if a KEM has \emph{polynomial rank},
+then whenever two secret keys \((\sk_{i^{*}}',\sk_{i^{*}})\)
+agree on a large set of ciphertexts,
+then they are likely to agree on a new ciphertext as well.
+This is exactly what is needed for the meta-reduction
+in \cite{AC:HanLiuGu21} to work.
+
+More specifically, the strategy of \cite{AC:HanLiuGu21}
+is to have the adversary \advA pick a random ciphertext
+\(c_{i^{*},j^{*}}\) on user \(i^{*}\) among, say, \(\poly\)
+different ciphertexts
+\(\{c_{i^{*},1},c_{i^{*},2},\ldots,c_{i^{*},\poly}\}\)
+on user \(i^{*}\),
+and then reveal every ciphertext \emph{except for this one}
+using calls to the \Reveal oracle in the \ECPA game.
+Then the adversary brute-force searches for a secret key \(\sk_{i^{*}}\)
+which agrees with the revealed ciphertexts,
+and uses this to attempt to decapsulate the unrevealed ciphertext \(c_{i^{*},j^{*}}\).
+The meta-reduction simulates this brute-force attack
+as described above (by a ``rewinding trick''),
+obtaining a secret key \(\sk_{i^{*}}'\)
+which agrees with the secret key \(\sk_{i^{*}}\)
+on every revealed ciphertext on user \(i^{*}\).
+By the polynomial rank of the KEM,
+the secret key \(\sk_{i^{*}}'\)
+will decapsulate the ciphertext \(c_{i^{*},j^{*}}\)
+identically to the secret key \(\sk_{i^{*}}\) with good probability,
+and the simulation will succeed (again, with good probability).
+
+% By rewinding the reduction \redR, the meta-reduction in \cite{AC:HanLiuGu21}
+% is able to (except with probability \(1/n\)) obtain a secret key
+% \(\sk_{i^{*}}'\) for a user \(i^{*}\) such that the secret
+% key \(sk_{i^{*}}\) that \advA presumably would have obtained by brute-force
+% ``agrees'' with the secret key \(\sk_{i^{*}}'\) of the meta-reduction
+% on many of the  ciphertexts received on user \(i^{*}\),
+% meaning that the two secret keys decapsulate many of these ciphertexts identically.
+% Specifically, the two secret keys agree on all but one of the ciphertexts \(c_{i^{*},j^{*}}\)
+% received on user \(i^{*}\), where \(c_{i^{*},j^{*}}\) is picked at random from the set of ciphertexts received on user \(i^{*}\).
+% In order to ensure that the two secret keys agree on the aforementioned ciphertexts,
+% every ciphertext received on user \(i^{*}\) except for \(c_{i^{*},j^{*}}\) is revealed by the adversary.
+% It is then argued that, given ``polynomial rank'' of the KEM, the two secret keys will also agree
+% on the unrevealed ciphertext \(c_{i^{*},j^{*}}\), except with probability \(1/n\).
+% The adversary then uses its secret key \(\sk_{i^{*}}\) to decapsulate \(c_{i^{*},j^{*}}\)
+% and outputs the result in the \OWECPA game:
+% the meta-reduction simulates this by using its own secret key \(\sk_{i^{*}}'\).
+% Since the two secret keys are likely to agree on \(c_{i^{*},j^{*}}\),
+% the meta-reduction succeeds in simulating the adversary
+% except with probability \(\mathcal{O}(1/n)\), as required.
+
+To remove the assumption of polynomial rank from the above proof,
+we will need to refine the way in
+which the ciphertext \(c_{i^{*},j^{*}}\) is chosen by the adversary.
+The idea here is to let the adversary pick a random \emph{subset}
+\(S_{i^{*}}\) of the ciphertexts received on user \(i^{*}\),
+revealing every ciphertext outside of \(S_{i^{*}}\),
+while keeping the ciphertexts inside of \(S_{i^{*}}\) unrevealed.
+This is as opposed to revealing \emph{all-but-one} of the ciphertexts
+on user \(i^{*}\), which is what the adversary in \cite{AC:HanLiuGu21} does.
+Now, by a counting argument
+(and with the proper choice of parameters), we find that,
+if the two secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+that the adversary and meta-reduction obtain
+agree on all of the ciphertexts
+on user \(i^{*}\) \emph{outside} of the set \(S_{i^{*}}\),
+then they likely agree on all but a \(\mathcal{O}(1/\mu)\) fraction
+of ciphertexts \emph{inside} of the set \(S_{i^{*}}\) as well.
+With this, we can simply let the adversary pick the
+ciphertext \(c_{i^{*},j^{*}}\) randomly from the set \(S_{i^{*}}\),
+and then use its secret key \(\sk_{i^{*}}\)
+to attempt to decapsulate it.
+With good probability,
+the meta-reduction will now succeed in simulating
+the adversary's brute-force attack.
+Indeed, as before,
+we can ensure that the secret key \(\sk_{i^{*}}'\)
+that the meta-reduction obtains
+will agree with the secret key \(\sk_{i^{*}}\)
+on all of the revealed ciphertexts on user \(i^{*}\),
+and hence on all of the ciphertexts on user \(i^{*}\)
+which are outside of the set \(S_{i^{*}}\).
+By our counting argument, then with high probability,
+the secret key \(\sk_{i^{*}}'\)
+agrees with the secret key \(\sk_{i^{*}}\)
+on all but a \(\mathcal{O}(1/\mu)\) fraction
+of ciphertexts inside of the set \(S_{i^{*}}\) as well.
+Since the ciphertext \(c_{i^{*},j^{*}}\)
+was chosen randomly from \(S_{i^{*}}\),
+it follows that the secret key \(\sk_{i^{*}}'\)
+agrees with \(\sk_{i^{*}}\) on \(c_{i^{*},j^{*}}\)
+except with probability \(\mathcal{O}(1/\mu)\),
+which is all we need for the proof to go through.
+
+To give some intuition for why this counting argument should work,
+consider the event that the two secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+agree on all of the ciphertexts received on user \(i^{*}\)
+which are outside of \(S_{i^{*}}\),
+but disagree on all of the ciphertexts inside of \(S_{i^{*}}\).
+Let us say that the pair of secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+is ``bad'' for the subset \(S_{i^{*}}\) if this happens.
+Notice that, for this to be the case,
+then if we had chosen any subset \(S_{i^{*}}' \ne S_{i^{*}}\) of the ciphertexts received on user \(i^{*}\),
+the two secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+would either disagree on some ciphertext outside of the set \(S_{i^{*}}'\),
+or agree on some ciphertext inside of \(S_{i^{*}}'\).
+In either case, the pair of secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+would not be bad for the subset \(S_{i^{*}}'\).
+In other words, the pair of secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+can be bad \emph{only} for the specific subset \(S_{i^{*}}\).
+As a result, we find that any pair of secret keys can be
+bad for at most one subset of the ciphertexts received on user \(i^{*}\).
+% As a result, this pair of secret keys
+% can only foil the meta-reduction if we happen
+% to pick this exact subset \(S_{i^{*}}\).
+By setting our parameters large enough
+(i.e requesting many enough ciphertexts on user \(i^{*}\)),
+we can ensure that there are vastly many more subsets to choose from
+than there are pairs of secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\).
+Hence the probability that a random subset even \emph{has}
+such a bad pair of secret keys will be small.
+This argument can be generalized to the case where pairs of
+secret keys are considered ``bad'' for \(S_{i^{*}}\)
+when they disagree on only a fraction of the ciphertexts in \(S_{i^{*}}\),
+as opposed to disagreeing on \emph{all} of the ciphertexts in \(S_{i^{*}}\)
+(note that in the formal proof we work with fixed size subsets,
+which alters the argument slightly).
+
 
 %%% Local Variables:
 %%% mode: latex
