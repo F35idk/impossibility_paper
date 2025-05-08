@@ -1,14 +1,59 @@
 
 \section{Introduction}
 Key encapsulation mechanisms (KEMs) and authenticated key exchange (AKE) protocols are essential primitives in public-key cryptography.
-In short, a KEM allows a user to encapuslate a random key $k$ by outputting a ciphertext $c$ using the public key of another user. 
+In short, a KEM allows a user to encapuslate a random key $K$ by outputting a ciphertext $C$ using the public key of another user. 
 %a pair \((k,c)\)
 %consisting of a random key \(k\) and a ciphertext \(c\),
-With the corresponding secret key, the designated user can decrypt the ciphertext \(c\) and recover the same key $k$.
+With the corresponding secret key, the designated user can decrypt the ciphertext \(C\) and recover the same key $K$.
 %The ciphertext \(c\) is referred to as an \emph{encapsulation} of the key \(k\),
 %under the public key of the designated user.
 %Any public key encryption scheme easily yields a KEM, and the opposite implication is also true (cite).
-KEMs are used as building blocks for many complex public-key cryptosystems. Among them, AKE protocols are (arguably) the most important application, since AKE protocols can exchange a session key between two users to establish a secure channel. 
+KEMs are used as building blocks for many complex public-key cryptosystems. Among them, AKE protocols are (arguably) the most important application, since AKE protocols can exchange a session key between two users to establish a secure channel.
+For instance, the promising post-quantum TLS replacement KEMTLS \cite{CCS:SchSteWig20} is a well-known example of KEM-based AKE.
+
+
+\heading{Security of KEM-based AKE.}
+The security requirement for AKE is that an adversary $\advA$ cannot learn information about the shared session key even if $\advA$ manipulates the protocol messages, adaptively corrupt some user long-term keys, and reveal keys of some sessions. This is more complicated than 
+
+\iffalse
+\begin{figure}[t]
+	\centering
+	\begin{pcimage}
+		\fbox{  
+			\centering
+			\pseudocode[colspace=-2.5em]{%
+				\textbf{Party } P_i: (\akeCCApk_i, \akeCCAsk_i) \<  \< \textbf{Party } P_j: (\akeCCApk_j, \akeCCAsk_j) \\[0.1\baselineskip][\hline]
+				\<\< \\[-0.8\baselineskip]
+				(\akeCPApk, \akeCPAsk) \from \akeCPAKEMKG(1^\secpar)\\[-0.2\baselineskip] 
+				(\akeCCAct_j, \akeCCAkey_j) \from \akeCCAKEMEnc(\akeCCApk_j) \\[-1.2\baselineskip]
+				%\akeState := (\akeCPApk, \akeCPAsk, \akeCCAct_j, \akeCCAkey_j)\\
+				\< \sendmessage{->}{top={$(\akeCPApk,\akeCCAct_j)$}, length=3cm} \< \\[-1.2\baselineskip]
+				\<\< (\akeCPAct, \akeCPAkey) \from \akeCPAKEMEnc(\akeCPApk)\\
+				\<\< \akeCCAkey_j := \akeCCAKEMDec(\akeCCAsk_j, \akeCCAct_j)\\
+				\<\< (\akeCCAct_i, \akeCCAkey_i) \from \akeCCAKEMEnc(\akeCCApk_i)\\[-1.2\baselineskip]
+				\< \sendmessageleft{top={$(\akeCPAct, \akeCCAct_i)$}, length=3cm} \< \\[-0.8\baselineskip]
+				\akeCPAkey := \akeCPAKEMDec(\akeCPAsk, \akeCPAct) \<\< \context := (\akeCCApk_i, \akeCCApk_j, \akeCPApk, \akeCCAct_i, \akeCCAct_j, \akeCPAct) \\[-0.2\baselineskip] 
+				\akeCCAkey_i := \akeCCAKEMDec(\akeCCAsk_i, \akeCCAct_i) \<\< 
+				\SessionKey := \akeHash(\context, \akeCCAkey'_i, \akeCCAkey'_j, \akeCPAkey') \\[-0.2\baselineskip] 
+				\context := (\akeCCApk_i, \akeCCApk_j, \akeCPApk, \akeCCAct_i, \akeCCAct_j, \akeCPAct)\\[-0.2\baselineskip] 
+				%				\<\< \\[-0.2\baselineskip] 
+				\SessionKey := \akeHash(\context, \akeCCAkey'_i, \akeCCAkey'_j, \akeCPAkey') \\[0.1\baselineskip][\hline]
+				\<\< \\[-0.8\baselineskip]
+				%				\gamechange{$\SessionKey := \akeHash(\context, \akeCCAkey'_i, \akeCCAkey'_j, \akeCPAkey')$}	
+				\< \hfil \akeCCAkey'_i := \akeCCAkey_i, \gamechange{$\akeCCAkey'_i:= \akeNCHash{}{(\akeCCApk_i, \akeCCAct_i, \akeCCAkey_i)}$}  \\
+				\< \akeCCAkey'_j := \akeCCAkey_j, \gamechange{$\akeCCAkey'_j:= \akeNCHash{}{(\akeCCApk_j, \akeCCAct_j, \akeCCAkey_j)}$}\\
+				\<\akeCPAkey' := \akeCPAkey, \gamechange{$\akeCPAkey':= \akeNCHash{}{(\akeCPApk, \akeCPAct, \akeCPAkey)}$} 
+			}
+		}
+		%		\pcdraw{
+			%			\path[->] ([xshift=1.5cm,yshift=-1.2mm] start.south) edge node[right]{$\ \akeState$} ([xshift=1.5cm, yshift=3mm] end.north);
+			%		}
+	\end{pcimage}
+	\caption{Our two approaches of constructing tightly secure AKE protocols between two parties from  secure KEMs, $\akeCCAKEM = (\akeCCAKEMSetup, \akeCCAKEMKG, \akeCCAKEMEnc, \akeCCAKEMDec)$ and $\akeCPAKEM = (\akeCPAKEMSetup, \akeCPAKEMKG, \akeCPAKEMEnc, \akeCPAKEMDec)$. Our two approaches only differ on how the final session keys are derived. We mark the difference in our second approach with \gamechange{gray}. $\akeHash$ and $\akeNCHash{}$ are two independent hash functions.}
+	%	\jpnote{Need lots of adaptations}
+	\label{fig:scheme:vis-akescheme}
+\end{figure}
+\fi
 
 
 \heading{Security of KEM.}
