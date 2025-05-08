@@ -140,6 +140,20 @@ That is, we show the following result.
 \TODO{Also discuss the applications to AKE. Emphasize the ``unconditional'' nature of the results, i.e that they make essentially no requirements on the primitives. Mention how our AKE results answer an open question from JKRS21 about the existence of tight AKE with state reveals in the standard model.}
 
 
+\TODO{Story line for the intro}
+\begin{itemize}
+	\item KEM AKE
+	\item KEM-based AKE need stronger security requirements for the underlying KEM
+	\begin{itemize}
+		\item Non-tight security:  IND-CCA is sufficient
+		\item Tight security: OW-ChCCA
+	\end{itemize}
+	\item PWZ23 showed that OW-ChCCA implies ECCA in the ROM. Hence, we only focus on the weaker security ECCA 
+	\item Explain why the impossibility from Han et al. cannot be applied to lattices.
+	\item Our contributions
+	\item Technical overview
+\end{itemize}
+
 % In provably secure cryptography, the security of a cryptographic construction is proven via a so-called \emph{reduction}.
 % Using a reduction, any attack on a given cryptographic primitive is
 % turned into an attack on an underlying, presumed-to-be difficult problem.
