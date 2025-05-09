@@ -5,38 +5,39 @@ The following theorem is the main result of the section.
 
 \begin{theorem}[Impossibility of tight \OWECPA reductions]\label{thm:main}
   Let \(\KEM = (\Setup,\allowbreak \KG,\allowbreak \Encaps,\allowbreak \Decaps)\) be a KEM
-  with \((1-\delta)\)-correctness, encapsulation key space \keyspace
-  and secret keys of bit length at most \(q\) for some polynomial \(q : \N \to \N\),
+  with \((1-\delta)\)-correctness and secret keys of bit length at most \(q\)
+  for some polynomial \(q : \N \to \N\),
   and let \(\Simple = (\Init,\allowbreak \Respond,\allowbreak \Win,\allowbreak \kappa(\cdot))\)
   be a simple computational assumption.
   Assuming that \Simple is hard and \(\delta\) is negligible,
   then the security loss \(\ell\) of any simple reduction \redR
   from breaking the \((\mu,\rho)\text{-}\OWECPA\) security of \KEM to breaking \Simple
-  must be at least
+  must satisfy
   \begin{equation}\label{eq:main}
-    \ell \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl, \notag
+    \ell \gg \min \left\{ \mu, \rho / q \right\}.
+    % \ell \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl, \notag
+    % \ell \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl, \notag
   \end{equation}
-  for all sufficiently large \(\mu \ge 0\).
 \end{theorem}
 
-\TODO{try to optimize the constant \(5\), i.e by improving Corollary \ref{corollary:equiv}}.
+\TODO{update the discussion of the theorem here.}
 
-Notice that for the lower bound above to be meaningful,
-the number of encapsulations per user \(\rho\) in the \OWECPA game must be \(\Omega(\mu q)\).
-If, say, \(\rho \ge 10 \mu q\), then we obtain \(\ell \ge (1 - 1/\abs{\keyspace}) \mu / 2 - \negl\),
-which is linear in the number of users \(\mu\) in the \OWECPA game.
-% In particular, we must have \(\rho \ge \mu\) for the result to imply a linear loss in the number of users \(\mu\).
-This is similar to the impossibility result in (\TODO{cite}),
-in which the total number of encapsulation queries must be \(\Omega(d\mu^{2})\) for the result to apply,
-where \(d\) is the \emph{rank} of the KEM.
-
-Since our impossibility result only implies that \(\ell = \Omega(\mu)\) if \(\rho \ge \mu q\),
-it does not rule out simple reductions whose security loss is e.g \(\ell = \Theta(\rho / q)\),
-independently of the number of users \(\mu\),
-since in this case we will have \(\ell = \Theta(\rho / q) = \Omega(\mu)\)
-whenever \(\rho \ge \mu q\), in agreement with our impossibility result.
-% Indeed, reductions with a loss factor \(\ell = \Theta(\rho)\) exist (\TODO{either refer to such a scheme, or show one in the appendix}).
-We blabla \TODO{either find a scheme with such a security loss, or leave this as an open problem.}
+% Notice that for the lower bound above to be meaningful,
+% the number of encapsulations per user \(\rho\) in the \OWECPA game must be \(\Omega(\mu q)\).
+% If, say, \(\rho \ge 10 \mu q\), then we obtain \(\ell \ge (1 - 1/\abs{\keyspace}) \mu / 2 - 1 - \negl\),
+% which is linear in the number of users \(\mu\) in the \OWECPA game.
+% This is similar to the impossibility result in (\TODO{cite}),
+% in which the total number of encapsulation queries must be \(\Omega(d\mu^{2})\) for the result to apply,
+% where \(d\) is the \emph{rank} of the KEM.
+% In our result, we have essentially replaced the rank \(d\) of the KEM
+% with the bit-length \(q\) of secret keys in the KEM.
+%
+% Since our impossibility result only implies that \(\ell = \Omega(\mu)\) if \(\rho \ge \mu q\),
+% it does not rule out simple reductions whose security loss is e.g \(\ell = \Theta(\rho / q)\),
+% independently of the number of users \(\mu\),
+% since in this case we will have \(\ell = \Theta(\rho / q) = \Omega(\mu)\)
+% whenever \(\rho \ge \mu q\), in agreement with our impossibility result.
+% We blabla \TODO{either find a scheme with such a security loss, or leave this as an open problem.}
 
 As discussed (\TODO{add}), \OWECPA security is weaker the \INDECPA security,
 which in turn is weaker than \INDECCA security.
@@ -72,8 +73,8 @@ of the following technical theorem.
   from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking
   the \SICA security of \Simple.
   Let \(t \in \N, \alpha \in (0,1)\) with \(t \le \rho/3\).
-  Then there exists an (inefficient \TODO{?})
-  adversary \advA against the \((\mu,\rho)\)-\(\OWECPA\) security of \KEM
+  Then there exists an adversary \advA
+  against the \((\mu,\rho)\)-\(\OWECPA\) security of \KEM
   whose success probability is at least
   \begin{equation}\label{ineq:A}
     p_{\advA} \ge 1 - \alpha - \delta \mu \rho
@@ -102,31 +103,43 @@ of the following technical theorem.
 Before we give a proof of Theorem \ref{thm:owecpa},
 we will show how it can be used to obtain Theorem \ref{thm:main}.
 
+\TODO{consider moving this proof into the appendix,
+  and replacing it with some more informal discussion about how
+  to get Theorem \ref{thm:main} from Theorem \ref{thm:owecpa}.}
+
 \begin{namedproof}{Proof of Theorem \ref{thm:main}}
   Let \redR be a simple reduction
   from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking \Simple,
   where \(\mu : \N \to \N\) and \(\rho : \N \to \N\) are polynomially bounded.
-  We need to lower bound the security loss of \redR, as given in Definition \ref{def:loss}.
+  We need to lower bound the security loss \(\ell\) of \redR, as given in Definition \ref{def:loss}.
+  We will show that
+  \begin{equation}\label{eq:show}
+    \ell \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl,
+  \end{equation}
+  where \keyspace is the encapsulation key space of the KEM \KEM.
+  The equation \eqref{eq:main} then follows.
+
   Using Theorem \ref{thm:owecpa},
   we obtain an adversary \advA against the \((\mu,\rho)\)-\OWECPA security of \KEM
   and an adversary \redM against the \SICA security of \Simple
   satisfying \eqref{ineq:A} and \eqref{ineq:M}
   and where the running time of \redM is at most \eqref{ineq:M:time}.
-
-  We wish to select \(t\) and \(\alpha\)
-  so as to make the success probability of \advA in \eqref{ineq:A} close to 1,
-  whereas the right hand side of \eqref{ineq:M} should be close to \(1/\mu\).
-  We also need the running time \(T_{\redM}\) of \redM to be polynomial in \(\lambda\).
-  We may assume that \(\rho \ge 5 \mu q\), or else \eqref{eq:main} is trivial.
-  Setting \(t = \rho / 5\), \(\alpha = q/t = 5 q / \rho \le 1/\mu\) gives
+  We need to select the parameters \(t\) and \(\alpha\) of Theorem \ref{thm:owecpa}
+  so as to be able to deduce \eqref{eq:show}.
+  % We wish to select \(t\) and \(\alpha\)
+  % so as to make the success probability of \advA in \eqref{ineq:A} close to 1,
+  % whereas the right hand side of \eqref{ineq:M} should be close to \(1/\mu + 5q/\rho\).
+  % We also need the running time \(T_{\redM}\) of \redM to be polynomial in \(\lambda\).
+  We may assume that \(\rho \ge 10 q\), or else \eqref{eq:show} is trivial.
+  Setting \(t = \rho / 5\), \(\alpha = q/t\) and noting that
+  \(\alpha =  5 q / \rho \le 1/2\) by the above assumption, we find that
   \begin{align}
     4^{q} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}
     = 4^{q} \cdot \left( \frac{1}{\rho / t - \alpha} \right)^{q}
     & = 4^{q} \cdot \left( \frac{1}{5 - \alpha} \right)^{q} \notag\\
-    & \le 4^{q} \cdot \left( \frac{1}{5 - 1/\mu} \right)^{q} \notag\\
+    & \le 4^{q} \cdot \left( \frac{1}{5 - 1/2} \right)^{q} \notag\\
     & = \negl, \notag
   \end{align}
-  for all sufficiently large \(\mu\),
   where for the final line we use that we may assume that
   \(q(\lambda) = \omega(\log{\lambda})\)
   (or else the KEM \KEM would trivially not be \OWECPA-secure,
@@ -164,29 +177,42 @@ we will show how it can be used to obtain Theorem \ref{thm:main}.
     \epsilon_{\redR^{\advA}} \le  \epsilon_{\redM} + 1/\mu + \alpha + \negl \le 1/\mu + \alpha + \negl. \notag
   \end{align}
   We thus find that
-  \begin{align}\label{ineq:insert}
-    \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1 - 1 / \abs{\keyspace} - 1 / \mu - \negl}{1 / \mu + \alpha + \negl}.
-    % & = \frac{1 - 1 / \abs{\keyspace}}{1 / \mu + \alpha + \negl} - \frac{1/\mu + \negl}{1/\mu + \alpha + \negl}.
+  \begin{align}\label{ineq:insertinto}
+    \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1 - 1 / \abs{\keyspace} - 1 / \mu - \negl}{1 / \mu + \alpha + \negl}
+    & = \frac{1 - 1 / \abs{\keyspace}}{1 / \mu + \alpha + \negl}\\
+    & - \frac{1/\mu + \negl}{1/\mu + \alpha + \negl}. \notag
   \end{align}
   Now
-  \begin{align}
-    \frac{1/\mu + \negl}{1/\mu + \alpha + \negl} \le \frac{1/\mu + \negl}{1/\mu + \negl} = 1 + \negl, \notag
+  \begin{align}\label{ineq:insertthis1}
+    \frac{1/\mu + \negl}{1/\mu + \alpha + \negl} \le \frac{1/\mu + \negl}{1/\mu + \negl} = 1 + \negl,
   \end{align}
-  and Taylor's theorem along with \(\alpha \le 5q / \rho\) gives
+  and using \(1/\mu + \alpha \le 2 \max \{1/\mu, \alpha\}\)
+  along with Taylor's theorem gives
+  % and Taylor's theorem along with \(\alpha \le 5q / \rho\) gives
   \begin{align}
-    \frac{1}{1/\mu + \alpha + \negl} \ge \mu - \mu^{2}(\alpha + \negl) & = \mu - \mu^{2} \alpha - \negl \notag\\
-    & \ge \mu - \mu^{2} 5 q / \rho - \negl, \notag
+    \frac{1}{1/\mu + \alpha + \negl}
+    & \ge \frac{1}{2 \max \{1 /\mu, \alpha\} + \negl} \notag \\
+    & \ge \frac{1}{2 \max \{1 /\mu, \alpha\}} - \negl \cdot \left(  \frac{1}{2 \max \{1 /\mu, \alpha\}} \right)^{2} \notag \\
+    & = \frac{1}{2} \min \{ \mu, \alpha^{-1}\} - \negl. \notag
+    % \mu - \mu^{2}(\alpha + \negl) & = \mu - \mu^{2} \alpha - \negl \notag\\
+    % \frac{1}{1/\mu + \alpha + \negl} \ge \mu - \mu^{2}(\alpha + \negl) & = \mu - \mu^{2} \alpha - \negl \notag\\
+    % & \ge \mu - \mu^{2} 5 q / \rho - \negl, \notag
   \end{align}
-  which inserted into \eqref{ineq:insert} yields
+  Recalling that \(\alpha \le 5q / \rho\) now yields
+  \begin{align}\label{ineq:insertthis2}
+    \frac{1}{1/\mu + \alpha + \negl}
+    & \ge \frac{1}{2} \min \{ \mu, \rho / (5q)\} - \negl.
+  \end{align}
+  Inserting \eqref{ineq:insertthis1} and \eqref{ineq:insertthis2} into \eqref{ineq:insertinto} gives
   \begin{align}
-    \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl. \notag
+    \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl. \notag
+    % \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl. \notag
   \end{align}
   Noting that \(T_{\redR} \ge T_{\advA}\),
   which follows since \redR is a simple reduction and
-  hence runs the adversary \advA to completion,
-  we get
+  hence runs the adversary \advA to completion, we get
   \[
-    \ell \ge \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl, \notag
+    \ell \ge \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl, \notag
   \]
   as desired.
 \end{namedproof}
