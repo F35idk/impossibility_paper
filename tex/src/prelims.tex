@@ -1,6 +1,8 @@
 
 \section{Preliminaries}
 
+\TODO{introduce notation and things in a short paragraph.}
+
 \subsection{Key exchange mechanisms}
 
 \TODO{Add definition of a KEM.}
@@ -81,14 +83,14 @@ advantages and running times of \(\redR\) and \(\advA\).
   from breaking problem \(P_{1}\) to breaking problem \(P_{2}\).
   Then the security loss \(\ell : \N \to \N\) of \(\redR\) is given by
   \begin{equation}
-    \ell(\lambda) = \max_{\advA} \left\{ \frac{\epsilon_{\advA}(\lambda)}{\epsilon_{\redR^{\advA}}(\lambda)}\frac{T_{\redR^{\advA}}(\lambda)}{T_{\advA}(\lambda)} \right\}
+    \ell(\lambda) = \sup_{\advA} \left\{ \frac{\epsilon_{\advA}(\lambda)}{\epsilon_{\redR^{\advA}}(\lambda)}\frac{T_{\redR^{\advA}}(\lambda) + T_{\advA}(\lambda)}{T_{\advA}(\lambda)} \right\}
   \end{equation}
   where the maximum is taken over all adversaries \(\advA\) in \(P_{1}\),
   and \((\epsilon_{\advA}, T_{\advA})\) and \((\epsilon_{\redR^{\advA}}, T_{\redR^{\advA}})\)
   denote the advantage and running time of \advA and \(\redR^{\advA}\) in \(P_{1}\) and \(P_{2}\), respectively.
 \end{definition}
 
-
+\TODO{comment on TA + TR}.
 
 \TODO{write.}
 
@@ -213,7 +215,7 @@ that satisfy the above-mentioned criteria
   contains the class of non-interactive computational assumptions.
 
   \TODO{say something about how this extends non-interactive assumptions.
-  Argue that it is \emp{strictly} stronger than non-interactive assumptions.}
+  Argue that it is \emph{strictly} stronger than non-interactive assumptions.}
   \TODO{say something about how CCA-type games can be modeled by this. And stDH}.
 \end{remark}
 

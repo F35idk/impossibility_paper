@@ -182,39 +182,39 @@ we will show how it can be used to obtain Theorem \ref{thm:main}.
     & = \frac{1 - 1 / \abs{\keyspace}}{1 / \mu + \alpha + \negl}\\
     & - \frac{1/\mu + \negl}{1/\mu + \alpha + \negl}. \notag
   \end{align}
-  Now
-  \begin{align}\label{ineq:insertthis1}
-    \frac{1/\mu + \negl}{1/\mu + \alpha + \negl} \le \frac{1/\mu + \negl}{1/\mu + \negl} = 1 + \negl,
-  \end{align}
-  and using \(1/\mu + \alpha \le 2 \max \{1/\mu, \alpha\}\)
+  We will bound the two terms on the right hand side of \eqref{ineq:insertinto}.
+  For the first term, using \(1/\mu + \alpha \le 2 \max \{1/\mu, \alpha\}\)
   along with Taylor's theorem gives
-  % and Taylor's theorem along with \(\alpha \le 5q / \rho\) gives
   \begin{align}
     \frac{1}{1/\mu + \alpha + \negl}
     & \ge \frac{1}{2 \max \{1 /\mu, \alpha\} + \negl} \notag \\
     & \ge \frac{1}{2 \max \{1 /\mu, \alpha\}} - \negl \cdot \left(  \frac{1}{2 \max \{1 /\mu, \alpha\}} \right)^{2} \notag \\
-    & = \frac{1}{2} \min \{ \mu, \alpha^{-1}\} - \negl. \notag
+    & = \frac{1}{2} \min \{ \mu, \alpha^{-1}\} - \negl, \notag
     % \mu - \mu^{2}(\alpha + \negl) & = \mu - \mu^{2} \alpha - \negl \notag\\
     % \frac{1}{1/\mu + \alpha + \negl} \ge \mu - \mu^{2}(\alpha + \negl) & = \mu - \mu^{2} \alpha - \negl \notag\\
     % & \ge \mu - \mu^{2} 5 q / \rho - \negl, \notag
   \end{align}
-  Recalling that \(\alpha \le 5q / \rho\) now yields
-  \begin{align}\label{ineq:insertthis2}
+  and recalling that \(\alpha = 5q / \rho\) yields
+  \begin{align}\label{ineq:insertthis1}
     \frac{1}{1/\mu + \alpha + \negl}
     & \ge \frac{1}{2} \min \{ \mu, \rho / (5q)\} - \negl.
+  \end{align}
+  Similarly, for the second term we find that
+  \begin{align}\label{ineq:insertthis2}
+    \frac{1/\mu + \negl}{1/\mu + \alpha + \negl} \le \frac{1/\mu + \negl}{1/\mu + \negl} = 1 + \negl.
   \end{align}
   Inserting \eqref{ineq:insertthis1} and \eqref{ineq:insertthis2} into \eqref{ineq:insertinto} gives
   \begin{align}
     \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl. \notag
     % \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge (1 - 1/\abs{\keyspace})(\mu - 5 \mu^{2} q / \rho) - 1 - \negl. \notag
   \end{align}
-  Noting that \(T_{\redR} \ge T_{\advA}\),
-  which follows since \redR is a simple reduction and
-  hence runs the adversary \advA to completion, we get
+  Using the definition of security loss (\ref{def:loss}), we now find that
   \[
-    \ell \ge \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}} \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl, \notag
+    \ell \ge \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}}\frac{T_{\redR^{\advA}} + T_{\advA}}{T_{\advA}}
+    \ge \frac{\epsilon_{\advA}}{\epsilon_{\redR^{\advA}}}
+    \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl, \notag
   \]
-  as desired.
+  as required.
 \end{namedproof}
 
 Before we can prove Theorem \ref{thm:owecpa},
@@ -645,6 +645,7 @@ We can now turn to the proof of Theorem \ref{thm:owecpa}.
   it must be the case that
   \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
   Hence the simulation of \advA would abort for each such \(\ell\).
+  \TODO{abort abort. Be clearer about what this means?}
   As a consequence, for each \(\ell \ne i^{*}\), the simulation of \advA by \redM would be trivial:
   \redM would complete its simulation of \advA already in Step \ref{advM:sample},
   before it could ever enter Step \ref{advM:key} and trigger the event \(\eventE_{abrt}\).
