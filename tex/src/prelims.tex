@@ -95,43 +95,64 @@ advantages and running times of \(\redR\) and \(\advA\).
 \subsection{Computational assumptions}
 
 When we prove our tightness impossibility results,
-we will only be able to rule out tight reductions from a specific class of computational assumptions.
-That is, we can only show that a tight reduction to a certain security game \gameG is impossible
-if the assumption being reduced from is sufficiently restricted.
-This is in some sense an inherent limitation, as we could not rule out a tight reduction to the game \gameG
-from \emph{any} computational assumption
-(a standard counterexample to this is to use the assumption that the game \gameG is secure.
-Clearly there is a tight reduction from this assumption to the game \gameG).
-Hence we need the assumption being reduced from to be ``weaker''
-than the game \gameG, in a certain sense.
+we will only be able to rule out tight security
+from a specific class of computational assumptions.
+Phrased in terms of reductions,
+we will only be able to show that a tight reduction
+from breaking a certain computational problem \(P_1\)
+to breaking another computational problem \(P_2\) is impossible,
+if the problem \(P_2\) is sufficiently restricted.
+\TODO{change the first sentence to refer to problems rather than assumptions?}
+This is in some sense an inherent limitation,
+as we could not rule out a tight reduction from breaking problem \(P_1\)
+to breaking \emph{any} other computational problem \(P_2\)
+(a standard counterexample to this is to take \(P_2 = P_1\).
+Clearly there is a tight reduction from breaking \(P_1\) to breaking \(P_1\)).
+In order to rule out tight reductions from breaking \(P_1\) to breaking \(P_2\),
+we will need the problem \(P_2\) to be ``harder''
+than the problem \(P_1\), in a certain sense.
 
-In the impossibility results of \TODO{cite}, the class of computational assumptions
-in question are the so-called \emph{non-interactive} assumptions.
-These are modeled by experiments in which an adversary receives a challenge \(c\)
+In the impossibility results of \TODO{cite},
+tight security is ruled out from the class of \emph{non-interactive}
+computational assumptions.
+These assumptions are modeled by experiments in which an adversary receives a challenge \(c\)
 and must output a solution \(s\) to the challenge, with no further interaction between the adversary and the experiment.
 Following an observation of \TODO{cite}, we will actually slightly expand the class of computational assumptions
-from which we can rule out tight reductions, at essentially no cost to the complexity of our proofs.
-
-In \TODO{cite}, it is shown that a tight, simple reduction from the \emph{Strong Diffie-Hellman} assumption
-to the weak forward secrecy of a certain class of key exchange protocols cannot exist,
-unless the Strong Diffie-Hellman assumption is itself false.
+from which we can rule out tight reductions
+compared to \TODO{cite}, without the need for any essentially new techniques.
+In \TODO{cite}, it is shown that a tight, simple reduction
+from breaking the weak forward secrecy of a certain class of key exchange protocols
+to breaking the \emph{Strong Diffie-Hellman} problem
+cannot exist, unless the Strong Diffie-Hellman problem is itself easy.
 The key point here is that the Strong Diffie-Hellman game is interactive,
 and hence does not fit into the class of non-interactive assumptions considered in e.g \TODO{cite}.
 Nevertheless \TODO{cite} are able to apply a similar meta-reduction strategy
 to the one pioneered in \TODO{cite} to prove their impossibility result.
-We observe that the Strong Diffie-Hellman game satisfies the following two criteria,
-which allow the proof of \TODO{cite} to go through.
-The first is that the interaction in the Strong Diffie-Hellman game is in some sense stateless.
-More precisely, the Strong Diffie-Hellman oracle computes its answer to a query
-in a way that is independent of the content of any previous queries.
-Second, the ``winning condition'' in the Strong Diffie-Hellman game is essentially independent of
-the queries made to the Strong Diffie-Hellman oracle.
-\TODO{explain why this is the case.}
-\TODO{give at least a vague reason for why this should allow the proofs to work.}
+They observe that their proof carries over to many other
+interactive games, so long as the ``winning condition''
+in the game is independent of the sequence of oracle queries made by the adversary.
 
-We can define a class of interactive computational assumptions which satisfy the above two criteria.
-% This will allow us to prove impossibility results for this class.
-We will call such assumptions \emph{simple computational assumptions}.
+We expand upon the observation of \TODO{cite}
+by noting that their proof relies on a second, crucial property of the Strong Diffie-Hellman problem:
+namely that the Strong Diffie-Hellman oracle computes its
+responses to the adversary's queries
+independently of any of the adversary's previous oracle queries.
+In other words, the Strong Diffie-Hellman oracle is in a sense ``stateless''.
+Briefly summarized,
+this property is needed to ensure that
+the meta-reduction of \TODO{cite}
+correctly simulates the Strong Diffie-Hellman oracle
+towards the reduction, in spite of the fact
+that the meta-reduction rewinds the reduction
+and hence may have a different history of oracle queries
+than the reduction itself.
+
+We will call the class of computational assumptions
+that satisfy the above-mentioned criteria
+\emph{simple computational assumptions}.
+
+% \TODO{explain why this is the case.}
+% \TODO{give at least a vague reason for why this should allow the proofs to work.}
 
 \begin{definition}[Simple computational assumption]\label{def:simple}
   A simple computational assumption is a tuple \((\Init,\Respond,\Win,\kappa(\cdot))\),
@@ -172,11 +193,30 @@ We will call such assumptions \emph{simple computational assumptions}.
   \end{pchstack}\caption{}\label{fig:simple}
 \end{figure}
 
-\TODO{say something about how this extends non-interactive assumptions.}
-\TODO{say something about how CCA-type games can be modeled by this. And stDH}.
-
-
 \TODO{define what it means for S to be ``hard''.}
+
+\begin{remark}
+  We note that none of the algorithms \((\Init,\Respond,\Win)\)
+  in our definition need to be efficient.
+  In particular, the challenger in a \SICA
+  game against a simple computational assumption
+  need not be efficient,
+  and hence the simple computational assumption need not be \emph{falsifiable},
+  using the terminology of \TODO{cite}.
+  The predicate \(\Win\) likewise need not be efficient,
+  and hence the winning condition in a \SICA game
+  need not be efficiently verifiable.
+\end{remark}
+
+\begin{remark}
+  It is clear that the class of simple computational assumptions
+  contains the class of non-interactive computational assumptions.
+
+  \TODO{say something about how this extends non-interactive assumptions.
+  Argue that it is \emp{strictly} stronger than non-interactive assumptions.}
+  \TODO{say something about how CCA-type games can be modeled by this. And stDH}.
+\end{remark}
+
 
 
 %%% Local Variables:
