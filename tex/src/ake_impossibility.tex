@@ -1,6 +1,93 @@
 
 \section{Further applications of the meta-reduction}
 
+\subsection{A general impossibility result}
+
+\TODO{Motivate the generalization.}
+
+\begin{definition}[Trapdoor puzzles]
+  A \emph{trapdoor puzzle} is a tuple \((\Setup,\allowbreak \TrapGen,\allowbreak \PuzzleGen,\allowbreak \PuzzleSolve)\)
+  of algorithms, where \(\PuzzleSolve\) is deterministic and polynomial-time.
+  We additionally require the algorithms to adhere to the following interface:
+  \begin{itemize}
+    \item \(\Setup(1^{\lambda}) \to \params\): the setup algorithm takes
+      as input the security parameter and outputs system parameters \(\params\).
+    \item \(\TrapGen(\params) \to \td\): the trapdoor-generation algorithm
+      takes the parameters \(\params\) as input and outputs a trapdoor \(\td\).
+    \item \(\PuzzleGen(\td) \to (p,s)\): the ``puzzle generation'' algorithm,
+      on input a given trapdoor \(\td\),
+      outputs a pair \((p,s)\) where \(p\) is a puzzle and \(s \in \SO\)
+      is a \emph{solution} to the puzzle \(p\) and \(\SO\) is the space of
+      solutions of the trapdoor puzzle.
+    \item \(\PuzzleSolve(\td,p) \to s\): the ``puzzle solving'' algorithm,
+      on input a trapdoor \(\td\) and puzzle \(p\),
+      outputs a solution \(s\) to \(p\) under the trapdoor \(\td\).
+  \end{itemize}
+
+\end{definition}
+
+\TODO{consider finding a more suggestive name than ``trapdoor puzzles''.}
+
+\begin{definition}[\((1-\delta)\)-correctness of a trapdoor puzzle]\label{def:corr}
+  Let \(\TP = (\Setup,\allowbreak \TrapGen,\allowbreak \PuzzleGen,
+  \allowbreak \PuzzleSolve)\) be a trapdoor puzzle
+  and let \(\delta : \mathbb{N} \to \mathbb{R}\) be a function.
+  Then \TP is said to have \emph{\((1-\delta)\)-correctness} if
+  \begin{equation}
+    \prob*{
+      \PuzzleSolve(\td,p) \ne s
+      : \begin{subarray}{l}
+        \displaystyle \params \assign \Setup(1^{\lambda}),\\
+        \displaystyle \td \assign \TrapGen(\params),\\
+        \displaystyle (p,s) \assign \PuzzleGen(\td),
+        \end{subarray}
+    }
+    \le \delta(\lambda).
+  \end{equation}
+\end{definition}
+
+\begin{definition}[\ETPA security]
+  Let \(\TP = (\Setup, \TrapGen, \PuzzleGen, \PuzzleSolve)\) be a trapdoor puzzle
+  and let \advA{} be an adversary in the \ETPA{} game against \TP (see Figure \ref{fig:etpa}).
+  Then the advantage of \advA{} against the \ETPA security of \TP is given by
+  \begin{equation}
+    \abs*{\prob{\ETPA{}_{\TP}^{\advA}(\mu,\rho,\lambda) \implies 1} - 1/\abs{\SO}},
+  \end{equation}
+  where \(\SO = \SO{}(\params)\) is the space of solutions of the trapdoor puzzle \TP.
+\end{definition}
+
+\begin{figure}
+  \begin{pcvstack}[center,space=0.5cm]
+    \proc{Game $\ETPA_{\TP}^{\advA}(\mu, \rho, \lambda)$}{
+      L_{rev}, L_{corr} \assign \List.\\
+      \params \assign \Setup{}(1^{\lambda}).\\
+      \pcfor i \in [\mu]:\\
+      \t \td_i, \assign \KG(\params).\\
+      \oracle := \{\Enc, \Reveal, \Corrupt\}.\\
+      (i^*, j^*, k^*) \assign \advA^{\oracle}(\params,\pk_1, \ldots, \pk_{\mu}).\\
+      \pcif i^{*} \notin L_{corr} \land i^{*} \notin L_{rev} \land k^{*} = k_{i^{*},j^{*}}:\\
+      \t \pcreturn 1.\\
+      \pcelse:\\
+      \t \pcreturn 0.
+    }
+    \proc{Oracle \Enc{}$(i)$}{
+      \text{Assume this is the \(j\)-th query to \Enc{} on user \(i\) with } j \in [\rho].\\
+      (c_{i,j}, k_{i,j}) \assign \Encaps{}(\pk_i).\\
+      \pcreturn c_{i,j}.
+    }
+    \begin{pchstack}[space=1cm]
+      \proc{Oracle \Reveal{}$(i,j)$}{
+        L_{rev} \assign L_{rev} \cup \{(i,j)\}.\\
+        \pcreturn k_{i,j}.
+      }
+      \proc{Oracle \Corrupt{}$(i)$}{
+        L_{corr} \assign L_{corr} \cup \{i\}.\\
+        \pcreturn \sk_i.
+      }
+    \end{pchstack}
+  \end{pcvstack}\caption{}\label{fig:etpa}
+\end{figure}
+
 \subsection{An impossibility result for authenticated key exchange}
 
 \begin{theorem}[Bounding the security loss of an \OwFSst reduction]\label{thm:owfsst}
