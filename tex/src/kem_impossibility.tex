@@ -11,8 +11,8 @@ The following theorem is the main result of the section.
   be a simple computational assumption.
   Assuming that \Simple is hard and \(\delta\) is negligible,
   then the security loss \(\ell\) of any simple reduction \redR
-  from breaking the \((\mu,\rho)\text{-}\OWECPA\) security of \KEM to breaking \Simple
-  must satisfy
+  for basing the \((\mu,\rho)\text{-}\OWECPA\) security of \KEM
+  on the computational assumption \Simple must satisfy
   \begin{equation}\label{eq:main}
     \ell \gg \min \left\{ \mu, \rho / q \right\}.
     % \ell \ge \frac{1}{2}(1 - 1 / \abs{\keyspace}) \min \left\{ \mu, \rho / (5q) \right\} - 1 - \negl, \notag
@@ -53,8 +53,9 @@ we derive the following theorem as a corollary of Theorem \ref{thm:main}.
   be a simple computational assumption.
   Assuming that \Simple is hard and \(\delta\) is negligible,
   then the security loss \(\ell\) of any simple reduction \redR
-  from breaking either the \((\mu,\rho)\)-\INDECPA or \((\mu,\rho)\)-\INDECCA
-  to breaking \Simple must satisfy the bounds in \eqref{eq:main}.
+  for basing either the \((\mu,\rho)\)-\INDECPA or \((\mu,\rho)\)-\INDECCA
+  security of \KEM on the computational assumption \Simple
+  must satisfy the bounds in \eqref{eq:main}.
 \end{theorem}
 
 The above results will in fact be obtained as corollaries
@@ -70,8 +71,8 @@ of the following technical theorem.
   be a simple computational assumption
   with corresponding game \(\SICA\),
   and let \(\redR\) be a simple reduction
-  from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking
-  the \SICA security of \Simple.
+  taking adversaries in the \((\mu,\rho)\)-\OWECPA game against \KEM to
+  adversaries in the \SICA game against \Simple.
   Let \(t \in \N, \alpha \in (0,1)\) with \(t \le \rho/3\).
   Then there exists an adversary \advA
   against the \((\mu,\rho)\)-\(\OWECPA\) security of \KEM
@@ -109,7 +110,8 @@ we will show how it can be used to obtain Theorem \ref{thm:main}.
 
 \begin{namedproof}{Proof of Theorem \ref{thm:main}}
   Let \redR be a simple reduction
-  from breaking the \((\mu,\rho)\)-\OWECPA security of \KEM to breaking \Simple,
+  taking adversaries in the \((\mu,\rho)\)-\OWECPA game against \KEM to
+  adversaries in the \SICA game against \Simple,
   where \(\mu : \N \to \N\) and \(\rho : \N \to \N\) are polynomially bounded.
   We need to lower bound the security loss \(\ell\) of \redR, as given in Definition \ref{def:loss}.
   We will show that

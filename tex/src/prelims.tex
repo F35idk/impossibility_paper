@@ -24,7 +24,7 @@
   and let \advA{} be an adversary in the \OWECPA{} game against \KEM (see Figure \ref{fig:ecpa}).
   Then the advantage of \advA{} against \OWECPA in \KEM is given by
   \begin{equation}
-    \abs*{\prob{\OWECPA{}_{\KEM}^{\advA}(\mu,\rho,\lambda) \implies 1} - 1/\abs{\keyspace}},
+    \abs*{\prob{\OWECPA{}_{\KEM}^{\advA}(\mu,\rho,\lambda) \to 1} - 1/\abs{\keyspace}},
   \end{equation}
   where \(\keyspace = \keyspace{}(\params)\) is the encapsulation key space of \KEM.
   \TODO{advantage notation?}
@@ -68,11 +68,42 @@
 
 \subsection{Reductions}
 
+In our context, a reduction is simply an
+algorithm that turns adversaries in one cryptographic
+game into adversaries in another cryptographic game.
+The class of reductions we will consider
+are so-called \emph{simple} reductions.
+The definition is due to \TODO{cite}.
 
 \begin{definition}[Simple reduction]
-  \TODO{add this.}
+  A reduction \(\redR\) is said to be \emph{simple}
+  if it makes only black-box use of the adversary \(\advA\),
+  and additionally executes \(\advA\) exactly once
+  and to completion.
 \end{definition}
 
+We remark that most security proofs in cryptography
+consist of (possibly several) simple reductions (\TODO{cite}).
+
+\paragraph{Which direction does the reduction go?}
+The ``direction'' of a reduction is a frequent source of confusion.
+\TODO{maybe mention that JBLS16 get the directions mixed up --- they are not consistent with their own definitions.}
+In a typical complexity-theoretic context,
+a reduction that turns an algorithm for problem \(P_{1}\)
+into an algorithm for problem \(P_{2}\)
+is said to be a reduction \emph{from \(P_{2}\) to \(P_{1}\)}
+(we reduce solving \(P_{2}\) to solving \(P_{1}\)).
+In our context, we will emphasize the opposite direction.
+When we say that a reduction is \emph{from \(P_{1}\) to \(P_{2}\)},
+we mean that it turns an algorithm for \(P_{1}\) into an algorithm for \(P_{2}\).
+We note that this is also the opposite direction of the hardness (or security) implication
+\(P_{2} \text{ hard (secure)} \implies P_{1} \text{ hard (secure)}\)
+implied by the reduction.
+Equivalently,
+when referring to the computational assumption that
+the problem \(P_{2}\) is hard, we will say that the reduction
+is \emph{for basing the hardness (or security) of \(P_{1}\) on the hardness of \(P_{2}\)},
+adopting the convention in \TODO{cite}.
 
 We define the security loss of a reduction \redR similarly to ???,
 as a maximum over all adversaries \advA of a certain product of the
@@ -80,53 +111,59 @@ advantages and running times of \(\redR\) and \(\advA\).
 
 \begin{definition}[Security loss]\label{def:loss}
   Let \(\redR\) be a simple reduction
-  from breaking problem \(P_{1}\) to breaking problem \(P_{2}\).
+  taking adversaries in the game \(G_{1}\) to adversaries in the game \(G_{2}\).
   Then the security loss \(\ell : \N \to \N\) of \(\redR\) is given by
-  \begin{equation}
+  \begin{equation}\label{eq:loss}
     \ell(\lambda) = \sup_{\advA} \left\{ \frac{\epsilon_{\advA}(\lambda)}{\epsilon_{\redR^{\advA}}(\lambda)}\frac{T_{\redR^{\advA}}(\lambda) + T_{\advA}(\lambda)}{T_{\advA}(\lambda)} \right\}
   \end{equation}
-  where the maximum is taken over all adversaries \(\advA\) in \(P_{1}\),
+  where the maximum is taken over all adversaries \(\advA\) in \(G_{1}\),
   and \((\epsilon_{\advA}, T_{\advA})\) and \((\epsilon_{\redR^{\advA}}, T_{\redR^{\advA}})\)
-  denote the advantage and running time of \advA and \(\redR^{\advA}\) in \(P_{1}\) and \(P_{2}\), respectively.
+  denote the advantage and running time of \advA and \(\redR^{\advA}\) in \(G_{1}\) and \(G_{2}\), respectively.
 \end{definition}
 
-\TODO{comment on TA + TR}.
-
-\TODO{write.}
+\begin{remark}
+  The numerator \(T_{\redR^{\advA}} + T_{\advA}\) in \eqref{eq:loss}
+  represents the total running time of the reduction \(\redR^{\advA}\),
+  including the time taken to execute \(\advA\).
+  Since \(\redR\) is a simple reduction,
+  it executes \(\advA\) exactly once, to completion,
+  which explains the additional term \(T_{\advA}\).
+\end{remark}
 
 \subsection{Computational assumptions}
 
 When we prove our tightness impossibility results,
 we will only be able to rule out tight security
 from a specific class of computational assumptions.
-Phrased in terms of reductions,
-we will only be able to show that a tight reduction
-from breaking a certain computational problem \(P_1\)
-to breaking another computational problem \(P_2\) is impossible,
-if the problem \(P_2\) is sufficiently restricted.
-\TODO{change the first sentence to refer to problems rather than assumptions?}
+That is, we will only be able to show that
+a tight reduction for basing the security of a game \(G\)
+on the computational assumption \(A\),
+if the assumption \(A\) is sufficiently restricted.
 This is in some sense an inherent limitation,
-as we could not rule out a tight reduction from breaking problem \(P_1\)
-to breaking \emph{any} other computational problem \(P_2\)
-(a standard counterexample to this is to take \(P_2 = P_1\).
-Clearly there is a tight reduction from breaking \(P_1\) to breaking \(P_1\)).
-In order to rule out tight reductions from breaking \(P_1\) to breaking \(P_2\),
-we will need the problem \(P_2\) to be ``harder''
-than the problem \(P_1\), in a certain sense.
+as we could not rule out a tight reduction
+for basing the security of \(G\)
+on \emph{any} computational assumption \(A\)
+(a standard counterexample to this is to let \(A\) be the assumption that the game \(G\) is secure.
+Clearly there is a tight reduction
+for basing the security of \(G\) on the assumption \(A\) in this case).
+% In order to rule out tight reductions
+% for basing the security of \(G\) on the assumption \(A\),
+% we will need the assumption \(A\)
+% to be sufficiently
 
 In the impossibility results of \TODO{cite},
 tight security is ruled out from the class of \emph{non-interactive}
 computational assumptions.
 These assumptions are modeled by experiments in which an adversary receives a challenge \(c\)
 and must output a solution \(s\) to the challenge, with no further interaction between the adversary and the experiment.
-Following an observation of \TODO{cite}, we will actually slightly expand the class of computational assumptions
+Following an observation of \TODO{cite}, we will slightly expand the class of computational assumptions
 from which we can rule out tight reductions
 compared to \TODO{cite}, without the need for any essentially new techniques.
 In \TODO{cite}, it is shown that a tight, simple reduction
-from breaking the weak forward secrecy of a certain class of key exchange protocols
-to breaking the \emph{Strong Diffie-Hellman} problem
-cannot exist, unless the Strong Diffie-Hellman problem is itself easy.
-The key point here is that the Strong Diffie-Hellman game is interactive,
+for basing the the weak forward secrecy of a certain class of key exchange protocols
+on the \emph{Strong Diffie-Hellman} assumption
+cannot exist, unless the Strong Diffie-Hellman assumption is itself false.
+The key point here is that the Strong Diffie-Hellman assumption is interactive,
 and hence does not fit into the class of non-interactive assumptions considered in e.g \TODO{cite}.
 Nevertheless \TODO{cite} are able to apply a similar meta-reduction strategy
 to the one pioneered in \TODO{cite} to prove their impossibility result.
@@ -166,19 +203,14 @@ that satisfy the above-mentioned criteria
   according to Figure \ref{fig:simple}.
 
   \TODO{Explain in more detail what the different algorithms actually do.}
-  Here, \Win{} defines the ``winning condition'' in the game.
-  Notice that \Win{} depends only on the initial state \(\state_{\Simple}\)
-  of the game and the challenge solution \(s\) output by \advA
-  (in particular, it does not depend on the queries made by \advA
-  to \oracle during the game).
-  Also, whenever \advA queries the oracle \oracle,
-  the response is computed deterministically as \(\Respond(\state_{\Simple},m)\).
+
   The advantage of \advA{} against \Simple is given by
-  \TODO{advantage notation.}
-  \begin{equation}
-    \abs[\big]{\prob{\SICA(\advA,\lambda) \implies 1} - \kappa(\lambda)}.
+  \begin{equation}\label{eq:simple}
+    \abs[\big]{\prob{\SICA_{\Simple}^{\advA}(\lambda) \to 1} - \kappa(\lambda)}.
   \end{equation}
-  \TODO{say something about kappa.}
+  Moreover, if it holds that for all probabilistic polynomial time adversaries \(\advA\),
+  the advantage of \(\advA\) is negligible in \(\lambda\),
+  then we say that the simple computational assumption is \emph{hard}.
 \end{definition}
 
 \begin{figure}
@@ -195,8 +227,6 @@ that satisfy the above-mentioned criteria
   \end{pchstack}\caption{}\label{fig:simple}
 \end{figure}
 
-\TODO{define what it means for S to be ``hard''.}
-
 \begin{remark}
   We note that none of the algorithms \((\Init,\Respond,\Win)\)
   in our definition need to be efficient.
@@ -206,7 +236,7 @@ that satisfy the above-mentioned criteria
   and hence the simple computational assumption need not be \emph{falsifiable},
   using the terminology of \TODO{cite}.
   The predicate \(\Win\) likewise need not be efficient,
-  and hence the winning condition in a \SICA game
+  meaning that the winning condition in a \SICA game
   need not be efficiently verifiable.
 \end{remark}
 
