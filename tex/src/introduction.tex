@@ -57,7 +57,7 @@ The security requirement for AKE is that an adversary $\advA$ cannot learn infor
 
 
 \heading{Security of KEM.}
-The standard notions of security for a key exchange mechanism are so-called IND-CPA and IND-CCA security.
+The standard notions of security for a key encapsulation mechanism are so-called IND-CPA and IND-CCA security.
 These notions capture resistance to attacks in which an adversary receives a single
 encapsulation-key-pair \((k,c)\) where \(c\) encapsulates \(k\),
 and must distinguish the key \(k\) from a truly random key.
@@ -68,7 +68,7 @@ an adversary may not be limited to seeing a single encapsulation \(c\)
 Additionally, the adversary may see encapsulations under different public keys belonging to different users.
 In certain contexts, the imagined adversary could even have \emph{inside information}
 on the keys encapsulated by certain ciphertexts, or on the secret keys of certain users.
-As an example, if the key exchange mechanism is used as a component in a key exchange protocol,
+As an example, if the key encapsulation mechanism is used as a component in a key exchange protocol,
 then there could be a massive number of users and sessions executing the protocol in parallell,
 \TODO{I should change this: the number of users isn't relevant to what I was trying to say here.}
 and hence making use of the KEM.
