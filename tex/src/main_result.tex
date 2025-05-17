@@ -100,7 +100,7 @@ The following theorem is the main result of the section.
   and let \(\Simple = (\Init,\allowbreak \Respond,\allowbreak \Win,\allowbreak \kappa(\cdot))\)
   be a simple computational assumption.
   Assuming that \Simple is hard and \(\delta\) is negligible,
-  then the security loss \(\ell\) of any simple, efficient reduction \redR
+  then the security loss \(\ell\) of any simple reduction \redR
   for basing the \((\mu,\rho)\text{-}\ETPA\) security of \TP
   on the computational assumption \Simple must satisfy
   \begin{equation}\label{eq:main}
@@ -152,7 +152,7 @@ which is the main workhorse of the current section.
     T_{\redM} \le (\mu + 1) \cdot T_{\redR^{\advA}} + (\mu \rho + 1) \cdot T_{P},
   \end{equation}
   where \(T_{P}\) denotes the running time of the puzzle solving algorithm
-  \(\PuzzleSolve\) of \KEM, and \(T_{\redR^{\advA}}\) denotes the running time of \(\redR^{A}\),
+  \(\PuzzleSolve\) of \TP, and \(T_{\redR^{\advA}}\) denotes the running time of \(\redR^{A}\),
   not including the time taken to execute \(\advA\).
 \end{theorem}
 
@@ -161,8 +161,8 @@ we will briefly discuss how it can be used to obtain Theorem \ref{thm:main}.
 A formal derivation of Theorem \ref{thm:main} from Theorem \ref{thm:etpa}
 is given in Appendix \TODO{which}.
 
-Theorem \ref{thm:etpa} follows the template of many previous tightness
-impossibility results, e.g as in \TODO{cite}.
+Theorem \ref{thm:etpa} follows the template of previous tightness
+impossibility results in the literature, e.g those in \TODO{cite} and \TODO{cite}.
 For a given reduction \(\redR\)
 taking adversaries against the \ETPA-security of \TP to
 adversaries against the \SICA-security of \Simple,
@@ -177,66 +177,630 @@ by comparing it to the advantage of the meta-reduction \redM.
 The bound in \eqref{ineq:M:time} shows that the running time of \redM is polynomial in \(\lambda\).
 As discussed in \TODO{discuss it}, these three ingredients are what
 is needed to ``force'' the reduction \redR to ``lose tightness''
-(essentially by exhibiting an adversary for which the reduction cannot preserve its advantage).
+(essentially by exhibiting an adversary for which the reduction cannot preserve the adversary's advantage).
 By selecting the parameters  \(t\) and \(\alpha\) appropriately,
 we get a tightness loss of approximately \(\ell \approx \min \{ \mu, \alpha^{-1}\}\).
 This yields \eqref{eq:main} because of the constraint \(\alpha \approx q / t \ge q / \rho\),
-which we must adhere to in order to make the term
+which is necessary in order to make the term
 \(4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}\)
 small.
 
-Before we can prove Theorem \ref{thm:owecpa},
-we will need to introduce some terminology.
+\begin{namedproof}{Proof of Theorem \ref{thm:etpa}}
+  We begin by describing the adversary \advA against the \ETPA security of \TP
+  and the meta-reduction \redM against the simple computational assumption \Simple.
+  Let \(\rho, \mu, t \in \N, \alpha \in (0,1)\) be as given in the theorem statement.
+  The adversary \advA is given as follows:
 
-\begin{definition}[Agreeing pairs]\label{def:agree}
-  Let \setSK, \setC, \keyspace be sets and
-  let \(f : \setSK \times \setC \to \keyspace\) be a function.
-  Fix a \(c \in \setC\) and a pair \((s,s') \in \setSK^{2}\).
-  Then \(s\) and \(s'\) are said to \emph{agree on \(c\) with respect to \(f\)} if
+  \begin{enumerate}[itemsep=0.1cm]
+    \item\label{advA:init} Receive \(\params\) from the \(\ETPA\) challenger.
+    \item\label{advA:query} Query \(\Puzzle(i)\) \(\rho\) times for each \(i \in [\mu]\)
+          and receive puzzles \((p_{i,j})_{i \in [\mu], j \in [\rho]}\).
+    \item\label{advA:check} Before proceeding, check for any duplicate puzzles as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Check if there is \(i \in [\mu]\) and \((j,j') \in [\rho]^{2}\) such that \(j \ne j'\) but
+                  \(p_{i,j} = p_{i,j'}\).
+            \item If so: query \(\Reveal(i,j)\), receive \(s_{i,j}\)
+                  and output \((i,j',s_{i,j})\) in the \ETPA game.
+            \item Otherwise: continue to the next step.
+          \end{itemize}
+    \item\label{advA:reveal} For each \(i \in [\mu]\), do the following:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Pick a uniformly random size \(t\) subset \(S_{i} \subset [\rho]\).
+            \item Query \(\Reveal(i,j)\) for each \(j \in [\rho] \setminus S_{i}\)
+                  and receive solutions \((s_{i,j})_{j \in [\rho] \setminus S_{i}}\).
+          \end{itemize}
+    \item\label{advA:corrupt} Sample \(i^{*} \sampleR [\mu]\). Then repeat the following for each \(i \in [\mu]\) with \(i \ne i^{*}\):
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Query \(\Corrupt(i)\) and receive \(\td_{i}\).
+            \item Abort if \(\PuzzleSolve(\td_{i},p_{i,j}) \ne s_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+          \end{itemize}
+     \item\label{advA:brute} Brute-force search for a candidate \(\td_{i^{*}} \in \{0,1\}^{q(\lambda)}\) as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item For each \(\td \in \{0,1\}^{q(\lambda)}\),
+                  check whether \(\PuzzleSolve(\td,p_{i^{*},j}) = s_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
+            \item If so: set \(\td_{i^{*}} := \td\) and exit the loop. Otherwise: continue.
+            \item If no \(\td_{i^{*}}\) was found during the brute-force search: abort.
+          \end{itemize}
+    \item\label{advA:final} Sample \(j^{*} \sampleR S_{i^{*}}\),
+          and use \(\td_{i^{*}}\) to compute a candidate puzzle solution
+          \(s_{i^{*}, j^{*}} \assign \PuzzleSolve(\td_{i^{*}},p_{i^{*}, j^{*}})\).
+          Output \((i^{*}, j^{*}, s_{i^{*}, j^{*}})\) in the \ETPA game.
+  \end{enumerate}
+
+  Observe that Step \ref{advA:brute} of the adversary \advA involves a brute-force search
+  over all \(\td \in \{0,1\}^{q(\lambda)}\), which is inefficient.
+  The aim of the meta-reduction \redM is to break the simple computational assumption \Simple,
+  by simulating the adversary \advA towards the reduction \redR \emph{efficiently},
+  hence turning \(\redR^{\advA}\) into an efficient adversary against \Simple.
+  Accordingly, \redM is itself an adversary against \Simple,
+  or more precisely an adversary in the game \SICA against \Simple
+  (recall Figure \ref{fig:simple} of Definition \ref{def:simple}).
+  In particular, it has access to an oracle \oracle,
+  which it uses to simulate the corresponding oracle for \(\redR\).
+  Also note that the meta-reduction \redM only needs to simulate a single
+  execution of \advA towards \redR,
+  since we are assuming that the reduction \redR is simple
+  and hence executes \advA only once.
+  We describe \redM in the following.
+
+  \begin{enumerate}[itemsep=0.1cm]
+    \item Receive the challenge \(c\) from the \(\SICA\) challenger.
+    \item\label{advM:second} Pass the challenge \(c\) to the reduction \redR. Then run \(\redR\) as follows,
+          using the oracle \oracle to simulate the corresponding oracle for \redR:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Execute \(\redR^{\oracle}\) while simulating \advA towards \(\redR^{\oracle}\),
+                  but halt the execution of \(\redR^{\oracle}\)
+                  when Step \ref{advA:corrupt} of \advA is first reached.
+            \item That is, simulate Step \ref{advA:init} through Step \ref{advA:reveal} of \advA towards \redR.
+                  Denote the puzzles received by \advA during these steps by
+                  \((p_{i,j})_{i \in [\mu], j \in [\rho]}\).
+                  Also denote the random subsets chosen by \advA in Step \ref{advA:reveal}
+                  by \((S_{i})_{i \in [\mu]}\),
+                  and the corresponding revealed puzzle solutions by \((s_{i,j})_{j \in [\rho] \setminus S_{i}}\)
+                  for each \(i \in [\mu]\).
+            \item If the simulation of \advA finishes its execution already in Step \ref{advA:check}
+                  (this may happen if \advA finds duplicate puzzles \(p_{i,j} = p_{i,j'}\)),
+                  simply continue executing \(\redR^{\oracle}\) to completion,
+                  and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
+            \item Otherwise: store the state of \(\redR^{\oracle}\) after this point as \(\state_{\redR}\),
+                  and move to the next step.
+          \end{itemize}
+    \item\label{advM:rewind}
+          For each \(\ell \in [\mu]\), execute the reduction \(\redR^{\oracle}\) as follows:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Starting from the state \(\state_{\redR}\),
+                  run \(\redR^{\oracle}\) while simulating Step
+                  \ref{advA:corrupt} of \advA towards \(\redR^{\oracle}\),
+                  but set \(i^{*} = \ell\) (instead of picking a random \(i^{*}\))
+                  in Step \ref{advA:corrupt} of \advA.
+            \item More precisely, simulate Step \ref{advA:corrupt} of \advA with \(i^{*} = \ell\) by:
+                  \begin{enumerate}[topsep=0.1cm,itemsep=0.1cm,ref=(\alph*)]
+                    \item Querying \(\Corrupt(i)\) to \(\redR^{\oracle}\) for each \(i \ne \ell\),
+                          storing the resulting trapdoors as \((\td_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
+                    \item\label{advM:Acheck} For each \(i \ne \ell\),
+                          aborting the simulation of \advA if
+                          \(\PuzzleSolve(\td_{i}^{\ell},p_{i,j}) \ne s_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+                  \end{enumerate}
+            \item Denote the state of \(\redR^{\oracle}\) after this point by \(\state_{\redR}^{\ell}\).
+          \end{itemize}
+    \item\label{advM:sample} Pick a random \(i^{*} \sampleR [\mu]\) and do the following:
+        \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+          \item If the simulation of \(\advA\) in Step \ref{advM:rewind} with \(\ell = i^{*}\)
+                aborted (because one of the checks in \ref{advM:Acheck} failed with \(\ell = i^{*}\)),
+                then simply continue executing \(\redR^{\oracle}\)
+                from the state \(\state_{\redR}^{i^{*}}\), running \(\redR^{\oracle}\) to completion
+                (in this case, the task of simulating \advA becomes trivial since \advA has aborted).
+                Afterwards, terminate and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
+          \item Otherwise: go to the next step.
+        \end{itemize}
+    \item\label{advM:key} For each \(\ell \in [\mu] \setminus \{i^{*}\}\), repeat the following:
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Check if the trapdoor \(\td_{i^{*}}^{\ell}\)
+                  stored in Step \ref{advM:rewind} satisfies that
+                  \(\PuzzleSolve(td_{i^{*}}^{\ell},p_{i^{*},j}) = s_{i^{*},j}\)
+                  for each \(j \in [\rho] \setminus S_{i^{*}}\).
+            \item If so, denote this trapdoor by \(\td_{i^{*}}'\) and exit the loop.
+                  If not: continue to the next \(\ell\).
+            \item If no trapdoor \(\td_{i^{*}}'\) satisfying the above
+                  was found during the entire loop: abort.
+          \end{itemize}
+    \item\label{advM:final} Finally, use \(\td_{i^{*}}'\) to simulate the
+          last step of \advA's execution towards \(\redR^{\oracle}\):
+          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+            \item Start \(\redR^{\oracle}\) from state \(\state_{\redR}^{i^{*}}\),
+                  and simulate Step \ref{advA:final} of \advA by picking \(j^{*} \sampleR S_{i^{*}}\)
+                  and computing \(s_{i^{*},j^{*}}' \assign \PuzzleSolve(\td_{i^{*}}',p_{i^{*},j^{*}})\).
+            \item Then output \((i^{*},j^{*}, s_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
+                  completing the simulation of \advA towards \(\redR^{\oracle}\).
+            \item Afterwards, continue running \(\redR^{\oracle}\)
+                  until termination, and output whatever \(\redR^{\oracle}\)
+                  outputs in the game \SICA.
+          \end{itemize}
+  \end{enumerate}
+
+  To prove the theorem, we need to prove the inequalities \eqref{ineq:A} and \eqref{ineq:M},
+  and also argue that the running time of the meta-reduction \redM is of the form in \eqref{ineq:M:time}.
+  We defer the proof of \eqref{ineq:A} to Lemma \ref{lemma:A}.
+  As for the running time of \redM,
+  observe that \redM rewinds the reduction \redR exactly \(\mu\) times,
+  and additionally runs \redR to completion exactly once.
+  Moreover, \redM uses the puzzle solving algorithm \PuzzleSolve of \TP
+  at most \(\mu \rho\) times during Step \ref{advM:key},
+  and exactly once in Step \ref{advM:final}.
+  The bound in \eqref{ineq:M:time} now follows.
+
+  It remains to show that \eqref{ineq:M} holds, i.e to bound the difference
   \(
-    f(s,c) = f(s',c).
+    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}},
   \)
-  When \(f\) is understood from context, we simply say that \(s\) and \(s'\) \emph{agree on \(c\)}.
-  On the other hand, if
-  \(
-    f(s,c) \ne f(s',c),
-  \)
-  then we say that \(s\) and \(s'\) \emph{disagree on \(c\)} (with respect to \(f\)).
-\end{definition}
+  where \(\epsilon_{\redR^{\advA}}\) and \(\epsilon_{\redM}\) denote
+  the advantages of \(\redR^{\advA}\) and \redM, respectively, in the game \SICA
+  against the simple computational assumption \Simple.
+  This amounts to showing that the meta-reduction \redM
+  emulates the reduction \redR successfully
+  (by simulating the adversary \advA towards \redR),
+  except with some (hopefully small) probability equal to the right hand side of \eqref{ineq:A}.
+  For this, we will have to analyze the execution of \redM and \(\redR^{A}\)
+  in the game \SICA against \Simple.
+  Let us denote the instances of the \SICA game played by \redM and \(\redR^{\advA}\)
+  by \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\), respectively.
+  To simplify the analysis, we will define \(\SICA_{\Simple}^{\redM}\)
+  and \(\SICA_{\Simple}^{\redR}\) over the same probability space.
+  More precisely, we assume that the \(\Init\) algorithm of \Simple
+  is given the same random coins in line \ref{code:simple:init} of Figure \ref{fig:simple}
+  in either instance of the \SICA game.
+  From this, it follows that the tuple \((\state_{\Simple},c)\) of state and challenge
+  output by \(\Init\) is identical in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\).
+  Now denote the challenge solutions output by \redM and \(\redR^{\advA}\)
+  in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
+  by \(s_{\redM}\) and \(s_{\redR}\), respectively (corresponding to line \ref{code:simple:output} of Figure \ref{fig:simple}).
+  We claim that
+  \begin{equation}\label{ineq:owecpa:diff}
+    \abs{\epsilon_{\redM} - \epsilon_{\redR^{\advA}}} \le \prob{s_{\redM} \ne s_{\redR}}.
+  \end{equation}
+  It follows that it will be enough to bound the probability \(\prob{s_{\redM} \ne s_{\redR}}\),
+  i.e to bound the probability that \(\redR^{\advA}\) and \(\redM\)
+  output different challenge solutions.
+  We give such a bound in Lemma \ref{lemma:M}, from which the inequality \eqref{ineq:M} will follow.
 
-In the context of Section \ref{sec:kem},
-we will use the above definition with the pair \((s,s')\)
-equal to a pair of KEM secret keys and the function \(f\)
-equal to the decapsulation function \(\Decaps\) of the KEM,
-whereas the space \setC will be the set of ciphertexts of the KEM
-and the space \keyspace will be the set of encapsulated keys.
-Hence a pair of secret keys \((\sk,\sk')\) will agree on a ciphertext \(c\)
-if they decapsulate it equally, i.e \(\Decaps(\sk,c) = \Decaps(\sk,c')\).
-We will need the more abstract form of the above definition
-when we apply our meta-reduction strategy to authenticated key exchange in Section (\TODO{ref.}).
+  Proving that the inequality \eqref{ineq:owecpa:diff} holds
+  essentially amounts to a ``difference lemma'' argument,
+  although we will need to make use of the fact that \Simple is a simple computational assumption,
+  as defined in Definition \ref{def:simple}.
+  Indeed, observe that the winning condition in the game \SICA
+  is defined by the deterministic algorithm \(\Win\) of \(\Simple\),
+  which takes as input only the state \(\state_{\Simple}\) of the game and a challenge solution \(s\)
+  (in particular, it does not depend on the queries made to the oracle \oracle
+  in the game).
+  In other words, the winning condition depends only on the state
+  \(\state_{\Simple}\) and the challenge solution \(s\).
+  Since the states of \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
+  are equal by assumption, we find that if \(s_{\redM} = s_{\redR}\), then
+  \[
+  \SICA_{\Simple}^{\redR} \to 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \SICA_{\Simple}^{\redM} \to 1.
+  \]
+  By the usual difference lemma (\TODO{add this}), we get
+  \[
+    \abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}}
+    \le \prob{s_{\redM} \ne s_{\redR}},
+  \]
+  which gives
+  \begin{align}
+    \abs{\epsilon_{\redM} - \epsilon_{\redR^{A}}}
+    & = \abs*{\abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)} - \abs{\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda)}} \notag\\
+    & \le \abs*{(\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)) - (\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda))} \notag\\
+    & = \abs*{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}} \notag\\
+    & \le \prob{s_{\redM} \ne s_{\redR}} \notag,
+  \end{align}
+  as desired.
+\end{namedproof}
 
-In the following, we define ``bad pairs'' of secret keys \((s,s')\),
-which we will want to somehow deal with in our proof of Theorem \ref{thm:owecpa}.
+\begin{lemma}\label{lemma:M}
+  With the same setup as above,
+  \begin{equation}
+    \prob{s_{\redM} \ne s_{\redR}}
+    \le 1/\mu + \alpha
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
+  \end{equation}
+\end{lemma}
 
-\begin{definition}[Bad pairs]\label{def:bad}
-  \TODO{pick a better name than ``bad''.}
-  Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
-  Fix a set \(A \subset \setC\) and a subset \(S \subset A\),
-  along with a pair \((s,s') \in \setSK^{2}\) and a real number \(\alpha \in (0,1)\).
-  Then \((s,s')\) is said to be \emph{\(\alpha\)-bad for the subset \(S\)} (with respect to \(A\) and \(f\)) if
-  \(s\) and \(s'\) agree on every \(c \in A \setminus S\), yet disagree on more than an \(\alpha\)-fraction of \(c \in S\).
-  In other words, \((s,s')\) is \(\alpha\)-bad for the subset \(S\) if we have
-  \(
-    f(s,c) = f(s',c) \text{ for all } c \in A \setminus S,
-  \)
+\begin{proof}
+  To prove the lemma,
+  we will need to argue that the executions of the meta-reduction \redM
+  and the reduction \(\redR^{\advA}\) are ``close'' enough
+  that they are likely to output the same challenge solution \(s_{\redM} = s_{\redR}\)
+  in the \SICA game against \Simple.
+  To do this, we will need to show that \redM simulates \advA
+  correctly towards \(\redR\), except with some prescribed failure probability.
+  For this analysis, we will continue to make the assumption that
+  the instance \(\SICA_{\Simple}^{\redR}\) of the \SICA game played by \(\redR^{A}\)
+  and the instance \(\SICA_{\Simple}^{\redM}\) of the \SICA game played by \redM
+  are defined over the same probability space.
+  This includes taking the randomness of the real adversary
+  \advA run by \(\redR^{\advA}\)
+  and the simulated adversary run by \redM to be the same,
+  wherever convenient.
+  With this in mind, we will see that
+  the proof essentially reduces to arguing that
+  the puzzle solution \(s_{i^{*},j^{*}}'\) computed by the meta-reduction
+  \redM in Step \ref{advM:final} of its execution in \(\SICA_{\Simple}^{\redM}\)
+  equals the puzzle solution \(s_{i^{*},j^{*}}\)
+  that the real adversary \advA computes in Step \ref{advA:final} of its execution,
+  when \redR runs \advA in \(\SICA_{\Simple}^{\redR}\).
+  % This is where we will need to make use of Lemma \ref{lemma:equiv}.
+
+  Before we can argue about the puzzle solution \(s_{i^{*},j^{*}}'\) computed by
+  \redM in Step \ref{advM:final} of its execution,
+  we will need to address the possibility that \redM aborts
+  before ever reaching this step.
+  Indeed, this can happen in Step \ref{advM:key},
+  if \redM fails to find a trapdoor \(\td_{i^{*}}'\)
+  of the appropriate form among the \(\mu - 1\)
+  different trapdoors \((\td_{i^{*}}^{\ell})_{\ell \in [\mu] \setminus \{i^{*}\}}\) it has saved.
+  More precisely, this will happen if
+  none of the trapdoors \(\td_{i^{*}}^{\ell}\)
+  which were stored by \redM during the rewinding of \redR in Step \ref{advM:rewind}
+  satisfy the following check:
+  \begin{equation}\label{skcheck}
+  \PuzzleSolve(\td_{i^{*}}^{\ell},p_{i^{*},j}) = s_{i^{*},j}
+  \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \end{equation}
+  Let \(\eventE_{abrt}\) denote the event that \redM aborts in Step \ref{advM:key}, or more precisely
+  \begin{align}
+    \eventE_{abrt} := & \text{ \redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu] \setminus \{i^{*}\}\notag\\
+    & \text{ there is } j \in [\rho] \setminus S_{i^{*}}
+    \text{ such that } \PuzzleSolve(\td_{i^{*}}^{\ell},p_{i^{*},j}) \ne s_{i^{*},j}. \notag
+  \end{align}
+  We claim that \(\prob{\eventE_{abrt}} \le 1/\mu\).
+  % The precise argument here is rather subtle,
+  % although it is standard and follows the argument in \TODO{HLG21, which page?},
+  % which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
+  % pioneered by \cite{EC:BJLS16}.
+  In short, this is because there can be at most one choice of \(i^{*}\)
+  in Step \ref{advM:sample} that would cause \redM to enter Step \ref{advM:key} and abort.
+  Since \(i^{*}\) is picked uniformly at random from \([\mu]\)
+  in Step \ref{advM:sample} of \redM (and independently of any previous steps),
+  this gives \(\prob{\eventE_{abrt}} \le 1/\mu\).
+  To see that there can be at most one such \(i^{*}\),
+  recall that whenever \redM rewinds the reduction \redR
+  in Step \ref{advM:rewind},
+  then for each \(\ell \in [\mu]\),
+  it simulates \advA by querying \(\Corrupt(i)\) for each \(i \ne \ell\),
+  receiving trapdoors \((\td_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\)
+  and letting \advA abort if
+  \(\PuzzleSolve(\td_{i}^{\ell},p_{i,j}) \ne s_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\)
+  (we emphasize that, in the case where \advA aborts, \redM's task of simulating \advA becomes trivial
+  --- there is nothing more to simulate. So in this case, the simulation of \advA by \redM succeeds).
+  But for \redM to abort in Step \ref{advM:key},
+  then for each \(\ell \ne i^{*}\),
+  it must be the case that
+  \(\PuzzleSolve(\td_{i}^{\ell},p_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
+  Hence for each such \(\ell\), the simulation of \advA by \redM
+  would have aborted during Step \ref{advM:rewind}.
+  As a consequence, for every other choice of \(i^{*}\),
+  \redM would complete its simulation of \advA already in Step \ref{advM:sample},
+  before it could ever enter Step \ref{advM:key} and trigger the event \(\eventE_{abrt}\).
+  It follows that no other choice of \(i^{*}\) could cause
+  \redM to enter Step \ref{advM:key} and abort, as required.
+
+  Now let us consider what happens if \(\eventE_{abrt}\) does not occur.
+  In this case, we claim that, so long as the puzzle solution
+  \(s_{i^{*},j^{*}}'\) computed by \redM
+  and the puzle solution \(s_{i^{*},j^{*}}\) computed by \advA are equal,
+  then \redM simulates \advA perfectly towards \redR,
+  and the challenge solution \(s_{\redR}\) output by \(\redR^{\advA}\) in \(\SICA_{\Simple}^{\redR}\)
+  will equal the challenge solution \(s_{\redM}\) output by \(\redM\)
+  in \(\SICA_{\Simple}^{\redM}\).
+  To see this, observe that the meta-reduction \redM simulates \advA
+  perfectly until Step \ref{advM:final} of \redM's execution.
+  Indeed, although \redM rewinds the reduction \(\redR^{\oracle}\)
+  during Step \ref{advM:rewind},
+  it continues to execute \(\redR^{\oracle}\) during Steps \ref{advM:sample} through \ref{advM:key}
+  from one of the rewound branches (whose state is stored as \(\state_{\redR}^{i^{*}}\))
+  for a random choice of \(i^{*}\), emulating \advA's choice of a random \(i^{*}\).
+  Moreover, the interaction between \advA and \(\redR^{\oracle}\)
+  up to Step \ref{advM:final} is simulated perfectly by \redM
+  (this is unproblematic for \redM to do, since up to this point, the adversary \advA is efficient).
+  Also, if \advA finishes its execution early in Step \ref{advA:check},
+  then \redM likewise simulates \advA perfectly towards \(\redR^{\oracle}\).
+  Additionally, \redM simulates the oracle \oracle
+  in the game \(\SICA_{\Simple}^{\redR}\) of \redR perfectly
+  by simply using its own oracle \oracle in \(\SICA_{\Simple}^{\redM}\).
+  This follows since the two instances of the \SICA game are defined over the same probability space,
+  and in particular share the same state \(\state_{\Simple}\),
+  so the responses computed by the oracle \oracle in either game will be the same
+  (recalling Figure \ref{fig:simple} of Definition \ref{def:simple},
+  this is because the oracle \oracle simply computes its response to a query \(m\)
+  as \(\Respond(\state_{\Simple},m)\)).
+  % Note that this holds in spite of the fact that \(\redM\)
+  % may possibly make many more (and different) queries to \oracle than \(\redR^{A}\),
+  % since \(\redM\) rewinds the reduction \redR
+  % and executes it several times.
+
+  Now, when \redM reaches Step \ref{advM:final} of its execution,
+  the only step of \advA which remains to simulate is the
+  final step (Step \ref{advA:final} of \advA), in which \advA outputs
+  a triple \((i^{*},j^{*},s_{i^{*},j^{*}})\).
+  Since we assume \(\eventE_{abrt}\) has not occurred,
+  \redM has obtained a trapdor \(\td_{i^{*}}'\)
+  satisfying the check in \eqref{skcheck},
+  and will compute a puzzle solution as
+  \(s_{i^{*},{j^{*}}}' \assign \PuzzleSolve(\td_{i^{*}}'p_{i^{*},j^{*}})\).
+  Afterwards, \redM simply simulates \advA
+  by outputting \((i^{*},j^{*}, s_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
+  and continues running \(\redR^{\oracle}\)
+  until termination, outputting whatever \(\redR^{\oracle}\)
+  outputs in the game \SICA.
+  Hence, if \(s_{i^{*},j^{*}}' = s_{i^{*},j^{*}}\),
+  then clearly \redM simulates \advA perfectly,
+  and we will have \(s_{\redM} = s_{\redR}\).
+  We have thus shown that
+  \[
+    \prob{s_{\redM} \ne s_{\redR}} \le \prob{\eventE_{abrt}} + \prob{\eventE_{sol}},
+  \]
+  where we define the event \(\eventE_{sol}\) by
+  \[
+    \eventE_{sol} := \text{\redM reaches Step \ref{advM:final}, but } s_{i^{*},j^{*}}' \ne s_{i^{*},j^{*}}.
+  \]
+
+  Before we can tackle the event \(\eventE_{sol}\),
+  it will be helpful to introduce some simple terminology.
+  Let us say that two trapdoors \((\td,\td') \in \TD^{2}\) for the trapdoor puzzle scheme \TP
+  \emph{agree} on a puzzle \(p\) if \(\PuzzleSolve(\td,p) = \PuzzleSolve(\td',p)\),
+  i.e if the two trapdoors \((\td,\td')\) yield identical solutions to the puzzle \(p\).
+  Otherwise, we will say that \((\td,\td')\) \emph{disagree} on the puzzle \(p\).
+  Note that \(\PuzzleSolve\) is a deterministic algorithm,
+  so a pair \((\td,\td')\) must either agree or disagree on a given puzzle \(p\) (with no ``in-between'').
+  Also, for a given user \(i \in [\mu]\),
+  let us say that a pair of trapdoors
+  \((\td,\td')\) is \emph{\(\alpha\)-bad}
+  for the size-\(t\) subset \(S_{i} \subset [\rho]\)
+  chosen by the adversary in Step \ref{advA:reveal} of its execution,
+  if \(\td\) and \(\td'\) agree
+  on every puzzle \(p \in (p_{i,j})_{j \in [\rho]}\)
+  with \(j\) \emph{outside} of the set \(S_{i}\),
+  yet disagree on more than an \(\alpha\)-fraction of puzzles
+  \(p \in (p_{i,j})_{j \in [\rho]}\)
+  with \(j\) \emph{inside} of the set \(S_{i}\).
+  In other words, \((\td,\td')\) is \(\alpha\)-bad for the size-\(t\) subset \(S_{i} \subset [\rho]\) if we have
+  \[
+    \PuzzleSolve(\td,p_{i,j}) = \PuzzleSolve(\td',p_{i,j}) \text{ for all } j \in [\rho] \setminus S_{i},
+  \]
   but
-  \(
-    f(s,c) \ne f(s',c) \text{ for more than } \alpha \abs{S} \text{ distinct } c \in S.
-  \)
-  % When \(\alpha\) is clear from context, we simply say that \((s,s')\) is \emph{bad for the subset \(S\)} (with respect to \(A\) and \(f\)).
-\end{definition}
+  \[
+    \PuzzleSolve(\td,p_{i,j}) \ne \PuzzleSolve(\td',p_{i,j}) \text{ for more than } \alpha t \text{ distinct } j \in S
+  \]
+  (note that we may assume that the puzzles \((p_{i,j})_{j \in [\rho]}\) on each user \(i\) are distinct,
+  since otherwise \advA would have finished its execution already in its Step \ref{advA:check}.
+  In this case, \redM would be done simulating \advA before it could ever reach its Step \ref{advM:final},
+  and so \(\eventE_{sol}\) could not occur).
+  With this terminology, we can divide \(\eventE_{sol}\) into the following events:
+  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+    \item \(\eventE_{bad} := \) The event \(\eventE_{abrt}\) does not occur
+          (meaning that \redM obtains a trapdoor \(\td_{i^{*}}'\) such that
+          \(\PuzzleSolve(\td_{i^{*}}',p_{i^{*},j}) = s_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\)),
+          but the pair \((\td_{i^{*}}, \td_{i^{*}}')\) formed by \redM's trapdoor
+          and the trapdoor \(\sk_{i^{*}}\) found by the real \advA in
+          its brute-force search (Step \ref{advA:brute} of \advA)
+          is \emph{\(\alpha\)-bad} for the subset \(S_{i^{*}}\).
+    \item \(\eventE_{fail} := \) Neither \(\eventE_{abrt}\) nor \(\eventE_{bad}\) occur,
+          but \(\eventE_{key}\) still occurs.
+  \end{itemize}
 
-\TODO{this can probably be moved \emph{into} the proof?}
+  \TODO{clean this up, somewhat.}
+
+  With this, we now get
+  \[
+    \prob{\eventE_{sol}} \le \prob{\eventE_{bad}} + \prob{\eventE_{fail}}.
+  \]
+  We claim that
+  \[
+    \prob{\eventE_{fail}} \le \alpha.
+  \]
+  To this end, observe that if \(\eventE_{fail}\) occurs,
+  then by definition \(\eventE_{abrt}\) does not, and so
+  \redM will obtain a trapdoor \(\td_{i^{*}}'\) such that
+  \[
+    \Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  Hence such a secret key exists, and so \advA is guaranteed to find such a secret key \(\sk_{i^{*}}\)
+  in its brute-force search as well (the two secret keys may not be the same).
+  Thus we find that
+  \[
+    \Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
+  \]
+  In other words, the secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
+  of \advA and \redM \emph{agree} on the ciphertexts on user \(i^{*}\) outside of the set indexed by \(S_{i^{*}}\).
+  But if \(\eventE_{fail}\) occurs, then we also know that \(\eventE_{bad}\) does not
+  (again, by the definition of \(\eventE_{fail}\)),
+  and so the pair \((\sk_{i^{*}},\sk_{i^{*}}')\) of secret keys cannot be
+  \(\alpha\)-bad for the subset \(S_{i^{*}}\).
+  It follows by the definition of ``badness'' that \(\sk_{i^{*}}\) and \(\sk_{i^{*}}'\)
+  can disagree on at most an \(\alpha\)-fraction of the ciphertexts inside of the set indexed by \(S_{i^{*}}\).
+  That is, we can only have
+  \(\Decaps(\sk_{i^{*}},c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}}',c_{i^{*},j})\)
+  for at most an \(\alpha\)-fraction of \(j \in S_{i^{*}}\).
+  Now, since \(j^{*}\) is picked uniformly at random from \(S_{i^{*}}\),
+  the probability that
+  \(\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}},c_{i^{*},j})\),
+  or equivalently that \(k_{i^{*},j^{*}}' \ne k_{i^{*},j^{*}}\),
+  is thus at most \(\alpha\),
+  from which we get that \(\prob{\eventE_{fail}} \le \alpha\).
+
+  Finally, we can consider the event \(\eventE_{bad}\).
+  % As before, since \(\eventE_{abrt}\) does not occur,
+  % \redM finds a secret key
+  % \(\sk_{i^{*}}'\) in \(\Simple'\) satisfying that
+  % \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}\),
+  % and hence
+  % \advA will find such a secret key in \Simple as well, so it makes sense to speak of the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\)
+  % of secret keys held by \redM and \advA.
+  From the definition of \(\eventE_{bad}\), it should be clear that
+  \begin{equation}\label{ineq:M:bad}
+    \prob*{\eventE_{bad}} \le \prob{\text{There exists a pair } (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}.
+  \end{equation}
+  Now we can apply Lemma \ref{lemma:equiv} to bound the right hand side of \eqref{ineq:M:bad}.
+  To do this, we will need to assign the sets \(\setSK, \setC, \keyspace\) referred to in the lemma,
+  and also pick the function \(f : \setSK \times \setC \to \keyspace\),
+  the set \(A \subset \setC\) of ciphertexts and the parameters \(d,\rho,t,\alpha\).
+  We will let the sets \(\setSK, \setC, \keyspace\)
+  be the same as they are here (i.e they will be the secret key space, ciphertext space and encapsulation key space of the KEM \KEM), and likewise for the parameters \(\rho, t, \alpha\).
+  We then set \(d = q(\lambda)\),
+  and let the function \(f\) be the decapsulation function \(\Decaps\) of \KEM.
+  By our definition of a KEM (\TODO{define}), the decapsulation function
+  \(\Decaps\) is a deterministic function from \(\setSK \times \setC\) to \(\keyspace\),
+  and hence it makes sense to use it in our application of Lemma \ref{lemma:equiv}.
+  Now we let \(A\) be the set of ciphertexts received on user \(i^{*}\), that is
+  \[
+    A = \{c_{i^{*},1},c_{i^{*},2},\ldots,c_{i^{*},\rho}\},
+  \]
+  and we set \(S\) to be the set of ciphertexts in \(A\) indexed by \(S_{i^{*}}\).
+  Since \(S_{i^{*}}\) was chosen uniformly at random among size \(t\) subsets of \([\rho]\),
+  the set \(S\) will be a uniformly random size \(t\) subset of \(A\).
+  With this, Corollary \ref{corollary:equiv} of Lemma \ref{lemma:equiv} gives us
+  \[
+    \prob{\exists (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}
+    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
+  \]
+
+  Note that, for the application of Lemma \ref{lemma:equiv} to be formally correct here,
+  we would actually need to verify that there are no duplicate ciphertexts
+  \(c_{i^{*},j} = c_{i^{*},j'}\) among the ciphertexts received on user \(i^{*}\).
+  Otherwise, the set \(A\) may not have size \(\rho\)
+  (it could then be strictly smaller than \(\rho\)),
+  and the set \(S\) could likewise be smaller than \(t\),
+  so that the lemma would not apply.
+  Now, for any secure KEM, we expect the probability of such a
+  duplicate \(c_{i^{*},j} = c_{i^{*},j'}\) to be negligible in the real \OWECPA game.
+  Nevertheless, we cannot assume that the same will hold
+  when the reduction \redR acts as the challenger,
+  as \redR could conceivably produce such duplicates regardless
+  (recall that the reduction is free to do whatever it wishes, and does not need to
+  faithfully emulate the real challenger in the \OWECPA game).
+  However, if \advA ever receives such a duplicate \(c_{i^{*},j} = c_{i^{*},j'}\),
+  then it can trivially win the \OWECPA game by revealing one of the ciphertexts and attacking the other.
+  In this case, the adversary \advA's attack becomes efficient,
+  and so we can simulate it efficiently towards \redR without issue.
+  Hence we can ignore this technical detail.
+
+  Combining the bounds for \(\prob{\eventE_{abrt}}\), \(\prob{\eventE_{bad}}\) and \(\prob{\eventE_{fail}}\), we now get
+  \[
+    \prob{s_{\redR} \ne s_{\redM}} \le 1 / \mu + \alpha
+    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
+  \]
+  which proves the lemma.
+\end{proof}
+
+\begin{remark}\label{rem:puzzles}
+  In the proof of the above lemma,
+  we made the assumption that the puzzles \((p_{i,j})_{j \in [\rho]}\)
+  received on each user \(i\) were distinct,
+  so that each set \((p_{i,j})_{j \in [\rho]}\) had size exactly \(\rho\).
+  In fact, it is not immediate that this must be the case:
+  indeed, when the reduction \(\redR\) produces the puzzles \((p_{i,j})_{j \in [\rho]}\),
+  it can do so in an arbitrary way (it does not have to generate the puzzles according to their ``real'' distribution).
+  Nevertheless, with respect to proving Theorem \ref{thm:etpa},
+  this assumption is unproblematic to make.
+  The reason is that, if \advA receives any two puzzles \(p_{i,j}\) and \(p_{i,j'}\) on the same user
+  \(i\) with \(p_{i,j} = p_{i,j'}\) and \(j \ne j'\),
+  then it can trivially win the \ETPA game by revealing the solution \(s_{i,j}\) of \(p_{i,j}\)
+  and outputting \(s_{i,j}\) as a solution to the puzzle \(p_{i,j'}\).
+  Hence we can modify \advA to handle this case as well.
+  Moreover, in this case, \advA's attack becomes efficient, so \redM will have no problem simulating \advA.
+
+  Note that the above-mentioned ``trivial win'' of \advA crucially
+  relies on the \((1-\delta)\)-correctness of \TP.
+  One verifies that, if \advA uses the above strategy to deal with duplicate puzzles,
+  then the only way this can fail if there is some pair of duplicate puzzles \(p_{i,j} = p_{i,j'}\)
+  whose solutions \(s_{i,j}\) and \(s_{i,j'}\) are unequal.
+  By \((1-\delta)-correctness\) and the fact that the \(\PuzzleSolve\) algorithm is deterministic,
+  this implies that either \(\PuzzleSolve()\)
+
+  If we apply the
+\end{remark}
+
+\begin{lemma}\label{lemma:A}
+  With the same setup as above, we have
+  \begin{equation}\label{ineq:A:lemma}
+    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
+    - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
+  \end{equation}
+\end{lemma}
+
+\begin{proof}
+  Recall that \(p_{\advA}\) denotes the success probability of the adversary \advA
+  (as described in \TODO{ref.})
+  in the \OWECPA game against \KEM.
+  To be precise, this is the probability that \advA outputs a triple \((i^{*},j^{*},k^{*})\)
+  such that
+  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+    \item \(k^{*}\) is the key encapsulated by \(c_{i^{*},j^{*}}\),
+          where \(c_{i^{*},j^{*}}\) denotes the \(j^{*}\)-th encapsulation received on user \(i^{*}\)'s public key in the \OWECPA game against \KEM.
+    \item The user \(i^{*}\) is not corrupted.
+    \item The encapsulation \(c_{i^{*},j^{*}}\) has not been revealed.
+  \end{itemize}
+
+  Before we consider the output of \advA, let us bound
+  the probability that \advA aborts early.
+  This can happen in two ways:
+  \begin{enumerate}
+    \item\label{advA:abort1} One of the secret keys \(\sk_{i}\) received by \advA
+          via a \(\Corrupt(i)\) query does not satisfy that \(\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\)
+          for every \(j \in [\rho] \setminus S_{i}\).
+    \item\label{advA:abort2} During \advA's brute-force search, \advA fails to find a candidate secret key \(\sk_{i^{*}}\)
+          such that \(\Decaps(\sk_{i^{*}}, c_{i^{*},j}) = k_{i^{*},j}\) for every \(j \in [\rho] \setminus S_{i^{*}}\).
+  \end{enumerate}
+  Since we are in the real \OWECPA game against \KEM
+  with an honest \OWECPA challenger,
+  all of the secret keys \(\sk_{i}\) used by the challenger
+  were validly generated, and the same holds for the encapsulations \(c_{i,j}\).
+  Thus, by \((1 - \delta)\)-correctness,
+  we will have \(\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\)
+  except with probability \(\delta \mu \rho\),
+  where \(k_{i,j}\) denotes the key that was generated along with \(c_{i,j}\) by the challenger in the \OWECPA game.
+  In this case, clearly point \ref{advA:abort1} cannot occur.
+  Likewise, point \ref{advA:abort2} will not occur,
+  since the secret key \(\sk_{i^{*}}\) held by the challenger for user \(i^{*}\)
+  satisfies that \(\Decaps(\sk_{i^{*}}, c_{i,j}) = k_{i,j} \text{ for every } j \in [\rho] \setminus S_{i^{*}}\).
+  Because of this, a secret key \(\sk_{i^{*}}\) of the desired form exists,
+  and \advA's brute-force search will not fail.
+  Thus, the probability that \advA aborts before outputting anything is at most \(\delta \mu \rho\).
+
+  Now, if neither point \ref{advA:abort1} nor point \ref{advA:abort2} occur,
+  then \advA wins so long as the key
+  \[
+  k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*},j^{*}}, c_{i^{*},j^{*}})
+  \]
+  computed by \advA equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the game.
+  Indeed, notice that the encapsulation \(c_{i^{*},j^{*}}\) is unrevealed
+  and the user \(i^{*}\) is uncorrupted in the \OWECPA game,
+  by the construction of the adversary \advA.
+  Applying Lemma \ref{lemma:equiv}
+  and reasoning similarly to Lemma \ref{lemma:M},
+  we find that the pair of secret keys for user \(i^{*}\) held by \advA
+  and the challenger in the \(\OWECPA\) game is
+  \(\alpha\)-bad for the subset \(S_{i^{*}}\) with probability at most
+  \(
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
+  \)
+  Thus the two secret keys will produce identical decapsulations of \(c_{i^{*},j^{*}}\), except with probability
+  \(
+    \alpha +
+    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
+  \)
+  Disregarding correctness errors among the \(\mu \rho\) encapsulations,
+  (which we have already dealt with in our discussion of points 1 and 2),
+  we find that the decapsulation of \(c_{i^{*},j^{*}}\)
+  under the challenger's secret key for user \(i^{*}\)
+  equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the \(\OWECPA\) game.
+  Hence in this case, \advA wins except with probability
+  \(
+  \alpha
+  + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
+  \)
+  Summing the failure probabilities, we now get \eqref{ineq:A:lemma}.
+\end{proof}
+
 
 \begin{lemma}[Probability of bad pairs]\label{lemma:equiv}
   Let \setSK, \setC, \keyspace, \(f : \setSK \times \setC \to \keyspace\) be as before.
@@ -335,554 +899,6 @@ which will be good enough for our purposes.
   Applying this inequality to \eqref{ineq:equiv} gives the result.
 \end{proof}
 
-We can now turn to the proof of Theorem \ref{thm:owecpa}.
-
-\begin{namedproof}{Proof of Theorem \ref{thm:owecpa}}
-  We begin by describing the adversary \advA against \OWECPA security in \KEM
-  and the meta-reduction \redM against the simple computational assumption \Simple.
-  Let \(\rho, \mu, t \in \N, \alpha \in (0,1)\) be as given in the theorem statement.
-  The adversary \advA is given as follows:
-
-  \begin{enumerate}[itemsep=0.1cm]
-    \item\label{advA:init} Receive \(\params, \pk_{1}, \ldots, \pk_{\mu}\) from the \(\OWECPA(\KEM)\) challenger.
-    \item\label{advA:query} Query \(\Enc(i)\) \(\rho\) times for each \(i \in [\mu]\) and receive encapsulations \((c_{i,j})_{i \in [\mu], j \in [\rho]}\).
-    \item\label{advA:reveal} For each \(i \in [\mu]\), do the following:
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Pick a uniformly random size \(t\) subset \(S_{i} \subset [\rho]\).
-            \item Query \(\Reveal(i,j)\) for each \(j \in [\rho] \setminus S_{i}\)
-                  and receive keys \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\).
-          \end{itemize}
-    \item\label{advA:corrupt} Sample \(i^{*} \sampleR [\mu]\). Then repeat the following for each \(i \in [\mu]\) with \(i \ne i^{*}\):
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Query \(\Corrupt(i)\) and receive \(\sk_{i}\).
-            \item Abort if \(\Decaps(\sk_{i},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
-          \end{itemize}
-     \item\label{advA:brute} Brute-force search for a candidate \(\sk_{i^{*}} \in \{0,1\}^{q(\lambda)}\) as follows:
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item For each \(\sk \in \{0,1\}^{q(\lambda)}\),
-                  check whether \(\Decaps(\sk,c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\).
-            \item If so: set \(\sk_{i^{*}} := \sk\) and exit the loop. Otherwise: continue.
-            \item If no \(sk_{i^{*}}\) was found during the brute-force search: abort.
-          \end{itemize}
-    \item\label{advA:final} Sample \(j^{*} \sampleR S_{i^{*}}\),
-          and use \(\sk_{i^{*}}\) to compute a candidate key \(k_{i^{*}, j^{*}} \assign \Decaps(\sk_{i^{*}},c_{i^{*}, j^{*}})\).
-          Output \((i^{*}, j^{*}, k_{i^{*}, j^{*}})\) in the \OWECPA game.
-  \end{enumerate}
-
-  Observe that Step \ref{advA:brute} of the adversary \advA involves a brute-force search
-  over all \(\sk \in \{0,1\}^{q(\lambda)}\), which is inefficient.
-  The aim of the meta-reduction \redM is to break the simple computational assumption \Simple,
-  by simulating the adversary \advA towards the reduction \redR \emph{efficiently},
-  hence turning \(\redR^{\advA}\) into an efficient adversary against \Simple.
-  Accordingly, \redM is itself an adversary against \Simple,
-  or more precisely an adversary in the game \SICA against \Simple
-  (recall Figure \ref{fig:simple} of Definition \ref{def:simple}).
-  In particular, it has access to an oracle \oracle,
-  which it uses to simulate the corresponding oracle for \(\redR\).
-  Also note that the meta-reduction \redM only needs to simulate a single
-  execution of \advA towards \redR,
-  since we are assuming that the reduction \redR is simple
-  and hence executes \advA only once.
-  We describe \redM in the following.
-
-  \begin{enumerate}[itemsep=0.1cm]
-    \item Receive the challenge \(c\) from the \(\SICA\) challenger.
-    \item Pass the challenge \(c\) to the reduction \redR. Then run \(\redR\) as follows,
-          using the oracle \oracle to simulate the corresponding oracle for \redR:
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Execute \(\redR^{\oracle}\) while simulating \advA towards \(\redR^{\oracle}\),
-                  but halt the execution of \(\redR^{\oracle}\)
-                  when Step \ref{advA:corrupt} of \advA is first reached.
-            \item That is, simulate Step \ref{advA:init} through Step \ref{advA:reveal} of \advA towards \redR.
-                  Denote the public keys and encapsulations
-                  received by \advA during these steps by \((\pk_{i})_{i \in [\mu]}\) and
-                  \((c_{i,j})_{i \in [\mu], j \in [\rho]}\), respectively.
-                  Also denote the random subsets chosen by \advA in Step \ref{advA:reveal}
-                  by \((S_{i})_{i \in [\mu]}\),
-                  and the corresponding revealed keys by \((k_{i,j})_{j \in [\rho] \setminus S_{i}}\)
-                  for each \(i \in [\mu]\).
-            \item Finally, store the state of \(\redR^{\oracle}\) after this point as \(\state_{\redR}\).
-          \end{itemize}
-    \item\label{advM:rewind}
-          For each \(\ell \in [\mu]\), execute the reduction \(\redR^{\oracle}\) as follows:
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Starting from the state \(\state_{\redR}\),
-                  run \(\redR^{\oracle}\) while simulating Step
-                  \ref{advA:corrupt} of \advA towards \(\redR^{\oracle}\),
-                  but set \(i^{*} = \ell\) (instead of picking a random \(i^{*}\))
-                  in Step \ref{advA:corrupt} of \advA.
-            \item More precisely, simulate Step \ref{advA:corrupt} of \advA with \(i^{*} = \ell\) by:
-                  \begin{enumerate}[topsep=0.1cm,itemsep=0.1cm,ref=(\alph*)]
-                    \item Querying \(\Corrupt(i)\) to \(\redR^{\oracle}\) for each \(i \ne \ell\),
-                          storing the resulting secret keys as \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\).
-                    \item\label{advM:Acheck} For each \(i \ne \ell\),
-                          aborting the simulation of \advA if
-                          \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
-                  \end{enumerate}
-            \item Denote the state of \(\redR^{\oracle}\) after this point by \(\state_{\redR}^{\ell}\).
-          \end{itemize}
-    \item\label{advM:sample} Pick a random \(i^{*} \sampleR [\mu]\) and do the following:
-        \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-          \item If the simulation of \(\advA\) in Step \ref{advM:rewind} with \(\ell = i^{*}\)
-                aborted (because one of the checks in \ref{advM:Acheck} failed with \(\ell = i^{*}\)),
-                then simply continue executing \(\redR^{\oracle}\)
-                from the state \(\state_{\redR}^{i^{*}}\), running \(\redR^{\oracle}\) to completion
-                (in this case, the task of simulating \advA becomes trivial since \advA has aborted).
-                Afterwards, terminate and output whatever \(\redR^{\oracle}\) outputs in the game \SICA.
-          \item Otherwise: go to the next step.
-        \end{itemize}
-    \item\label{advM:key} For each \(\ell \in [\mu] \setminus \{i^{*}\}\), repeat the following:
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Check if the secret key \(\sk_{i^{*}}^{\ell}\)
-                  stored in Step \ref{advM:rewind} satisfies that
-                  \(\Decaps(sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}\)
-                  for each \(j \in [\rho] \setminus S_{i^{*}}\).
-            \item If so, denote this secret key by \(\sk_{i^{*}}'\) and exit the loop.
-                  If not: continue to the next \(\ell\).
-            \item If no secret key \(\sk_{i^{*}}'\) satisfying the above
-                  was found during the entire loop: abort.
-          \end{itemize}
-    \item\label{advM:final} Finally, use \(\sk_{i^{*}}'\) to simulate the
-          last step of \advA's execution towards \(\redR^{\oracle}\):
-          \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-            \item Start \(\redR^{\oracle}\) from state \(\state_{\redR}^{i^{*}}\),
-                  and simulate Step \ref{advA:final} of \advA by picking \(j^{*} \sampleR S_{i^{*}}\)
-                  and computing \(k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*}}',c_{i^{*},j^{*}})\).
-            \item Then output \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
-                  completing the simulation of \advA towards \(\redR^{\oracle}\).
-            \item Afterwards, continue running \(\redR^{\oracle}\)
-                  until termination, and output whatever \(\redR^{\oracle}\)
-                  outputs in the game \SICA.
-          \end{itemize}
-  \end{enumerate}
-
-  To prove the theorem, we need to prove the inequalities \eqref{ineq:A} and \eqref{ineq:M},
-  and also argue that the running time of the meta-reduction \redM is of the form in \eqref{ineq:M:time}.
-  We defer the proof of \eqref{ineq:A} to Lemma \ref{lemma:A}.
-  As for the running time of \redM,
-  observe that \redM rewinds the reduction \redR exactly \(\mu\) times,
-  and additionally runs \redR to completion exactly once.
-  Moreover, \redM uses the decapsulation algorithm \Decaps of the KEM \KEM
-  at most \(\mu \rho\) times during Step \ref{advM:key},
-  and exactly once in Step \ref{advM:final}.
-  The bound in \eqref{ineq:M:time} now follows.
-
-  It remains to show that \eqref{ineq:M} holds, i.e to bound the difference
-  \(
-    \abs{\epsilon_{\redR^{\advA}} - \epsilon_{\redM}},
-  \)
-  where \(\epsilon_{\redR^{\advA}}\) and \(\epsilon_{\redM}\) denote
-  the advantages of \(\redR^{\advA}\) and \redM, respectively, in the game \SICA
-  against the simple computational assumption \Simple.
-  This amounts to showing that the meta-reduction \redM
-  emulates the reduction \redR successfully
-  (by simulating the adversary \advA towards \redR),
-  except with some (hopefully small) probability equal to the right hand side of \eqref{ineq:A}.
-  For this, we will have to analyze the execution of \redM and \(\redR^{A}\)
-  in the game \SICA against \Simple.
-  Let us denote the instances of the \SICA game played by \redM and \(\redR^{\advA}\)
-  by \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\), respectively.
-  To simplify the analysis, we will define \(\SICA_{\Simple}^{\redM}\)
-  and \(\SICA_{\Simple}^{\redR}\) over the same probability space.
-  More precisely, we assume that the \(\Init\) algorithm of \Simple
-  is given the same random coins in line \ref{code:simple:init} of Figure \ref{fig:simple}
-  in either instance of the \SICA game.
-  From this, it follows that the tuple \((\state_{\Simple},c)\) of state and challenge
-  output by \(\Init\) is identical in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\).
-  Now denote the challenge solutions output by \redM and \(\redR^{\advA}\)
-  in \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
-  by \(s_{\redM}\) and \(s_{\redR}\), respectively (corresponding to line \ref{code:simple:output} of Figure \ref{fig:simple})
-  (\TODO{refer to \(s\) as a challenge solution in the definition of \SICA}).
-  We claim that
-  \begin{equation}\label{ineq:owecpa:diff}
-    \abs{\epsilon_{\redM} - \epsilon_{\redR^{\advA}}} \le \prob{s_{\redM} \ne s_{\redR}}.
-  \end{equation}
-  It follows that it will be enough to bound the probability \(\prob{s_{\redM} \ne s_{\redR}}\),
-  i.e to bound the probability that \(\redR^{\advA}\) and \(\redM\)
-  output different challenge solutions.
-  We give such a bound in Lemma \ref{lemma:M}, from which the inequality \eqref{ineq:M} will follow.
-
-  Proving that the inequality \eqref{ineq:owecpa:diff} holds
-  essentially amounts to a ``difference lemma'' argument,
-  although we will need to make use of the fact that \Simple is a simple computational assumption,
-  as defined in Definition \ref{def:simple}.
-  Indeed, observe that the winning condition in the game \SICA
-  is defined by the deterministic algorithm \(\Win\) of \(\Simple\),
-  which takes as input only the state \(\state_{\Simple}\) of the game and a challenge solution \(s\)
-  (in particular, it does not depend on the queries made to the oracle \oracle
-  in the game).
-  In other words, the winning condition depends only on the state
-  \(\state_{\Simple}\) and the challenge solution \(s\).
-  Since the states of \(\SICA_{\Simple}^{\redM}\) and \(\SICA_{\Simple}^{\redR}\)
-  are equal by assumption, we find that if \(s_{\redM} = s_{\redR}\), then
-  \[
-  \SICA_{\Simple}^{\redR} \to 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \Win(\state_{\Simple},s_{\redM}) = 1 \iff \SICA_{\Simple}^{\redM} \to 1.
-  \]
-  (\TODO{change arrow notation?}).
-  By the usual difference lemma (\TODO{add this}), we get
-  \[
-    \abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}}
-    \le \prob{s_{\redM} \ne s_{\redR}},
-  \]
-  which gives
-  \begin{align}
-    \abs{\epsilon_{\redM} - \epsilon_{\redR^{A}}}
-    & = \abs*{\abs{\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)} - \abs{\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda)}} \notag\\
-    & \le \abs*{(\prob{\SICA_{\Simple}^{\redR} \to 1} - \kappa(\lambda)) - (\prob{\SICA_{\Simple}^{\redM} \to 1} - \kappa(\lambda))} \notag\\
-    & = \abs*{\prob{\SICA_{\Simple}^{\redR} \to 1} - \prob{\SICA_{\Simple}^{\redM} \to 1}} \notag\\
-    & \le \prob{s_{\redM} \ne s_{\redR}} \notag,
-  \end{align}
-  as desired.
-\end{namedproof}
-
-\begin{lemma}\label{lemma:M}
-  With the same setup as above,
-  \begin{equation}
-    \prob{s_{\redM} \ne s_{\redR}}
-    \le 1/\mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
-  \end{equation}
-\end{lemma}
-
-\begin{proof}
-  To prove the lemma,
-  we will need to argue that the executions of the meta-reduction \redM
-  and the reduction \(\redR^{\advA}\) are ``close'' enough
-  that they are likely to output the same challenge solution \(s_{\redM} = s_{\redR}\)
-  in the \SICA game against \Simple.
-  To do this, we will need to show that \redM simulates \advA
-  correctly towards \(\redR\), except with some prescribed failure probability.
-  For this analysis, we will continue to make the assumption that
-  the instance \(\SICA_{\Simple}^{\redR}\) of the \SICA game played by \(\redR^{A}\)
-  and the instance \(\SICA_{\Simple}^{\redM}\) of the \SICA game played by \redM
-  are defined over the same probability space.
-  This includes taking the randomness of the real adversary
-  \advA run by \(\redR^{\advA}\)
-  and the simulated adversary run by \redM to be the same,
-  wherever convenient.
-  With this in mind, we will see that
-  the proof essentially reduces to arguing that
-  the key \(k_{i^{*},j^{*}}'\) computed by the meta-reduction
-  \redM in Step \ref{advM:final} of its execution in \(\SICA_{\Simple}^{\redM}\)
-  equals the key \(k_{i^{*},j^{*}}\)
-  that the real adversary \advA computes in Step \ref{advA:final} of its execution,
-  when \redR runs \advA in \(\SICA_{\Simple}^{\redR}\).
-  This is where we will need to make use of Lemma \ref{lemma:equiv}.
-
-  Before we can argue about the key \(k_{i^{*},j^{*}}'\) computed by
-  \redM in Step \ref{advM:final} of its execution,
-  we will need to address the possibility that \redM aborts
-  before ever reaching this step.
-  Indeed, this can happen in Step \ref{advM:key},
-  if \redM fails to find a secret key \(\sk_{i^{*}}'\)
-  of the appropriate form among the \(\mu - 1\)
-  different secret keys \((\sk_{i^{*}}^{\ell})_{\ell \in [\mu] \setminus \{i^{*}\}}\) it has saved.
-  More precisely, this will happen if
-  none of the secret keys \(\sk_{i^{*}}^{\ell}\)
-  which were stored by \redM during the rewinding of \redR in Step \ref{advM:rewind}
-  satisfy the following check:
-  \begin{equation}\label{skcheck}
-  \Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) = k_{i^{*},j}
-  \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
-  \end{equation}
-  Let \(\eventE_{abrt}\) denote the event that \redM aborts in Step \ref{advM:key}, or more precisely
-  \begin{align}
-    \eventE_{abrt} := & \text{ \redM reaches Step \ref{advM:key}, but for all } \ell \in [\mu] \setminus \{i^{*}\}\notag\\
-    & \text{ there is } j \in [\rho] \setminus S_{i^{*}}
-    \text{ such that } \Decaps(\sk_{i^{*}}^{\ell},c_{i^{*},j}) \ne k_{i^{*},j}. \notag
-  \end{align}
-  We claim that \(\prob{\eventE_{abrt}} \le 1/\mu\).
-  % The precise argument here is rather subtle,
-  % although it is standard and follows the argument in \TODO{HLG21, which page?},
-  % which in turn borrows from the meta-reduction technique for \TODO{something signatures something?}
-  % pioneered by \cite{EC:BJLS16}.
-  In short, this is because there can be at most one choice of \(i^{*}\)
-  in Step \ref{advM:sample} that would cause \redM to enter Step \ref{advM:key} and abort.
-  Since \(i^{*}\) is picked uniformly at random from \([\mu]\)
-  in Step \ref{advM:sample} of \redM (and independently of any previous steps),
-  this gives \(\prob{\eventE_{abrt}} \le 1/\mu\).
-  To see that there can be at most one such \(i^{*}\),
-  recall that whenever \redM rewinds the reduction \redR
-  in Step \ref{advM:rewind},
-  then for each \(\ell \in [\mu]\),
-  it simulates \advA by querying \(\Corrupt(i)\) for each \(i \ne \ell\),
-  receiving secret keys \((\sk_{i}^{\ell})_{i \in [\mu] \setminus \{\ell\}}\)
-  and aborting the simulation of \advA if
-  \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
-  But for \redM to abort in Step \ref{advM:key},
-  then for each \(\ell \ne i^{*}\),
-  it must be the case that
-  \(\Decaps(\sk_{i}^{\ell},c_{i,j}) \ne k_{i,j}\) for some \(j \in [\rho] \setminus S_{i}\).
-  Hence the simulation of \advA would abort for each such \(\ell\).
-  \TODO{abort abort. Be clearer about what this means?}
-  As a consequence, for each \(\ell \ne i^{*}\), the simulation of \advA by \redM would be trivial:
-  \redM would complete its simulation of \advA already in Step \ref{advM:sample},
-  before it could ever enter Step \ref{advM:key} and trigger the event \(\eventE_{abrt}\).
-
-  Now let us consider what happens if \(\eventE_{abrt}\) does not occur.
-  In this case, we claim that, so long as the key
-  \(k_{i^{*},j^{*}}'\) computed by \redM
-  and the key \(k_{i^{*},j^{*}}\) computed by \advA are equal,
-  then \redM simulates \advA perfectly towards \redR,
-  and the challenge solution \(s_{\redR}\) output by \(\redR^{\advA}\) in \(\SICA_{\Simple}^{\redR}\)
-  will equal the challenge solution \(s_{\redM}\) output by \(\redM\)
-  in \(\SICA_{\Simple}^{\redM}\).
-  To see this, observe that the meta-reduction \redM simulates \advA
-  perfectly until Step \ref{advM:final} of \redM's execution.
-  This relies in particular on the fact that the oracle \oracle
-  in the \SICA game is ``stateless''.
-  Indeed, notice that the meta-reduction \redM is simply
-  using its own oracle \oracle in \(\SICA_{\Simple}^{\redM}\)
-  directly to simulate the corresponding oracle for \redR in \(\SICA_{\Simple}^{\redM}\).
-  Since the two instances of the \SICA game are defined over the same probability space,
-  and in particular share the same state \(\state_{\Simple}\),
-  the responses computed by the oracle \oracle
-  in either game will be the same.
-  Recalling Figure \ref{fig:simple} of Definition \ref{def:simple},
-  this is because the oracle \oracle simply computes its response to a query \(m\)
-  as \(\Respond(\state_{\Simple},m)\).
-  % Note that this holds in spite of the fact that \(\redM\)
-  % may possibly make many more (and different) queries to \oracle than \(\redR^{A}\),
-  % since \(\redM\) rewinds the reduction \redR
-  % and executes it several times.
-
-  Now, when \redM reaches Step \ref{advM:final} of its execution,
-  the only step of \advA which remains to simulate is the
-  final step (Step \ref{advA:final} of \advA), in which \advA outputs
-  a triple \((i^{*},j^{*},k_{i^{*},j^{*}})\).
-  Since we assume \(\eventE_{abrt}\) has not occurred,
-  \redM has obtained a secret key \(\sk_{i^{*}}'\)
-  satisfying the check in \eqref{skcheck},
-  and will compute a key as \(k_{i^{*},{j^{*}}}' \assign \Decaps(\sk_{i^{*}}'c_{i^{*},j^{*}})\).
-  Afterwards, \redM simply simulates \advA
-  by outputting \((i^{*},j^{*}, k_{i^{*},j^{*}}')\) to \(\redR^{\oracle}\),
-  and continues running \(\redR^{\oracle}\)
-  until termination, outputting whatever \(\redR^{\oracle}\)
-  outputs in the game \SICA.
-  Hence, if \(k_{i^{*},j^{*}}' = k_{i^{*},j^{*}}\),
-  then clearly \redM simulates \advA perfectly,
-  and we will have \(s_{\redM} = s_{\redR}\).
-  We have thus shown that
-  \[
-    \prob{s_{\redM} \ne s_{\redR}} \le \prob{\eventE_{abrt}} + \prob{\eventE_{key}},
-  \]
-  where we define the event \(\eventE_{key}\) by
-  \[
-    \eventE_{key} := \neg \eventE_{abrt} \land k_{i^{*},j^{*}}' \ne k_{i^{*},j^{*}}.
-  \]
-
-  To tackle the event \(\eventE_{key}\),
-  we will need to make use of Lemma \ref{lemma:equiv}.
-  We will also borrow the terminology of the aforementioned lemma
-  and say that two secret keys \((\sk,\sk') \in \setSK^{2}\) for the KEM \KEM
-  \emph{agree} on a ciphertext \(c\) if \(\Decaps(\sk,c) = \Decaps(\sk,c')\).
-  Likewise, using the terminology of Definition \ref{def:bad},
-  we will say that a pair of secret keys \((\sk,\sk')\) is \(\alpha\)-bad
-  for a subset \(S \subset \{c_{i,1}c_{i,2},\ldots,c_{i,\rho}\}\)
-  of the \(\rho\) encapsulations received on a given user \(i \in [\mu]\)
-  in the \OWECPA game if \(\sk\) and \(\sk'\) agree
-  on every ciphertext \(c_{i,j} \in \{c_{i,1},\ldots,c_{i,\rho}\}\)
-  outside of the set \(S\),
-  yet disagree on more than an \(\alpha\)-fraction of ciphertexts
-  \(c_{i,j} \in \{c_{i,1},\ldots,c_{i,\rho}\}\)
-  inside of the set \(S\).
-  With this terminology, we can divide \(\eventE_{key}\) into the following events:
-  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-    \item \(\eventE_{bad} := \) The event \(\eventE_{abrt}\) does not occur
-          (meaning that \redM obtains a secret key \(\sk_{i^{*}}'\) such that
-          \(\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j}\) for each \(j \in [\rho] \setminus S_{i^{*}}\)),
-          but the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\) formed by \redM's secret key
-          and the secret key \(\sk_{i^{*}}\) found by the real \advA in
-          its brute-force search (Step \ref{advA:brute} of \advA)
-          is \emph{\(\alpha\)-bad} for the subset of ciphertexts on user \(i^{*}\)
-          indexed by the set \(S_{i^{*}}\).
-    \item \(\eventE_{fail} := \) Neither \(\eventE_{abrt}\) nor \(\eventE_{bad}\) occur,
-          but \(\eventE_{key}\) still occurs.
-  \end{itemize}
-
-  With this, we now get
-  \[
-    \prob{\eventE_{key}} \le \prob{\eventE_{bad}} + \prob{\eventE_{fail}}.
-  \]
-  We claim that
-  \[
-    \prob{\eventE_{fail}} \le \alpha.
-  \]
-  To this end, observe that if \(\eventE_{fail}\) occurs,
-  then by definition \(\eventE_{abrt}\) does not, and so
-  \redM will obtain a secret key \(\sk_{i^{*}}'\) such that
-  \[
-    \Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
-  \]
-  Hence such a secret key exists, and so \advA is guaranteed to find such a secret key \(\sk_{i^{*}}\)
-  in its brute-force search as well (the two secret keys may not be the same).
-  Thus we find that
-  \[
-    \Decaps(\sk_{i^{*}},c_{i^{*},j}) = k_{i^{*},j} = \Decaps(\sk_{i^{*}}',c_{i^{*},j}) \text{ for each } j \in [\rho] \setminus S_{i^{*}}.
-  \]
-  In other words, the secret keys \((\sk_{i^{*}},\sk_{i^{*}}')\)
-  of \advA and \redM \emph{agree} on the ciphertexts on user \(i^{*}\) outside of the set indexed by \(S_{i^{*}}\).
-  But if \(\eventE_{fail}\) occurs, then we also know that \(\eventE_{bad}\) does not
-  (again, by the definition of \(\eventE_{fail}\)),
-  and so the pair \((\sk_{i^{*}},\sk_{i^{*}}')\) of secret keys cannot be
-  \(\alpha\)-bad for the subset \(S_{i^{*}}\).
-  It follows by the definition of ``badness'' that \(\sk_{i^{*}}\) and \(\sk_{i^{*}}'\)
-  can disagree on at most an \(\alpha\)-fraction of the ciphertexts inside of the set indexed by \(S_{i^{*}}\).
-  That is, we can only have
-  \(\Decaps(\sk_{i^{*}},c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}}',c_{i^{*},j})\)
-  for at most an \(\alpha\)-fraction of \(j \in S_{i^{*}}\).
-  Now, since \(j^{*}\) is picked uniformly at random from \(S_{i^{*}}\),
-  the probability that
-  \(\Decaps(\sk_{i^{*}}',c_{i^{*},j}) \ne \Decaps(\sk_{i^{*}},c_{i^{*},j})\),
-  or equivalently that \(k_{i^{*},j^{*}}' \ne k_{i^{*},j^{*}}\),
-  is thus at most \(\alpha\),
-  from which we get that \(\prob{\eventE_{fail}} \le \alpha\).
-
-  Finally, we can consider the event \(\eventE_{bad}\).
-  % As before, since \(\eventE_{abrt}\) does not occur,
-  % \redM finds a secret key
-  % \(\sk_{i^{*}}'\) in \(\Simple'\) satisfying that
-  % \(\KEM.\Decaps(\sk_{i^{*}}',c_{i^{*},j}) = k_{i^{*},j} \text{ for each } j \in [\rho] \setminus S_{i^{*}}\),
-  % and hence
-  % \advA will find such a secret key in \Simple as well, so it makes sense to speak of the pair \((\sk_{i^{*}}, \sk_{i^{*}}')\)
-  % of secret keys held by \redM and \advA.
-  From the definition of \(\eventE_{bad}\), it should be clear that
-  \begin{equation}\label{ineq:M:bad}
-    \prob*{\eventE_{bad}} \le \prob{\text{There exists a pair } (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}.
-  \end{equation}
-  Now we can apply Lemma \ref{lemma:equiv} to bound the right hand side of \eqref{ineq:M:bad}.
-  To do this, we will need to assign the sets \(\setSK, \setC, \keyspace\) referred to in the lemma,
-  and also pick the function \(f : \setSK \times \setC \to \keyspace\),
-  the set \(A \subset \setC\) of ciphertexts and the parameters \(d,\rho,t,\alpha\).
-  We will let the sets \(\setSK, \setC, \keyspace\)
-  be the same as they are here (i.e they will be the secret key space, ciphertext space and encapsulation key space of the KEM \KEM), and likewise for the parameters \(\rho, t, \alpha\).
-  We then set \(d = q(\lambda)\),
-  and let the function \(f\) be the decapsulation function \(\Decaps\) of \KEM.
-  By our definition of a KEM (\TODO{define}), the decapsulation function
-  \(\Decaps\) is a deterministic function from \(\setSK \times \setC\) to \(\keyspace\),
-  and hence it makes sense to use it in our application of Lemma \ref{lemma:equiv}.
-  Now we let \(A\) be the set of ciphertexts received on user \(i^{*}\), that is
-  \[
-    A = \{c_{i^{*},1},c_{i^{*},2},\ldots,c_{i^{*},\rho}\},
-  \]
-  and we set \(S\) to be the set of ciphertexts in \(A\) indexed by \(S_{i^{*}}\).
-  Since \(S_{i^{*}}\) was chosen uniformly at random among size \(t\) subsets of \([\rho]\),
-  the set \(S\) will be a uniformly random size \(t\) subset of \(A\).
-  With this, Corollary \ref{corollary:equiv} of Lemma \ref{lemma:equiv} gives us
-  \[
-    \prob{\exists (\sk,\sk') \text{ which is \(\alpha\)-bad for } S_{i^{*}}}
-    \le 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
-  \]
-
-  Note that, for the application of Lemma \ref{lemma:equiv} to be formally correct here,
-  we would actually need to verify that there are no duplicate ciphertexts
-  \(c_{i^{*},j} = c_{i^{*},j'}\) among the ciphertexts received on user \(i^{*}\).
-  Otherwise, the set \(A\) may not have size \(\rho\)
-  (it could then be strictly smaller than \(\rho\)),
-  and the set \(S\) could likewise be smaller than \(t\),
-  so that the lemma would not apply.
-  Now, for any secure KEM, we expect the probability of such a
-  duplicate \(c_{i^{*},j} = c_{i^{*},j'}\) to be negligible in the real \OWECPA game.
-  Nevertheless, we cannot assume that the same will hold
-  when the reduction \redR acts as the challenger,
-  as \redR could conceivably produce such duplicates regardless
-  (recall that the reduction is free to do whatever it wishes, and does not need to
-  faithfully emulate the real challenger in the \OWECPA game).
-  However, if \advA ever receives such a duplicate \(c_{i^{*},j} = c_{i^{*},j'}\),
-  then it can trivially win the \OWECPA game by revealing one of the ciphertexts and attacking the other.
-  In this case, the adversary \advA's attack becomes efficient,
-  and so we can simulate it efficiently towards \redR without issue.
-  Hence we can ignore this technical detail.
-
-  Combining the bounds for \(\prob{\eventE_{abrt}}\), \(\prob{\eventE_{bad}}\) and \(\prob{\eventE_{fail}}\), we now get
-  \[
-    \prob{s_{\redR} \ne s_{\redM}} \le 1 / \mu + \alpha
-    + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
-  \]
-  which proves the lemma.
-\end{proof}
-
-\begin{lemma}\label{lemma:A}
-  With the same setup as above, we have
-  \begin{equation}\label{ineq:A:lemma}
-    p_{\advA} \ge 1 - \alpha - \delta \mu \rho
-    - 4^{d} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t},
-  \end{equation}
-\end{lemma}
-
-\begin{proof}
-  Recall that \(p_{\advA}\) denotes the success probability of the adversary \advA
-  (as described in \TODO{ref.})
-  in the \OWECPA game against \KEM.
-  To be precise, this is the probability that \advA outputs a triple \((i^{*},j^{*},k^{*})\)
-  such that
-  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
-    \item \(k^{*}\) is the key encapsulated by \(c_{i^{*},j^{*}}\),
-          where \(c_{i^{*},j^{*}}\) denotes the \(j^{*}\)-th encapsulation received on user \(i^{*}\)'s public key in the \OWECPA game against \KEM.
-    \item The user \(i^{*}\) is not corrupted.
-    \item The encapsulation \(c_{i^{*},j^{*}}\) has not been revealed.
-  \end{itemize}
-
-  Before we consider the output of \advA, let us bound
-  the probability that \advA aborts early.
-  This can happen in two ways:
-  \begin{enumerate}
-    \item\label{advA:abort1} One of the secret keys \(\sk_{i}\) received by \advA
-          via a \(\Corrupt(i)\) query does not satisfy that \(\Decaps(\sk_{i}, c_{i,j}) = k_{i,j}\)
-          for every \(j \in [\rho] \setminus S_{i}\).
-    \item\label{advA:abort2} During \advA's brute-force search, \advA fails to find a candidate secret key \(\sk_{i^{*}}\)
-          such that \(\Decaps(\sk_{i^{*}}, c_{i^{*},j}) = k_{i^{*},j}\) for every \(j \in [\rho] \setminus S_{i^{*}}\).
-  \end{enumerate}
-  Since we are in the real \OWECPA game against \KEM
-  with an honest \OWECPA challenger,
-  all of the secret keys \(\sk_{i}\) used by the challenger
-  were validly generated, and the same holds for the encapsulations \(c_{i,j}\).
-  Thus, by \((1 - \delta)\)-correctness,
-  we will have \(\Decaps(\sk_{i},c_{i,j}) = k_{i,j}\) for every \(i \in [\mu]\) and \(j \in \rho\)
-  except with probability \(\delta \mu \rho\),
-  where \(k_{i,j}\) denotes the key that was generated along with \(c_{i,j}\) by the challenger in the \OWECPA game.
-  In this case, clearly point \ref{advA:abort1} cannot occur.
-  Likewise, point \ref{advA:abort2} will not occur,
-  since the secret key \(\sk_{i^{*}}\) held by the challenger for user \(i^{*}\)
-  satisfies that \(\Decaps(\sk_{i^{*}}, c_{i,j}) = k_{i,j} \text{ for every } j \in [\rho] \setminus S_{i^{*}}\).
-  Because of this, a secret key \(\sk_{i^{*}}\) of the desired form exists,
-  and \advA's brute-force search will not fail.
-  Thus, the probability that \advA aborts before outputting anything is at most \(\delta \mu \rho\).
-
-  Now, if neither point \ref{advA:abort1} nor point \ref{advA:abort2} occur,
-  then \advA wins so long as the key
-  \[
-  k_{i^{*},j^{*}}' \assign \Decaps(\sk_{i^{*},j^{*}}, c_{i^{*},j^{*}})
-  \]
-  computed by \advA equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the game.
-  Indeed, notice that the encapsulation \(c_{i^{*},j^{*}}\) is unrevealed
-  and the user \(i^{*}\) is uncorrupted in the \OWECPA game,
-  by the construction of the adversary \advA.
-  Applying Lemma \ref{lemma:equiv}
-  and reasoning similarly to Lemma \ref{lemma:M},
-  we find that the pair of secret keys for user \(i^{*}\) held by \advA
-  and the challenger in the \(\OWECPA\) game is
-  \(\alpha\)-bad for the subset \(S_{i^{*}}\) with probability at most
-  \(
-    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
-  \)
-  Thus the two secret keys will produce identical decapsulations of \(c_{i^{*},j^{*}}\), except with probability
-  \(
-    \alpha +
-    4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
-  \)
-  Disregarding correctness errors among the \(\mu \rho\) encapsulations,
-  (which we have already dealt with in our discussion of points 1 and 2),
-  we find that the decapsulation of \(c_{i^{*},j^{*}}\)
-  under the challenger's secret key for user \(i^{*}\)
-  equals the true key encapsulated by \(c_{i^{*},j^{*}}\) in the \(\OWECPA\) game.
-  Hence in this case, \advA wins except with probability
-  \(
-  \alpha
-  + 4^{q(\lambda)} \cdot \left( \frac{t}{\rho - \alpha t} \right)^{\alpha t}.
-  \)
-  Summing the failure probabilities, we now get \eqref{ineq:A:lemma}.
-\end{proof}
 
 
 %%% Local Variables:
