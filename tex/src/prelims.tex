@@ -96,7 +96,7 @@ is said to be a reduction \emph{from \(P_{2}\) to \(P_{1}\)}
 In our context, we will emphasize the opposite direction.
 When we say that a reduction is \emph{from \(P_{1}\) to \(P_{2}\)},
 we mean that it turns an algorithm for \(P_{1}\) into an algorithm for \(P_{2}\).
-We note that this is also the opposite direction of the hardness (or security) implication
+We note that this is also the opposite (or contrapositive) direction of the hardness (or security) implication
 \(P_{2} \text{ hard (secure)} \implies P_{1} \text{ hard (secure)}\)
 implied by the reduction.
 Equivalently,
@@ -137,7 +137,7 @@ we will only be able to rule out tight security
 from a specific class of computational assumptions.
 That is, we will only be able to show that
 a tight reduction for basing the security of a game \(G\)
-on the computational assumption \(A\),
+on the computational assumption \(A\) is impossible,
 if the assumption \(A\) is sufficiently restricted.
 This is in some sense an inherent limitation,
 as we could not rule out a tight reduction
@@ -169,14 +169,15 @@ Nevertheless \TODO{cite} are able to apply a similar meta-reduction strategy
 to the one pioneered in \TODO{cite} to prove their impossibility result.
 They observe that their proof carries over to many other
 interactive games, so long as the ``winning condition''
-in the game is independent of the sequence of oracle queries made by the adversary.
+in the game is independent of the sequence of interactive oracle queries made by the adversary.
 
 We expand upon the observation of \TODO{cite}
 by noting that their proof relies on a second, crucial property of the Strong Diffie-Hellman problem:
 namely that the Strong Diffie-Hellman oracle computes its
 responses to the adversary's queries
 independently of any of the adversary's previous oracle queries.
-In other words, the Strong Diffie-Hellman oracle is in a sense ``stateless''.
+In other words, the Strong Diffie-Hellman oracle is in a sense ``stateless''
+(with respect to the adversary's queries).
 Briefly summarized,
 this property is needed to ensure that
 the meta-reduction of \TODO{cite}
@@ -185,6 +186,8 @@ towards the reduction, in spite of the fact
 that the meta-reduction rewinds the reduction
 and hence may have a different history of oracle queries
 than the reduction itself.
+This will become clearer in the proof of Theorem \ref{thm:etpa},
+where we will make explicit use of this property.
 
 We will call the class of computational assumptions
 that satisfy the above-mentioned criteria
@@ -198,16 +201,32 @@ that satisfy the above-mentioned criteria
   where \(\kappa : \N \to \R\) is a function,
   \(\Init\) is a probabilistic algorithm
   and \(\Respond\) and \(\Win\) are deterministic algorithms.
+  The algorithms are defined as follows:
+  \begin{itemize}[label={\textbullet},itemsep=0.1cm]
+    \item \(\Init(1^{\lambda}) \to (\state_{\Simple},c)\):
+          The probabilistic initiation algorithm
+          takes as input the security parameter and outputs a state \(\state_{\Simple}\)
+          along with a \emph{challenge} \(c\).
+    \item \(\Respond(\state_{\Simple},m) \to m'\):
+          The deterministic response algorithm
+          takes as input a state \(\state_{\Simple}\)
+          and a message \(m\), and outputs a response \(m'\).
+    \item \(\Win(\state_{\Simple},s) \to b'\):
+          The deterministic algorithm \(\Win\)
+          takes as input a state \(\state_{\Simple}\)
+          and a \emph{challenge solution} \(s\),
+          and outputs a bit \(b'\).
+  \end{itemize}
+
   For a given simple computational assumption \(\Simple = (\Init,\Respond,\Win,\kappa)\)
-  and an algorithm \advA, we define an experiment \(\SICA_{\Simple}^{\advA}\)
+  and an algorithm \advA, we define a game \(\SICA_{\Simple}^{\advA}\)
   according to Figure \ref{fig:simple}.
 
-  \TODO{Explain in more detail what the different algorithms actually do.}
-
-  The advantage of \advA{} against \Simple is given by
+  The \emph{advantage of \advA{} against \Simple} is given by
   \begin{equation}\label{eq:simple}
     \abs[\big]{\prob{\SICA_{\Simple}^{\advA}(\lambda) \to 1} - \kappa(\lambda)}.
   \end{equation}
+
   Moreover, if it holds that for all probabilistic polynomial time adversaries \(\advA\),
   the advantage of \(\advA\) is negligible in \(\lambda\),
   then we say that the simple computational assumption is \emph{hard}.
@@ -226,6 +245,19 @@ that satisfy the above-mentioned criteria
     }
   \end{pchstack}\caption{}\label{fig:simple}
 \end{figure}
+
+In the \SICA game, the algorithm \Init of \Simple
+generates a challenge \(c\) which is passed to \advA,
+along with an internal state variable \(\state_{\Simple}\)
+which the challenger keeps to itself.
+The algorithm \Respond of \Simple
+is used to compute responses
+to \advA's queries throughout the game.
+After \advA has output a challenge solution \(s\),
+the algorithm \Win of \Simple
+is used to determine whether \advA has won the \SICA game:
+we say that \advA wins if it computes a challenge solution \(s\)
+such that \(\Win(\state_{\Simple},s) = 1\).
 
 \begin{remark}
   We note that none of the algorithms \((\Init,\Respond,\Win)\)
